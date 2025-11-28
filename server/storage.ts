@@ -5,6 +5,8 @@ import {
   availability,
   blockedTimes,
   bookings,
+  customers,
+  customerTokens,
   type User,
   type UpsertUser,
   type Business,
@@ -17,9 +19,13 @@ import {
   type InsertBlockedTime,
   type Booking,
   type InsertBooking,
+  type Customer,
+  type InsertCustomer,
+  type CustomerToken,
+  type InsertCustomerToken,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, lte, desc } from "drizzle-orm";
+import { eq, and, gte, lte, desc, isNull } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (required for Replit Auth)
@@ -29,6 +35,7 @@ export interface IStorage {
   // Business operations
   getBusinessByOwnerId(ownerId: string): Promise<Business | undefined>;
   getBusinessBySlug(slug: string): Promise<Business | undefined>;
+  getBusinessById(id: string): Promise<Business | undefined>;
   createBusiness(business: InsertBusiness): Promise<Business>;
   updateBusiness(id: string, business: Partial<InsertBusiness>): Promise<Business | undefined>;
 
@@ -58,6 +65,20 @@ export interface IStorage {
   ): Promise<Booking[]>;
   createBooking(booking: InsertBooking): Promise<Booking>;
   updateBooking(id: string, booking: Partial<InsertBooking>): Promise<Booking | undefined>;
+
+  // Customer operations
+  getCustomerByEmail(email: string): Promise<Customer | undefined>;
+  getCustomerById(id: string): Promise<Customer | undefined>;
+  createCustomer(customer: InsertCustomer): Promise<Customer>;
+  updateCustomer(id: string, customer: Partial<InsertCustomer>): Promise<Customer | undefined>;
+  getCustomerBookings(customerId: string): Promise<Booking[]>;
+  getCustomerBookingsByEmail(email: string): Promise<Booking[]>;
+
+  // Customer token operations
+  createCustomerToken(token: InsertCustomerToken): Promise<CustomerToken>;
+  getValidToken(token: string): Promise<CustomerToken | undefined>;
+  markTokenAsUsed(tokenId: string): Promise<void>;
+  deleteExpiredTokens(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -96,6 +117,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(businesses)
       .where(eq(businesses.slug, slug));
+    return business;
+  }
+
+  async getBusinessById(id: string): Promise<Business | undefined> {
+    const [business] = await db
+      .select()
+      .from(businesses)
+      .where(eq(businesses.id, id));
     return business;
   }
 
@@ -251,6 +280,99 @@ export class DatabaseStorage implements IStorage {
       .where(eq(bookings.id, id))
       .returning();
     return updated;
+  }
+
+  // Customer operations
+  async getCustomerByEmail(email: string): Promise<Customer | undefined> {
+    const [customer] = await db
+      .select()
+      .from(customers)
+      .where(eq(customers.email, email.toLowerCase()));
+    return customer;
+  }
+
+  async getCustomerById(id: string): Promise<Customer | undefined> {
+    const [customer] = await db
+      .select()
+      .from(customers)
+      .where(eq(customers.id, id));
+    return customer;
+  }
+
+  async createCustomer(customer: InsertCustomer): Promise<Customer> {
+    const [created] = await db
+      .insert(customers)
+      .values({ ...customer, email: customer.email.toLowerCase() })
+      .returning();
+    return created;
+  }
+
+  async updateCustomer(
+    id: string,
+    customer: Partial<InsertCustomer>
+  ): Promise<Customer | undefined> {
+    const updateData = { ...customer, updatedAt: new Date() };
+    if (customer.email) {
+      updateData.email = customer.email.toLowerCase();
+    }
+    const [updated] = await db
+      .update(customers)
+      .set(updateData)
+      .where(eq(customers.id, id))
+      .returning();
+    return updated;
+  }
+
+  async getCustomerBookings(customerId: string): Promise<Booking[]> {
+    return await db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.customerId, customerId))
+      .orderBy(desc(bookings.bookingDate));
+  }
+
+  async getCustomerBookingsByEmail(email: string): Promise<Booking[]> {
+    return await db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.customerEmail, email.toLowerCase()))
+      .orderBy(desc(bookings.bookingDate));
+  }
+
+  // Customer token operations
+  async createCustomerToken(token: InsertCustomerToken): Promise<CustomerToken> {
+    const [created] = await db
+      .insert(customerTokens)
+      .values(token)
+      .returning();
+    return created;
+  }
+
+  async getValidToken(token: string): Promise<CustomerToken | undefined> {
+    const [tokenRecord] = await db
+      .select()
+      .from(customerTokens)
+      .where(
+        and(
+          eq(customerTokens.token, token),
+          gte(customerTokens.expiresAt, new Date()),
+          isNull(customerTokens.usedAt)
+        )
+      );
+    return tokenRecord;
+  }
+
+  async markTokenAsUsed(tokenId: string): Promise<void> {
+    await db
+      .update(customerTokens)
+      .set({ usedAt: new Date() })
+      .where(eq(customerTokens.id, tokenId));
+  }
+
+  async deleteExpiredTokens(): Promise<void> {
+    await db
+      .delete(customerTokens)
+      .where(lte(customerTokens.expiresAt, new Date()));
   }
 }
 

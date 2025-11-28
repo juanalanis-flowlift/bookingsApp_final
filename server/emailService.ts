@@ -382,3 +382,107 @@ export async function sendBookingEmails(
 
   return { customerSent, businessSent };
 }
+
+interface MagicLinkData {
+  email: string;
+  token: string;
+  baseUrl: string;
+}
+
+function generateMagicLinkHtml(data: MagicLinkData): string {
+  const magicLinkUrl = `${data.baseUrl}/my-bookings?token=${data.token}`;
+  
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in to FlowLift</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <div style="text-align: center; margin-bottom: 32px;">
+        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #18181b;">Sign in to FlowLift</h1>
+        <p style="margin: 8px 0 0; color: #71717a; font-size: 16px;">Click the button below to access your bookings</p>
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 32px;">
+        <a href="${magicLinkUrl}" style="display: inline-block; background: #18181b; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 16px;">
+          View My Bookings
+        </a>
+      </div>
+      
+      <div style="background: #f4f4f5; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+        <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">
+          <strong>Note:</strong> This link will expire in 1 hour. If you didn't request this email, you can safely ignore it.
+        </p>
+      </div>
+      
+      <div style="border-top: 1px solid #e4e4e7; padding-top: 24px; text-align: center;">
+        <p style="margin: 0; color: #71717a; font-size: 12px;">
+          If the button doesn't work, copy and paste this link into your browser:<br>
+          <a href="${magicLinkUrl}" style="color: #3b82f6; word-break: break-all;">${escapeHtml(magicLinkUrl)}</a>
+        </p>
+      </div>
+    </div>
+    
+    <div style="text-align: center; padding: 24px;">
+      <p style="margin: 0; color: #a1a1aa; font-size: 12px;">
+        Powered by FlowLift
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+}
+
+function generateMagicLinkText(data: MagicLinkData): string {
+  const magicLinkUrl = `${data.baseUrl}/my-bookings?token=${data.token}`;
+  
+  return `
+SIGN IN TO FLOWLIFT
+
+Click the link below to access your bookings:
+
+${magicLinkUrl}
+
+This link will expire in 1 hour. If you didn't request this email, you can safely ignore it.
+
+---
+Powered by FlowLift
+  `.trim();
+}
+
+export async function sendMagicLinkEmail(data: MagicLinkData): Promise<boolean> {
+  const config = getEmailConfig();
+  const transport = getTransporter();
+
+  const emailContent = {
+    from: config?.from || "noreply@flowlift.app",
+    to: data.email,
+    subject: "Sign in to FlowLift - View Your Bookings",
+    text: generateMagicLinkText(data),
+    html: generateMagicLinkHtml(data),
+  };
+
+  if (!transport) {
+    console.log("=== EMAIL (Magic Link) ===");
+    console.log("To:", emailContent.to);
+    console.log("Subject:", emailContent.subject);
+    console.log("Link:", `${data.baseUrl}/my-bookings?token=${data.token}`);
+    console.log("==========================");
+    return true;
+  }
+
+  try {
+    await transport.sendMail(emailContent);
+    console.log(`Magic link email sent to: ${data.email}`);
+    return true;
+  } catch (error) {
+    console.error("Failed to send magic link email:", error);
+    return false;
+  }
+}

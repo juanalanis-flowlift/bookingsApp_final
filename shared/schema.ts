@@ -104,6 +104,26 @@ export const blockedTimes = pgTable("blocked_times", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Customers table - for customer accounts
+export const customers = pgTable("customers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Customer magic link tokens for passwordless auth
+export const customerTokens = pgTable("customer_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  customerId: varchar("customer_id").notNull().references(() => customers.id, { onDelete: "cascade" }),
+  token: varchar("token", { length: 255 }).notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Booking status enum
 export const bookingStatuses = ["pending", "confirmed", "cancelled"] as const;
 
@@ -112,6 +132,7 @@ export const bookings = pgTable("bookings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   businessId: varchar("business_id").notNull().references(() => businesses.id, { onDelete: "cascade" }),
   serviceId: varchar("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
+  customerId: varchar("customer_id").references(() => customers.id, { onDelete: "set null" }),
   customerName: varchar("customer_name", { length: 255 }).notNull(),
   customerEmail: varchar("customer_email", { length: 255 }).notNull(),
   customerPhone: varchar("customer_phone", { length: 50 }),
@@ -172,6 +193,22 @@ export const bookingsRelations = relations(bookings, ({ one }) => ({
     fields: [bookings.serviceId],
     references: [services.id],
   }),
+  customer: one(customers, {
+    fields: [bookings.customerId],
+    references: [customers.id],
+  }),
+}));
+
+export const customersRelations = relations(customers, ({ many }) => ({
+  bookings: many(bookings),
+  tokens: many(customerTokens),
+}));
+
+export const customerTokensRelations = relations(customerTokens, ({ one }) => ({
+  customer: one(customers, {
+    fields: [customerTokens.customerId],
+    references: [customers.id],
+  }),
 }));
 
 // Zod schemas for validation
@@ -207,6 +244,17 @@ export const insertBookingSchema = createInsertSchema(bookings).omit({
   updatedAt: true,
 });
 
+export const insertCustomerSchema = createInsertSchema(customers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCustomerTokenSchema = createInsertSchema(customerTokens).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -225,6 +273,12 @@ export type BlockedTime = typeof blockedTimes.$inferSelect;
 
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
 export type Booking = typeof bookings.$inferSelect;
+
+export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
+export type Customer = typeof customers.$inferSelect;
+
+export type InsertCustomerToken = z.infer<typeof insertCustomerTokenSchema>;
+export type CustomerToken = typeof customerTokens.$inferSelect;
 
 export type BookingStatus = typeof bookingStatuses[number];
 export type BusinessCategory = typeof businessCategories[number];

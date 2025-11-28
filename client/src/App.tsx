@@ -16,6 +16,7 @@ import Bookings from "@/pages/bookings";
 import Availability from "@/pages/availability";
 import Settings from "@/pages/settings";
 import BookingPage from "@/pages/booking";
+import MyBookings from "@/pages/my-bookings";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -47,6 +48,9 @@ function Router() {
     <Switch>
       {/* Public booking page - always accessible */}
       <Route path="/book/:slug" component={BookingPage} />
+      
+      {/* Customer bookings page - always accessible */}
+      <Route path="/my-bookings" component={MyBookings} />
 
       {/* Landing page for non-authenticated users */}
       {isLoading || !isAuthenticated ? (

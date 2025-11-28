@@ -310,24 +310,32 @@ export default function BookingPage() {
               </Card>
 
               <p className="text-sm text-muted-foreground">
-                A confirmation has been noted. You may receive an email confirmation
-                once the business confirms your appointment.
+                A confirmation email has been sent to your email address.
+                You can manage all your bookings from your account.
               </p>
 
-              <Button
-                onClick={() => {
-                  setStep("services");
-                  setSelectedService(null);
-                  setSelectedDate(undefined);
-                  setSelectedTime(null);
-                  setConfirmedBooking(null);
-                  form.reset();
-                }}
-                variant="outline"
-                data-testid="button-book-another"
-              >
-                Book Another Appointment
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  onClick={() => {
+                    setStep("services");
+                    setSelectedService(null);
+                    setSelectedDate(undefined);
+                    setSelectedTime(null);
+                    setConfirmedBooking(null);
+                    form.reset();
+                  }}
+                  variant="outline"
+                  data-testid="button-book-another"
+                >
+                  Book Another Appointment
+                </Button>
+                <Button
+                  onClick={() => window.location.href = "/my-bookings"}
+                  data-testid="button-view-my-bookings"
+                >
+                  View My Bookings
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>

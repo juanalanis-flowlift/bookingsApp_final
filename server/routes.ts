@@ -1,13 +1,14 @@
 import type { Express } from "express";
 import type { Server } from "http";
+import { randomBytes } from "crypto";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertBusinessSchema, insertServiceSchema, insertBookingSchema } from "@shared/schema";
 import { z } from "zod";
-import { startOfDay, endOfDay } from "date-fns";
+import { startOfDay, endOfDay, addHours } from "date-fns";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-import { sendBookingEmails } from "./emailService";
+import { sendBookingEmails, sendMagicLinkEmail } from "./emailService";
 
 export async function registerRoutes(server: Server, app: Express): Promise<void> {
   // Auth middleware
@@ -592,6 +593,279 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     } catch (error) {
       console.error("Error setting business logo:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ============================================
+  // Customer Authentication Routes (Magic Link)
+  // ============================================
+  
+  // Request magic link to view bookings
+  app.post("/api/customer/request-access", async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email || typeof email !== "string") {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      const normalizedEmail = email.toLowerCase().trim();
+      
+      // Check if customer exists, create if not
+      let customer = await storage.getCustomerByEmail(normalizedEmail);
+      if (!customer) {
+        // Check if there are any bookings for this email
+        const bookings = await storage.getCustomerBookingsByEmail(normalizedEmail);
+        if (bookings.length === 0) {
+          return res.status(404).json({ message: "No bookings found for this email" });
+        }
+        // Create customer account
+        customer = await storage.createCustomer({ email: normalizedEmail });
+      }
+
+      // Generate secure token
+      const token = randomBytes(32).toString("hex");
+      const expiresAt = addHours(new Date(), 1);
+
+      // Create token record
+      await storage.createCustomerToken({
+        customerId: customer.id,
+        token,
+        expiresAt,
+      });
+
+      // Get base URL from request
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol;
+      const host = req.headers["x-forwarded-host"] || req.headers.host;
+      const baseUrl = `${protocol}://${host}`;
+
+      // Send magic link email
+      await sendMagicLinkEmail({
+        email: normalizedEmail,
+        token,
+        baseUrl,
+      });
+
+      res.json({ message: "Access link sent to your email" });
+    } catch (error) {
+      console.error("Error requesting customer access:", error);
+      res.status(500).json({ message: "Failed to send access link" });
+    }
+  });
+
+  // Verify magic link token
+  app.post("/api/customer/verify-token", async (req, res) => {
+    try {
+      const { token } = req.body;
+
+      if (!token || typeof token !== "string") {
+        return res.status(400).json({ message: "Token is required" });
+      }
+
+      const tokenRecord = await storage.getValidToken(token);
+      if (!tokenRecord) {
+        return res.status(401).json({ message: "Invalid or expired token" });
+      }
+
+      // Mark token as used
+      await storage.markTokenAsUsed(tokenRecord.id);
+
+      // Get customer
+      const customer = await storage.getCustomerById(tokenRecord.customerId);
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+
+      // Generate a session token (simple approach for demo)
+      const sessionToken = randomBytes(32).toString("hex");
+      const sessionExpiresAt = addHours(new Date(), 24);
+
+      // Create new session token
+      await storage.createCustomerToken({
+        customerId: customer.id,
+        token: sessionToken,
+        expiresAt: sessionExpiresAt,
+      });
+
+      res.json({ 
+        customer,
+        sessionToken,
+        expiresAt: sessionExpiresAt,
+      });
+    } catch (error) {
+      console.error("Error verifying token:", error);
+      res.status(500).json({ message: "Failed to verify token" });
+    }
+  });
+
+  // Get customer session from token
+  app.get("/api/customer/session", async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      const token = authHeader.substring(7);
+      if (!token || token.length < 32) {
+        return res.status(401).json({ message: "Invalid token format" });
+      }
+
+      const tokenRecord = await storage.getValidToken(token);
+      if (!tokenRecord) {
+        return res.status(401).json({ message: "Invalid or expired session" });
+      }
+
+      // Double-check expiration
+      if (new Date(tokenRecord.expiresAt) < new Date()) {
+        return res.status(401).json({ message: "Session expired" });
+      }
+
+      const customer = await storage.getCustomerById(tokenRecord.customerId);
+      if (!customer) {
+        return res.status(404).json({ message: "Customer not found" });
+      }
+
+      res.json({ customer });
+    } catch (error) {
+      console.error("Error getting customer session:", error);
+      res.status(500).json({ message: "Failed to get session" });
+    }
+  });
+
+  // Helper function to validate customer token
+  async function validateCustomerToken(authHeader: string | undefined) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return { error: "Unauthorized", status: 401 };
+    }
+
+    const token = authHeader.substring(7);
+    if (!token || token.length < 32) {
+      return { error: "Invalid token format", status: 401 };
+    }
+
+    const tokenRecord = await storage.getValidToken(token);
+    if (!tokenRecord) {
+      return { error: "Invalid or expired session", status: 401 };
+    }
+
+    // Double-check expiration
+    if (new Date(tokenRecord.expiresAt) < new Date()) {
+      return { error: "Session expired", status: 401 };
+    }
+
+    const customer = await storage.getCustomerById(tokenRecord.customerId);
+    if (!customer) {
+      return { error: "Customer not found", status: 404 };
+    }
+
+    return { customer };
+  }
+
+  // Get customer bookings
+  app.get("/api/customer/bookings", async (req, res) => {
+    try {
+      const authResult = await validateCustomerToken(req.headers.authorization);
+      if ("error" in authResult) {
+        return res.status(authResult.status).json({ message: authResult.error });
+      }
+
+      const { customer } = authResult;
+
+      // Get all bookings for this customer's email only - scoped by email
+      const customerBookings = await storage.getCustomerBookingsByEmail(customer.email);
+
+      // Enrich bookings with service and business info
+      const enrichedBookings = await Promise.all(
+        customerBookings.map(async (booking) => {
+          const service = await storage.getServiceById(booking.serviceId);
+          const business = await storage.getBusinessById(booking.businessId);
+
+          return {
+            ...booking,
+            service: service ? {
+              id: service.id,
+              name: service.name,
+              duration: service.duration,
+              price: service.price,
+            } : null,
+            business: business ? {
+              id: business.id,
+              name: business.name,
+              slug: business.slug,
+              phone: business.phone,
+              email: business.email,
+            } : null,
+          };
+        })
+      );
+
+      res.json(enrichedBookings);
+    } catch (error) {
+      console.error("Error fetching customer bookings:", error);
+      res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
+  // Cancel a booking (customer)
+  app.post("/api/customer/bookings/:id/cancel", async (req, res) => {
+    try {
+      const authResult = await validateCustomerToken(req.headers.authorization);
+      if ("error" in authResult) {
+        return res.status(authResult.status).json({ message: authResult.error });
+      }
+
+      const { customer } = authResult;
+
+      const booking = await storage.getBookingById(req.params.id);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      // Verify the booking belongs to this customer by email (case-insensitive)
+      if (booking.customerEmail.toLowerCase() !== customer.email.toLowerCase()) {
+        console.warn(`Unauthorized cancel attempt: customer ${customer.email} tried to cancel booking ${req.params.id} belonging to ${booking.customerEmail}`);
+        return res.status(403).json({ message: "Not authorized to cancel this booking" });
+      }
+
+      // Check if booking is already cancelled
+      if (booking.status === "cancelled") {
+        return res.status(400).json({ message: "Booking is already cancelled" });
+      }
+
+      // Check if booking is in the future (allow cancellation only for future bookings)
+      const bookingDate = new Date(booking.bookingDate);
+      const now = new Date();
+      if (bookingDate < now) {
+        return res.status(400).json({ message: "Cannot cancel past bookings" });
+      }
+
+      // Update booking status
+      const updated = await storage.updateBooking(req.params.id, { status: "cancelled" });
+      
+      console.log(`Booking ${req.params.id} cancelled by customer ${customer.email}`);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      res.status(500).json({ message: "Failed to cancel booking" });
+    }
+  });
+
+  // Customer logout
+  app.post("/api/customer/logout", async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        const token = authHeader.substring(7);
+        const tokenRecord = await storage.getValidToken(token);
+        if (tokenRecord) {
+          await storage.markTokenAsUsed(tokenRecord.id);
+        }
+      }
+      res.json({ message: "Logged out successfully" });
+    } catch (error) {
+      console.error("Error during logout:", error);
+      res.status(500).json({ message: "Failed to logout" });
     }
   });
 }
