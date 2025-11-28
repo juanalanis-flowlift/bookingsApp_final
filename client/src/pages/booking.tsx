@@ -284,7 +284,16 @@ export default function BookingPage() {
                   <div className="flex items-center gap-3">
                     <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                     <span>
-                      {format(new Date(confirmedBooking.bookingDate), "EEEE, MMMM d, yyyy")}
+                      {(() => {
+                        try {
+                          const date = new Date(confirmedBooking.bookingDate);
+                          return isNaN(date.getTime()) 
+                            ? String(confirmedBooking.bookingDate).split('T')[0]
+                            : format(date, "EEEE, MMMM d, yyyy");
+                        } catch {
+                          return String(confirmedBooking.bookingDate).split('T')[0];
+                        }
+                      })()}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">

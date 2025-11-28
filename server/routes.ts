@@ -7,6 +7,7 @@ import { z } from "zod";
 import { startOfDay, endOfDay } from "date-fns";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
+import { sendBookingEmails } from "./emailService";
 
 export async function registerRoutes(server: Server, app: Express): Promise<void> {
   // Auth middleware
@@ -459,6 +460,19 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
         startTime: req.body.startTime,
         endTime: req.body.endTime,
         status: "pending",
+      });
+
+      // Send confirmation emails (don't block response)
+      sendBookingEmails({
+        booking: {
+          ...booking,
+          date: bookingDate,
+          notes: req.body.customerNotes || null,
+        },
+        service,
+        business,
+      }).catch((err) => {
+        console.error("Failed to send booking emails:", err);
       });
 
       res.json(booking);
