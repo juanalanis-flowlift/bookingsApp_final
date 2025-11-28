@@ -1,0 +1,474 @@
+import { useState, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { queryClient, apiRequest } from "@/lib/queryClient";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Building2, MapPin, Phone, Mail, Tag, ExternalLink, Copy, Check } from "lucide-react";
+import type { Business } from "@shared/schema";
+import { businessCategories } from "@shared/schema";
+import { isUnauthorizedError } from "@/lib/authUtils";
+
+const businessFormSchema = z.object({
+  name: z.string().min(1, "Business name is required"),
+  slug: z
+    .string()
+    .min(3, "URL must be at least 3 characters")
+    .regex(/^[a-z0-9-]+$/, "Only lowercase letters, numbers, and hyphens"),
+  description: z.string().optional(),
+  category: z.string().min(1, "Category is required"),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  country: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().email("Invalid email").optional().or(z.literal("")),
+});
+
+type BusinessFormValues = z.infer<typeof businessFormSchema>;
+
+const CATEGORY_LABELS: Record<string, string> = {
+  barber: "Barber Shop",
+  hairdresser: "Hair Salon",
+  beauty_salon: "Beauty Salon",
+  spa: "Spa & Wellness",
+  massage: "Massage Therapy",
+  nail_salon: "Nail Salon",
+  inflatable_rentals: "Inflatable Rentals",
+  party_services: "Party Services",
+  photography: "Photography",
+  fitness: "Fitness & Training",
+  consulting: "Consulting",
+  other: "Other Services",
+};
+
+export default function Settings() {
+  const { toast } = useToast();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/api/login";
+      }, 500);
+    }
+  }, [isAuthenticated, authLoading, toast]);
+
+  const { data: business, isLoading } = useQuery<Business>({
+    queryKey: ["/api/business"],
+  });
+
+  const form = useForm<BusinessFormValues>({
+    resolver: zodResolver(businessFormSchema),
+    defaultValues: {
+      name: "",
+      slug: "",
+      description: "",
+      category: "",
+      address: "",
+      city: "",
+      country: "",
+      phone: "",
+      email: "",
+    },
+  });
+
+  useEffect(() => {
+    if (business) {
+      form.reset({
+        name: business.name,
+        slug: business.slug,
+        description: business.description || "",
+        category: business.category,
+        address: business.address || "",
+        city: business.city || "",
+        country: business.country || "",
+        phone: business.phone || "",
+        email: business.email || "",
+      });
+    }
+  }, [business, form]);
+
+  const saveMutation = useMutation({
+    mutationFn: async (data: BusinessFormValues) => {
+      if (business) {
+        return await apiRequest("PATCH", "/api/business", data);
+      } else {
+        return await apiRequest("POST", "/api/business", data);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/business"] });
+      toast({ title: "Business profile saved" });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({ title: "Failed to save business profile", variant: "destructive" });
+    },
+  });
+
+  const onSubmit = (data: BusinessFormValues) => {
+    saveMutation.mutate(data);
+  };
+
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  };
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
+    form.setValue("name", name);
+    if (!business && !form.getValues("slug")) {
+      form.setValue("slug", generateSlug(name));
+    }
+  };
+
+  const copyBookingUrl = () => {
+    const url = `${window.location.origin}/book/${form.getValues("slug")}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast({ title: "Booking URL copied!" });
+  };
+
+  if (isLoading || authLoading) {
+    return (
+      <div className="p-6 space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-96" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 space-y-6 max-w-3xl">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-settings-title">
+          Business Settings
+        </h1>
+        <p className="text-muted-foreground">
+          Manage your business profile and public booking page
+        </p>
+      </div>
+
+      {/* Profile Card */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16">
+              <AvatarImage src={business?.logoUrl || undefined} className="object-cover" />
+              <AvatarFallback className="text-xl">
+                {business?.name?.charAt(0) || user?.firstName?.charAt(0) || "B"}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <CardTitle>{business?.name || "Your Business"}</CardTitle>
+              <CardDescription>
+                {business
+                  ? CATEGORY_LABELS[business.category] || business.category
+                  : "Set up your business profile"}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
+      {/* Business Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="h-5 w-5" />
+            Business Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Business Name *</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          onChange={handleNameChange}
+                          placeholder="Your Business Name"
+                          data-testid="input-business-name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category *</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger data-testid="select-category">
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {businessCategories.map((cat) => (
+                            <SelectItem key={cat} value={cat}>
+                              {CATEGORY_LABELS[cat] || cat}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Booking Page URL *</FormLabel>
+                    <div className="flex gap-2">
+                      <div className="flex-1 flex items-center">
+                        <span className="text-sm text-muted-foreground bg-muted px-3 py-2 rounded-l-md border border-r-0">
+                          {window.location.origin}/book/
+                        </span>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            className="rounded-l-none"
+                            placeholder="your-business"
+                            data-testid="input-slug"
+                          />
+                        </FormControl>
+                      </div>
+                      {business && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={copyBookingUrl}
+                          data-testid="button-copy-url"
+                        >
+                          {copied ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                    <FormDescription>
+                      This is the URL where customers will book your services
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="Tell customers about your business..."
+                        className="resize-none min-h-[100px]"
+                        data-testid="input-description"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Location
+                </h3>
+                <div className="grid gap-4 md:grid-cols-3">
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-3">
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="123 Main Street"
+                            data-testid="input-address"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="New York"
+                            data-testid="input-city"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="United States"
+                            data-testid="input-country"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Phone className="h-5 w-5" />
+                  Contact
+                </h3>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="tel"
+                            placeholder="+1 (555) 123-4567"
+                            data-testid="input-phone"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="email"
+                            placeholder="contact@business.com"
+                            data-testid="input-email"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-4 pt-4">
+                {business && (
+                  <a
+                    href={`/book/${business.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button type="button" variant="outline" className="gap-2">
+                      <ExternalLink className="h-4 w-4" />
+                      Preview Booking Page
+                    </Button>
+                  </a>
+                )}
+                <Button
+                  type="submit"
+                  disabled={saveMutation.isPending}
+                  data-testid="button-save-business"
+                >
+                  {saveMutation.isPending ? "Saving..." : business ? "Update" : "Create Business"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
