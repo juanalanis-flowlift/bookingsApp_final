@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -28,10 +28,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Phone, Mail, Tag, ExternalLink, Copy, Check } from "lucide-react";
+import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Upload, Camera } from "lucide-react";
 import type { Business } from "@shared/schema";
 import { businessCategories } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 
 const businessFormSchema = z.object({
   name: z.string().min(1, "Business name is required"),
@@ -69,6 +71,7 @@ export default function Settings() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -150,6 +153,41 @@ export default function Settings() {
     saveMutation.mutate(data);
   };
 
+  const logoMutation = useMutation({
+    mutationFn: async (logoURL: string) => {
+      return await apiRequest("PUT", "/api/business/logo", { logoURL });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/business"] });
+      toast({ title: "Logo updated successfully" });
+      setIsUploading(false);
+    },
+    onError: (error) => {
+      console.error("Error updating logo:", error);
+      toast({ title: "Failed to update logo", variant: "destructive" });
+      setIsUploading(false);
+    },
+  });
+
+  const handleGetUploadParameters = useCallback(async () => {
+    const response = await apiRequest("POST", "/api/objects/upload", {});
+    const data = await response.json();
+    return {
+      method: "PUT" as const,
+      url: data.uploadURL,
+    };
+  }, []);
+
+  const handleUploadComplete = useCallback((result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadURL = result.successful[0].uploadURL;
+      if (uploadURL) {
+        setIsUploading(true);
+        logoMutation.mutate(uploadURL);
+      }
+    }
+  }, [logoMutation]);
+
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
@@ -194,24 +232,50 @@ export default function Settings() {
         </p>
       </div>
 
-      {/* Profile Card */}
+      {/* Profile Card with Logo Upload */}
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={business?.logoUrl || undefined} className="object-cover" />
-              <AvatarFallback className="text-xl">
-                {business?.name?.charAt(0) || user?.firstName?.charAt(0) || "B"}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <CardTitle>{business?.name || "Your Business"}</CardTitle>
-              <CardDescription>
-                {business
-                  ? CATEGORY_LABELS[business.category] || business.category
-                  : "Set up your business profile"}
-              </CardDescription>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Avatar className="h-16 w-16">
+                  <AvatarImage 
+                    src={business?.logoUrl?.startsWith('/objects/') 
+                      ? business.logoUrl 
+                      : business?.logoUrl || undefined
+                    } 
+                    className="object-cover" 
+                  />
+                  <AvatarFallback className="text-xl">
+                    {business?.name?.charAt(0) || user?.firstName?.charAt(0) || "B"}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              <div>
+                <CardTitle>{business?.name || "Your Business"}</CardTitle>
+                <CardDescription>
+                  {business
+                    ? CATEGORY_LABELS[business.category] || business.category
+                    : "Set up your business profile"}
+                </CardDescription>
+              </div>
             </div>
+            {business && (
+              <ObjectUploader
+                maxNumberOfFiles={1}
+                maxFileSize={5 * 1024 * 1024}
+                allowedFileTypes={["image/*"]}
+                onGetUploadParameters={handleGetUploadParameters}
+                onComplete={handleUploadComplete}
+                buttonVariant="outline"
+                buttonSize="default"
+              >
+                <div className="flex items-center gap-2">
+                  <Camera className="h-4 w-4" />
+                  <span>{isUploading || logoMutation.isPending ? "Uploading..." : "Change Logo"}</span>
+                </div>
+              </ObjectUploader>
+            )}
           </div>
         </CardHeader>
       </Card>

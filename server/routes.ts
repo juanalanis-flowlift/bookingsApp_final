@@ -5,6 +5,8 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertBusinessSchema, insertServiceSchema, insertBookingSchema } from "@shared/schema";
 import { z } from "zod";
 import { startOfDay, endOfDay } from "date-fns";
+import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+import { ObjectPermission } from "./objectAcl";
 
 export async function registerRoutes(server: Server, app: Express): Promise<void> {
   // Auth middleware
@@ -463,6 +465,119 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     } catch (error) {
       console.error("Error creating booking:", error);
       res.status(500).json({ message: "Failed to create booking" });
+    }
+  });
+
+  // ============================================
+  // Object Storage Routes
+  // ============================================
+  
+  // Serve public objects
+  app.get("/public-objects/:filePath(*)", async (req, res) => {
+    const filePath = req.params.filePath;
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Error searching for public object:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Serve objects - public visibility objects don't require auth
+  app.get("/objects/:objectPath(*)", async (req: any, res) => {
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const objectFile = await objectStorageService.getObjectEntityFile(req.path);
+      
+      // Check if object has public visibility
+      const canAccessPublic = await objectStorageService.canAccessObjectEntity({
+        objectFile,
+        userId: undefined,
+        requestedPermission: ObjectPermission.READ,
+      });
+      
+      if (canAccessPublic) {
+        return objectStorageService.downloadObject(objectFile, res);
+      }
+      
+      // If not public, require auth
+      if (!req.isAuthenticated || !req.isAuthenticated()) {
+        return res.sendStatus(401);
+      }
+      
+      const userId = req.user?.claims?.sub;
+      const canAccess = await objectStorageService.canAccessObjectEntity({
+        objectFile,
+        userId: userId,
+        requestedPermission: ObjectPermission.READ,
+      });
+      
+      if (!canAccess) {
+        return res.sendStatus(401);
+      }
+      
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error checking object access:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
+    }
+  });
+
+  // Get upload URL for logo
+  app.post("/api/objects/upload", isAuthenticated, async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ error: "Failed to get upload URL" });
+    }
+  });
+
+  // Update business logo after upload
+  app.put("/api/business/logo", isAuthenticated, async (req: any, res) => {
+    if (!req.body.logoURL) {
+      return res.status(400).json({ error: "logoURL is required" });
+    }
+
+    const userId = req.user?.claims?.sub;
+    const business = await storage.getBusinessByOwnerId(userId);
+    
+    if (!business) {
+      return res.status(404).json({ error: "Business not found" });
+    }
+
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        req.body.logoURL,
+        {
+          owner: userId,
+          visibility: "public",
+        },
+      );
+
+      // Update business with logo path
+      const updated = await storage.updateBusiness(business.id, {
+        logoUrl: objectPath,
+      });
+
+      res.status(200).json({
+        objectPath: objectPath,
+        business: updated,
+      });
+    } catch (error) {
+      console.error("Error setting business logo:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 }
