@@ -89,6 +89,7 @@ export default function Services() {
     mutationFn: async (data: ServiceFormValues) => {
       const payload = {
         ...data,
+        price: String(data.price),
         tags: data.tags ? data.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
       };
       return await apiRequest("POST", "/api/services", payload);
@@ -119,6 +120,7 @@ export default function Services() {
     mutationFn: async (data: ServiceFormValues & { id: string }) => {
       const payload = {
         ...data,
+        price: String(data.price),
         tags: data.tags ? data.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
       };
       return await apiRequest("PATCH", `/api/services/${data.id}`, payload);
