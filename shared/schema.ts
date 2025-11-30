@@ -92,6 +92,7 @@ export const availability = pgTable("availability", {
   endTime: varchar("end_time", { length: 10 }).notNull(), // HH:MM format
   isOpen: boolean("is_open").default(true),
   slotDuration: integer("slot_duration").default(30), // in minutes
+  maxBookingsPerSlot: integer("max_bookings_per_slot").default(1), // max concurrent bookings per slot
 });
 
 // Blocked times table - for holidays, vacations, etc.
