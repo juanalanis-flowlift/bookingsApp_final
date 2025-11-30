@@ -379,20 +379,20 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     }
   });
 
-  app.get("/api/public/bookings/:slug", async (req, res) => {
+  app.get("/api/public/bookings/:slug/:date", async (req, res) => {
     try {
       const business = await storage.getBusinessBySlug(req.params.slug);
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
 
-      // Get date from query param
-      const dateStr = req.query.date as string;
+      // Get date from path param
+      const dateStr = req.params.date as string;
       if (!dateStr) {
         return res.json([]);
       }
 
-      const date = new Date(dateStr);
+      const date = new Date(decodeURIComponent(dateStr));
       const bookingsList = await storage.getBookingsByDateRange(
         business.id,
         startOfDay(date),
