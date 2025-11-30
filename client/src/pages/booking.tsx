@@ -154,6 +154,7 @@ export default function BookingPage() {
     const slots: TimeSlot[] = [];
     const slotDuration = dayAvailability.slotDuration || 30;
     const serviceDuration = selectedService.duration;
+    const maxSlotCapacity = dayAvailability.maxBookingsPerSlot || 1;
 
     const [startHour, startMin] = dayAvailability.startTime.split(":").map(Number);
     const [endHour, endMin] = dayAvailability.endTime.split(":").map(Number);
@@ -167,8 +168,8 @@ export default function BookingPage() {
       const timeStr = `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
       const serviceEndTime = calculateEndTime(timeStr, serviceDuration);
 
-      // Check if slot overlaps with existing bookings
-      const isBooked = existingBookings?.some((booking) => {
+      // Count overlapping bookings to check slot capacity
+      const overlappingBookings = (existingBookings || []).filter((booking) => {
         if (booking.status === "cancelled") return false;
         // Check if the new slot overlaps with existing booking
         return (
@@ -177,6 +178,8 @@ export default function BookingPage() {
           (timeStr <= booking.startTime && serviceEndTime >= booking.endTime)
         );
       });
+
+      const isAtCapacity = overlappingBookings.length >= maxSlotCapacity;
 
       // Check if slot is in the past for today
       let isPast = false;
@@ -189,7 +192,7 @@ export default function BookingPage() {
 
       slots.push({
         time: timeStr,
-        available: !isBooked && !isPast,
+        available: !isAtCapacity && !isPast,
       });
     }
 
