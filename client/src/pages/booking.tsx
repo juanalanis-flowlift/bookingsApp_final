@@ -284,22 +284,15 @@ export default function BookingPage() {
                   <div className="flex items-center gap-3">
                     <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                     <span>
-                      {(() => {
-                        try {
-                          const date = new Date(confirmedBooking.bookingDate);
-                          return isNaN(date.getTime()) 
-                            ? String(confirmedBooking.bookingDate).split('T')[0]
-                            : format(date, "EEEE, MMMM d, yyyy");
-                        } catch {
-                          return String(confirmedBooking.bookingDate).split('T')[0];
-                        }
-                      })()}
+                      {selectedDate ? format(selectedDate, "EEEE, MMMM d, yyyy") : "—"}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Clock className="h-4 w-4 text-muted-foreground" />
                     <span>
-                      {confirmedBooking.startTime} - {confirmedBooking.endTime}
+                      {selectedTime && selectedService
+                        ? `${selectedTime} - ${calculateEndTime(selectedTime, selectedService.duration)}`
+                        : "—"}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
