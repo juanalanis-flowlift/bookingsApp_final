@@ -54,6 +54,8 @@ function getTransporter(): Transporter | null {
     return null;
   }
 
+  console.log(`Email service configured: host=${config.host}, port=${config.port}, secure=${config.secure}, user=${config.auth.user}, from=${config.from}`);
+
   transporter = nodemailer.createTransport({
     host: config.host,
     port: config.port,
@@ -62,6 +64,40 @@ function getTransporter(): Transporter | null {
   });
 
   return transporter;
+}
+
+// Diagnostic function to verify SMTP connection
+export async function verifyEmailConnection(): Promise<{ success: boolean; error?: string; config?: { host: string; port: number; user: string; from: string } }> {
+  const config = getEmailConfig();
+  
+  if (!config) {
+    return { 
+      success: false, 
+      error: "Email not configured. Missing SMTP_HOST, SMTP_PORT, SMTP_USER, or SMTP_PASS environment variables." 
+    };
+  }
+
+  const testTransporter = nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.secure,
+    auth: config.auth,
+  });
+
+  try {
+    await testTransporter.verify();
+    return { 
+      success: true,
+      config: { host: config.host, port: config.port, user: config.auth.user, from: config.from }
+    };
+  } catch (error: any) {
+    console.error("SMTP verification failed:", error);
+    return { 
+      success: false, 
+      error: error.message || "Failed to connect to SMTP server",
+      config: { host: config.host, port: config.port, user: config.auth.user, from: config.from }
+    };
+  }
 }
 
 function formatDate(date: Date | string | undefined | null): string {

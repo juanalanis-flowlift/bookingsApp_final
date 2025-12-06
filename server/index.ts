@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import { verifyEmailConnection } from "./emailService";
 
 const app = express();
 const httpServer = createServer(app);
@@ -91,8 +92,23 @@ app.use((req, res, next) => {
       host: "0.0.0.0",
       reusePort: true,
     },
-    () => {
+    async () => {
       log(`serving on port ${port}`);
+      
+      // Verify email configuration on startup
+      try {
+        const emailResult = await verifyEmailConnection();
+        if (emailResult.success) {
+          log(`Email service ready: ${emailResult.config?.host}:${emailResult.config?.port} (user: ${emailResult.config?.user})`, "email");
+        } else {
+          log(`Email service ERROR: ${emailResult.error}`, "email");
+          if (emailResult.config) {
+            log(`Email config: ${emailResult.config.host}:${emailResult.config.port} (user: ${emailResult.config.user})`, "email");
+          }
+        }
+      } catch (err: any) {
+        log(`Email verification failed: ${err.message}`, "email");
+      }
     },
   );
 })();

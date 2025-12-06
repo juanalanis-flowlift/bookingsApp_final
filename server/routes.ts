@@ -8,7 +8,7 @@ import { z } from "zod";
 import { startOfDay, endOfDay, addHours } from "date-fns";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-import { sendBookingEmails, sendMagicLinkEmail } from "./emailService";
+import { sendBookingEmails, sendMagicLinkEmail, verifyEmailConnection } from "./emailService";
 
 export async function registerRoutes(server: Server, app: Express): Promise<void> {
   // Auth middleware
@@ -25,6 +25,17 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Email diagnostic endpoint (protected)
+  app.get("/api/admin/email-test", isAuthenticated, async (req: any, res) => {
+    try {
+      const result = await verifyEmailConnection();
+      res.json(result);
+    } catch (error: any) {
+      console.error("Email test error:", error);
+      res.status(500).json({ success: false, error: error.message });
     }
   });
 
