@@ -131,16 +131,22 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
         return res.status(404).json({ message: "Business not found" });
       }
 
-      const data = insertServiceSchema.parse({
+      // Ensure price is a string for decimal compatibility
+      const serviceData = {
         ...req.body,
         businessId: business.id,
-      });
+        price: String(req.body.price),
+      };
+
+      const data = insertServiceSchema.parse(serviceData);
 
       const service = await storage.createService(data);
       res.json(service);
     } catch (error) {
       console.error("Error creating service:", error);
+      console.error("Request body:", JSON.stringify(req.body, null, 2));
       if (error instanceof z.ZodError) {
+        console.error("Zod validation errors:", JSON.stringify(error.errors, null, 2));
         return res.status(400).json({ message: "Invalid data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to create service" });
