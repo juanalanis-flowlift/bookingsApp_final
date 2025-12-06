@@ -25,33 +25,18 @@ import {
 import {
   Calendar as CalendarIcon,
   Clock,
-  DollarSign,
   MapPin,
   Phone,
   Mail,
   ArrowLeft,
   ArrowRight,
   Check,
-  User,
   Tag,
 } from "lucide-react";
 import type { Business, Service, Booking, Availability } from "@shared/schema";
-import { format, addDays, isBefore, startOfDay, isToday, addMinutes, parse } from "date-fns";
-
-const CATEGORY_LABELS: Record<string, string> = {
-  barber: "Barber Shop",
-  hairdresser: "Hair Salon",
-  beauty_salon: "Beauty Salon",
-  spa: "Spa & Wellness",
-  massage: "Massage Therapy",
-  nail_salon: "Nail Salon",
-  inflatable_rentals: "Inflatable Rentals",
-  party_services: "Party Services",
-  photography: "Photography",
-  fitness: "Fitness & Training",
-  consulting: "Consulting",
-  other: "Other Services",
-};
+import { format, addDays, isBefore, startOfDay, isToday, addMinutes } from "date-fns";
+import { es, enUS } from "date-fns/locale";
+import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 
 const bookingFormSchema = z.object({
   customerName: z.string().min(1, "Name is required"),
@@ -76,6 +61,13 @@ export default function BookingPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
+  const { t, language } = useI18n();
+
+  const getCategoryLabel = (cat: string): string => {
+    return t(`categories.${cat}`);
+  };
+
+  const dateLocale = language === "es" ? es : enUS;
 
   const { data: business, isLoading: businessLoading, error: businessError } = useQuery<Business>({
     queryKey: ["/api/public/business", slug],
@@ -119,6 +111,7 @@ export default function BookingPage() {
         bookingDate: selectedDate.toISOString(),
         startTime: selectedTime,
         endTime,
+        preferredLanguage: language,
         ...data,
       });
     },
@@ -129,7 +122,8 @@ export default function BookingPage() {
   });
 
   const formatPrice = (price: string | number) => {
-    return new Intl.NumberFormat("en-US", {
+    const locale = language === "es" ? "es-MX" : "en-US";
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency: "USD",
     }).format(typeof price === "string" ? parseFloat(price) : price);
@@ -168,10 +162,8 @@ export default function BookingPage() {
       const timeStr = `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`;
       const serviceEndTime = calculateEndTime(timeStr, serviceDuration);
 
-      // Count overlapping bookings to check slot capacity
       const overlappingBookings = (existingBookings || []).filter((booking) => {
         if (booking.status === "cancelled") return false;
-        // Check if the new slot overlaps with existing booking
         return (
           (timeStr >= booking.startTime && timeStr < booking.endTime) ||
           (serviceEndTime > booking.startTime && serviceEndTime <= booking.endTime) ||
@@ -181,7 +173,6 @@ export default function BookingPage() {
 
       const isAtCapacity = overlappingBookings.length >= maxSlotCapacity;
 
-      // Check if slot is in the past for today
       let isPast = false;
       if (isToday(selectedDate)) {
         const now = new Date();
@@ -255,9 +246,9 @@ export default function BookingPage() {
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <Card className="max-w-md w-full">
           <CardContent className="pt-6 text-center">
-            <h2 className="text-xl font-semibold mb-2">Business Not Found</h2>
+            <h2 className="text-xl font-semibold mb-2">{t("booking.businessNotFound")}</h2>
             <p className="text-muted-foreground">
-              The booking page you're looking for doesn't exist.
+              {t("booking.businessNotFoundDesc")}
             </p>
           </CardContent>
         </Card>
@@ -265,7 +256,6 @@ export default function BookingPage() {
     );
   }
 
-  // Confirmation Step
   if (step === "confirmation" && confirmedBooking) {
     return (
       <div className="min-h-screen bg-background p-6">
@@ -276,9 +266,9 @@ export default function BookingPage() {
                 <Check className="h-8 w-8 text-green-500" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold mb-2">Booking Confirmed!</h2>
+                <h2 className="text-2xl font-bold mb-2">{t("booking.confirmed")}</h2>
                 <p className="text-muted-foreground">
-                  Thank you for booking with {business.name}
+                  {t("booking.thankYou")} {business.name}
                 </p>
               </div>
 
@@ -287,7 +277,7 @@ export default function BookingPage() {
                   <div className="flex items-center gap-3">
                     <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                     <span>
-                      {selectedDate ? format(selectedDate, "EEEE, MMMM d, yyyy") : "—"}
+                      {selectedDate ? format(selectedDate, "EEEE, MMMM d, yyyy", { locale: dateLocale }) : "—"}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
@@ -306,8 +296,7 @@ export default function BookingPage() {
               </Card>
 
               <p className="text-sm text-muted-foreground">
-                A confirmation email has been sent to your email address.
-                You can manage all your bookings from your account.
+                {t("booking.confirmationSent")}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -323,13 +312,13 @@ export default function BookingPage() {
                   variant="outline"
                   data-testid="button-book-another"
                 >
-                  Book Another Appointment
+                  {t("booking.bookAnother")}
                 </Button>
                 <Button
                   onClick={() => window.location.href = "/my-bookings"}
                   data-testid="button-view-my-bookings"
                 >
-                  View My Bookings
+                  {t("booking.viewMyBookings")}
                 </Button>
               </div>
             </CardContent>
@@ -352,11 +341,14 @@ export default function BookingPage() {
             <div>
               <h1 className="font-semibold">{business.name}</h1>
               <p className="text-xs text-muted-foreground">
-                {CATEGORY_LABELS[business.category] || business.category}
+                {getCategoryLabel(business.category)}
               </p>
             </div>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher minimal />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -390,9 +382,9 @@ export default function BookingPage() {
             ))}
           </div>
           <div className="flex justify-center gap-8 mt-2 text-xs text-muted-foreground">
-            <span>Service</span>
-            <span>Date & Time</span>
-            <span>Details</span>
+            <span>{t("booking.step.service")}</span>
+            <span>{t("booking.step.datetime")}</span>
+            <span>{t("booking.step.details")}</span>
           </div>
         </div>
 
@@ -413,7 +405,7 @@ export default function BookingPage() {
                     <div>
                       <h2 className="text-2xl font-bold">{business.name}</h2>
                       <Badge variant="secondary" className="mt-1">
-                        {CATEGORY_LABELS[business.category] || business.category}
+                        {getCategoryLabel(business.category)}
                       </Badge>
                     </div>
                     {business.description && (
@@ -448,7 +440,7 @@ export default function BookingPage() {
 
             {/* Services List */}
             <div>
-              <h3 className="text-xl font-semibold mb-4">Select a Service</h3>
+              <h3 className="text-xl font-semibold mb-4">{t("booking.selectService")}</h3>
               {services && services.length > 0 ? (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {services
@@ -470,7 +462,7 @@ export default function BookingPage() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1 text-muted-foreground">
                               <Clock className="h-4 w-4" />
-                              <span className="text-sm">{service.duration} min</span>
+                              <span className="text-sm">{service.duration} {t("booking.min")}</span>
                             </div>
                             <span className="text-lg font-bold">
                               {formatPrice(service.price)}
@@ -486,7 +478,7 @@ export default function BookingPage() {
                             </div>
                           )}
                           <Button className="w-full" data-testid={`button-select-service-${service.id}`}>
-                            Select
+                            {t("booking.select")}
                           </Button>
                         </CardContent>
                       </Card>
@@ -496,7 +488,7 @@ export default function BookingPage() {
                 <Card>
                   <CardContent className="py-12 text-center">
                     <p className="text-muted-foreground">
-                      No services available at this time.
+                      {t("booking.noServices")}
                     </p>
                   </CardContent>
                 </Card>
@@ -515,14 +507,14 @@ export default function BookingPage() {
               data-testid="button-back"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back
+              {t("booking.back")}
             </Button>
 
             <Card>
               <CardHeader>
-                <CardTitle>Selected Service</CardTitle>
+                <CardTitle>{t("booking.selectedService")}</CardTitle>
                 <CardDescription>
-                  {selectedService.name} - {selectedService.duration} min -{" "}
+                  {selectedService.name} - {selectedService.duration} {t("booking.min")} -{" "}
                   {formatPrice(selectedService.price)}
                 </CardDescription>
               </CardHeader>
@@ -531,7 +523,7 @@ export default function BookingPage() {
             <div className="grid gap-6 lg:grid-cols-[350px_1fr]">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Select Date</CardTitle>
+                  <CardTitle className="text-lg">{t("booking.selectDate")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Calendar
@@ -542,6 +534,7 @@ export default function BookingPage() {
                     fromDate={new Date()}
                     toDate={addDays(new Date(), 60)}
                     className="rounded-md"
+                    locale={dateLocale}
                   />
                 </CardContent>
               </Card>
@@ -550,8 +543,8 @@ export default function BookingPage() {
                 <CardHeader>
                   <CardTitle className="text-lg">
                     {selectedDate
-                      ? `Available Times - ${format(selectedDate, "MMM d, yyyy")}`
-                      : "Select a Date First"}
+                      ? `${t("booking.availableTimes")} - ${format(selectedDate, "MMM d, yyyy", { locale: dateLocale })}`
+                      : t("booking.selectDateFirst")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -571,7 +564,7 @@ export default function BookingPage() {
                       ))}
                       {getAvailableSlots().length === 0 && (
                         <p className="col-span-full text-center text-muted-foreground py-8">
-                          No available slots for this date
+                          {t("booking.noSlots")}
                         </p>
                       )}
                     </div>
@@ -579,7 +572,7 @@ export default function BookingPage() {
                     <div className="text-center py-8">
                       <CalendarIcon className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
                       <p className="text-muted-foreground">
-                        Please select a date to see available times
+                        {t("booking.pleaseSelectDate")}
                       </p>
                     </div>
                   )}
@@ -599,12 +592,12 @@ export default function BookingPage() {
               data-testid="button-back"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back
+              {t("booking.back")}
             </Button>
 
             <Card>
               <CardHeader>
-                <CardTitle>Booking Summary</CardTitle>
+                <CardTitle>{t("booking.summary")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -613,16 +606,15 @@ export default function BookingPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                  <span>{format(selectedDate, "EEEE, MMMM d, yyyy")}</span>
+                  <span>{format(selectedDate, "EEEE, MMMM d, yyyy", { locale: dateLocale })}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span>
-                    {selectedTime} - {calculateEndTime(selectedTime, selectedService.duration)}
+                    {selectedTime} - {calculateEndTime(selectedTime, selectedService.duration)} ({selectedService.duration} {t("booking.min")})
                   </span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <div className="pt-2 border-t">
                   <span className="font-semibold">{formatPrice(selectedService.price)}</span>
                 </div>
               </CardContent>
@@ -630,7 +622,7 @@ export default function BookingPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Your Details</CardTitle>
+                <CardTitle>{t("booking.yourDetails")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
@@ -640,70 +632,48 @@ export default function BookingPage() {
                       name="customerName"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Name *</FormLabel>
+                          <FormLabel>{t("booking.name")} *</FormLabel>
                           <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Your full name"
-                              data-testid="input-customer-name"
-                            />
+                            <Input {...field} data-testid="input-customer-name" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
                       name="customerEmail"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email *</FormLabel>
+                          <FormLabel>{t("booking.email")} *</FormLabel>
                           <FormControl>
-                            <Input
-                              {...field}
-                              type="email"
-                              placeholder="your@email.com"
-                              data-testid="input-customer-email"
-                            />
+                            <Input {...field} type="email" data-testid="input-customer-email" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
                       name="customerPhone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Phone (optional)</FormLabel>
+                          <FormLabel>{t("booking.phone")}</FormLabel>
                           <FormControl>
-                            <Input
-                              {...field}
-                              type="tel"
-                              placeholder="+1 (555) 123-4567"
-                              data-testid="input-customer-phone"
-                            />
+                            <Input {...field} type="tel" data-testid="input-customer-phone" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-
                     <FormField
                       control={form.control}
                       name="customerNotes"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Notes (optional)</FormLabel>
+                          <FormLabel>{t("booking.notes")}</FormLabel>
                           <FormControl>
-                            <Textarea
-                              {...field}
-                              placeholder="Any special requests or notes..."
-                              className="resize-none"
-                              data-testid="input-customer-notes"
-                            />
+                            <Textarea {...field} className="resize-none" data-testid="input-customer-notes" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -716,21 +686,9 @@ export default function BookingPage() {
                       disabled={createBookingMutation.isPending}
                       data-testid="button-confirm-booking"
                     >
-                      {createBookingMutation.isPending ? (
-                        "Booking..."
-                      ) : (
-                        <>
-                          Confirm Booking
-                          <ArrowRight className="h-4 w-4" />
-                        </>
-                      )}
+                      {createBookingMutation.isPending ? t("booking.processing") : t("booking.confirmBooking")}
+                      <ArrowRight className="h-4 w-4" />
                     </Button>
-
-                    {createBookingMutation.isError && (
-                      <p className="text-sm text-destructive text-center">
-                        Failed to create booking. Please try again.
-                      </p>
-                    )}
                   </form>
                 </Form>
               </CardContent>

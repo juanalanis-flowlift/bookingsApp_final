@@ -489,6 +489,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
         },
         service,
         business,
+        language: req.body.preferredLanguage === "es" ? "es" : "en",
       }).catch((err) => {
         console.error("Failed to send booking emails:", err);
       });

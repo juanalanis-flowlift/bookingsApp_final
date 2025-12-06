@@ -2,6 +2,8 @@ import nodemailer from "nodemailer";
 import type { Transporter } from "nodemailer";
 import type { Booking, Service, Business } from "@shared/schema";
 
+type Language = "en" | "es";
+
 function escapeHtml(text: string | null | undefined): string {
   if (!text) return "";
   return text
@@ -66,7 +68,6 @@ function getTransporter(): Transporter | null {
   return transporter;
 }
 
-// Diagnostic function to verify SMTP connection
 export async function verifyEmailConnection(): Promise<{ success: boolean; error?: string; config?: { host: string; port: number; user: string; from: string } }> {
   const config = getEmailConfig();
   
@@ -100,14 +101,71 @@ export async function verifyEmailConnection(): Promise<{ success: boolean; error
   }
 }
 
-function formatDate(date: Date | string | undefined | null): string {
-  if (!date) return "Date not available";
+const emailTranslations: Record<Language, Record<string, string>> = {
+  en: {
+    bookingConfirmed: "Booking Confirmed",
+    appointmentScheduled: "Your appointment has been scheduled",
+    date: "Date",
+    time: "Time",
+    duration: "Duration",
+    price: "Price",
+    minutes: "minutes",
+    businessDetails: "Business Details",
+    needChanges: "Need to make changes? Contact {businessName} directly.",
+    poweredBy: "Powered by FlowLift",
+    newBooking: "New Booking",
+    newAppointment: "You have a new appointment",
+    customerDetails: "Customer Details",
+    customerNotes: "Customer Notes",
+    loginDashboard: "Log in to your FlowLift dashboard to manage this booking.",
+    signInFlowLift: "Sign in to FlowLift",
+    clickToAccess: "Click the button below to access your bookings",
+    viewMyBookings: "View My Bookings",
+    linkExpires: "This link will expire in 1 hour. If you didn't request this email, you can safely ignore it.",
+    buttonNotWork: "If the button doesn't work, copy and paste this link into your browser:",
+  },
+  es: {
+    bookingConfirmed: "Reserva Confirmada",
+    appointmentScheduled: "Tu cita ha sido programada",
+    date: "Fecha",
+    time: "Hora",
+    duration: "Duración",
+    price: "Precio",
+    minutes: "minutos",
+    businessDetails: "Detalles del Negocio",
+    needChanges: "¿Necesitas hacer cambios? Contacta a {businessName} directamente.",
+    poweredBy: "Desarrollado por FlowLift",
+    newBooking: "Nueva Reserva",
+    newAppointment: "Tienes una nueva cita",
+    customerDetails: "Detalles del Cliente",
+    customerNotes: "Notas del Cliente",
+    loginDashboard: "Inicia sesión en tu panel de FlowLift para gestionar esta reserva.",
+    signInFlowLift: "Inicia sesión en FlowLift",
+    clickToAccess: "Haz clic en el botón de abajo para acceder a tus reservas",
+    viewMyBookings: "Ver Mis Reservas",
+    linkExpires: "Este enlace expirará en 1 hora. Si no solicitaste este correo, puedes ignorarlo con seguridad.",
+    buttonNotWork: "Si el botón no funciona, copia y pega este enlace en tu navegador:",
+  },
+};
+
+function getEmailText(key: string, lang: Language, params?: Record<string, string>): string {
+  let text = emailTranslations[lang][key] || emailTranslations.en[key] || key;
+  if (params) {
+    Object.entries(params).forEach(([paramKey, value]) => {
+      text = text.replace(`{${paramKey}}`, value);
+    });
+  }
+  return text;
+}
+
+function formatDate(date: Date | string | undefined | null, lang: Language = "en"): string {
+  if (!date) return lang === "es" ? "Fecha no disponible" : "Date not available";
   try {
     const d = new Date(date);
     if (isNaN(d.getTime())) {
       return String(date).split('T')[0];
     }
-    return d.toLocaleDateString("en-US", {
+    return d.toLocaleDateString(lang === "es" ? "es-MX" : "en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -130,10 +188,12 @@ interface BookingEmailData {
   booking: Booking;
   service: Service;
   business: Business;
+  language?: Language;
 }
 
 function generateCustomerConfirmationHtml(data: BookingEmailData): string {
-  const { booking, service, business } = data;
+  const { booking, service, business, language = "en" } = data;
+  const t = (key: string, params?: Record<string, string>) => getEmailText(key, language, params);
 
   return `
 <!DOCTYPE html>
@@ -141,40 +201,40 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Booking Confirmation</title>
+  <title>${t("bookingConfirmed")}</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
       <div style="text-align: center; margin-bottom: 32px;">
-        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #18181b;">Booking Confirmed</h1>
-        <p style="margin: 8px 0 0; color: #71717a; font-size: 16px;">Your appointment has been scheduled</p>
+        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #18181b;">${t("bookingConfirmed")}</h1>
+        <p style="margin: 8px 0 0; color: #71717a; font-size: 16px;">${t("appointmentScheduled")}</p>
       </div>
       
       <div style="background: #f4f4f5; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
         <h2 style="margin: 0 0 16px; font-size: 18px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h2>
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">Date:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatDate(booking.date))}</span>
+            <span style="color: #71717a; font-size: 14px;">${t("date")}:</span>
+            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, language))}</span>
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">Time:</span>
+            <span style="color: #71717a; font-size: 14px;">${t("time")}:</span>
             <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</span>
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">Duration:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${service.duration} minutes</span>
+            <span style="color: #71717a; font-size: 14px;">${t("duration")}:</span>
+            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${service.duration} ${t("minutes")}</span>
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">Price:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">$${(service.price / 100).toFixed(2)}</span>
+            <span style="color: #71717a; font-size: 14px;">${t("price")}:</span>
+            <span style="color: #18181b; font-size: 14px; font-weight: 500;">$${parseFloat(String(service.price)).toFixed(2)}</span>
           </div>
         </div>
       </div>
       
       <div style="margin-bottom: 24px;">
-        <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #18181b;">Business Details</h3>
+        <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #18181b;">${t("businessDetails")}</h3>
         <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">
           <strong>${escapeHtml(business.name)}</strong><br>
           ${escapeHtml(business.email || "")}
@@ -185,14 +245,14 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
       
       <div style="border-top: 1px solid #e4e4e7; padding-top: 24px; text-align: center;">
         <p style="margin: 0; color: #71717a; font-size: 12px;">
-          Need to make changes? Contact ${escapeHtml(business.name)} directly.
+          ${t("needChanges", { businessName: business.name })}
         </p>
       </div>
     </div>
     
     <div style="text-align: center; padding: 24px;">
       <p style="margin: 0; color: #a1a1aa; font-size: 12px;">
-        Powered by FlowLift
+        ${t("poweredBy")}
       </p>
     </div>
   </div>
@@ -202,36 +262,39 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
 }
 
 function generateCustomerConfirmationText(data: BookingEmailData): string {
-  const { booking, service, business } = data;
+  const { booking, service, business, language = "en" } = data;
+  const t = (key: string, params?: Record<string, string>) => getEmailText(key, language, params);
 
   return `
-BOOKING CONFIRMED
+${t("bookingConfirmed").toUpperCase()}
 
-Your appointment has been scheduled.
+${t("appointmentScheduled")}
 
 ${service.name}
-Date: ${formatDate(booking.date)}
-Time: ${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}
-Duration: ${service.duration} minutes
-Price: $${(service.price / 100).toFixed(2)}
+${t("date")}: ${formatDate(booking.bookingDate, language)}
+${t("time")}: ${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}
+${t("duration")}: ${service.duration} ${t("minutes")}
+${t("price")}: $${parseFloat(String(service.price)).toFixed(2)}
 
-Business Details:
+${t("businessDetails")}:
 ${business.name}
 ${business.email || ""}
 ${business.phone || ""}
 ${business.address || ""}
 
-${booking.notes ? `Notes: ${booking.notes}` : ""}
+${booking.customerNotes ? `Notes: ${booking.customerNotes}` : ""}
 
-Need to make changes? Contact ${business.name} directly.
+${t("needChanges", { businessName: business.name })}
 
 ---
-Powered by FlowLift
+${t("poweredBy")}
   `.trim();
 }
 
 function generateBusinessNotificationHtml(data: BookingEmailData): string {
   const { booking, service, business } = data;
+  const lang: Language = "en";
+  const t = (key: string, params?: Record<string, string>) => getEmailText(key, lang, params);
 
   return `
 <!DOCTYPE html>
@@ -239,42 +302,42 @@ function generateBusinessNotificationHtml(data: BookingEmailData): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Booking Notification</title>
+  <title>${t("newBooking")}</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
       <div style="text-align: center; margin-bottom: 32px;">
         <div style="display: inline-block; background: #22c55e; color: white; padding: 8px 16px; border-radius: 9999px; font-size: 14px; font-weight: 500; margin-bottom: 16px;">
-          New Booking
+          ${t("newBooking")}
         </div>
-        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #18181b;">You have a new appointment</h1>
+        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #18181b;">${t("newAppointment")}</h1>
       </div>
       
       <div style="background: #f4f4f5; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
         <h2 style="margin: 0 0 16px; font-size: 18px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h2>
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">Date:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatDate(booking.date))}</span>
+            <span style="color: #71717a; font-size: 14px;">${t("date")}:</span>
+            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, lang))}</span>
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">Time:</span>
+            <span style="color: #71717a; font-size: 14px;">${t("time")}:</span>
             <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</span>
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">Duration:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${service.duration} minutes</span>
+            <span style="color: #71717a; font-size: 14px;">${t("duration")}:</span>
+            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${service.duration} ${t("minutes")}</span>
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">Price:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">$${(service.price / 100).toFixed(2)}</span>
+            <span style="color: #71717a; font-size: 14px;">${t("price")}:</span>
+            <span style="color: #18181b; font-size: 14px; font-weight: 500;">$${parseFloat(String(service.price)).toFixed(2)}</span>
           </div>
         </div>
       </div>
       
       <div style="margin-bottom: 24px;">
-        <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #18181b;">Customer Details</h3>
+        <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #18181b;">${t("customerDetails")}</h3>
         <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">
           <strong>${escapeHtml(booking.customerName)}</strong><br>
           ${escapeHtml(booking.customerEmail)}
@@ -282,23 +345,23 @@ function generateBusinessNotificationHtml(data: BookingEmailData): string {
         </p>
       </div>
       
-      ${booking.notes ? `
+      ${booking.customerNotes ? `
       <div style="margin-bottom: 24px;">
-        <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #18181b;">Customer Notes</h3>
-        <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">${escapeHtml(booking.notes)}</p>
+        <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #18181b;">${t("customerNotes")}</h3>
+        <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">${escapeHtml(booking.customerNotes)}</p>
       </div>
       ` : ""}
       
       <div style="border-top: 1px solid #e4e4e7; padding-top: 24px; text-align: center;">
         <p style="margin: 0; color: #71717a; font-size: 12px;">
-          Log in to your FlowLift dashboard to manage this booking.
+          ${t("loginDashboard")}
         </p>
       </div>
     </div>
     
     <div style="text-align: center; padding: 24px;">
       <p style="margin: 0; color: #a1a1aa; font-size: 12px;">
-        Powered by FlowLift
+        ${t("poweredBy")}
       </p>
     </div>
   </div>
@@ -308,44 +371,46 @@ function generateBusinessNotificationHtml(data: BookingEmailData): string {
 }
 
 function generateBusinessNotificationText(data: BookingEmailData): string {
-  const { booking, service, business } = data;
+  const { booking, service } = data;
+  const t = (key: string) => getEmailText(key, "en");
 
   return `
-NEW BOOKING
+${t("newBooking").toUpperCase()}
 
-You have a new appointment.
+${t("newAppointment")}
 
 ${service.name}
-Date: ${formatDate(booking.date)}
-Time: ${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}
-Duration: ${service.duration} minutes
-Price: $${(service.price / 100).toFixed(2)}
+${t("date")}: ${formatDate(booking.bookingDate, "en")}
+${t("time")}: ${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}
+${t("duration")}: ${service.duration} ${t("minutes")}
+${t("price")}: $${parseFloat(String(service.price)).toFixed(2)}
 
-Customer Details:
+${t("customerDetails")}:
 ${booking.customerName}
 ${booking.customerEmail}
 ${booking.customerPhone || ""}
 
-${booking.notes ? `Notes: ${booking.notes}` : ""}
+${booking.customerNotes ? `${t("customerNotes")}: ${booking.customerNotes}` : ""}
 
-Log in to your FlowLift dashboard to manage this booking.
+${t("loginDashboard")}
 
 ---
-Powered by FlowLift
+${t("poweredBy")}
   `.trim();
 }
 
 export async function sendBookingConfirmationToCustomer(
   data: BookingEmailData
 ): Promise<boolean> {
-  const { booking, service, business } = data;
+  const { booking, service, business, language = "en" } = data;
   const config = getEmailConfig();
   const transport = getTransporter();
+  const t = (key: string) => getEmailText(key, language);
 
   const emailContent = {
     from: config?.from || "noreply@flowlift.app",
     to: booking.customerEmail,
-    subject: `Booking Confirmed: ${service.name} at ${business.name}`,
+    subject: `${t("bookingConfirmed")}: ${service.name} - ${business.name}`,
     text: generateCustomerConfirmationText(data),
     html: generateCustomerConfirmationHtml(data),
   };
@@ -354,6 +419,7 @@ export async function sendBookingConfirmationToCustomer(
     console.log("=== EMAIL (Customer Confirmation) ===");
     console.log("To:", emailContent.to);
     console.log("Subject:", emailContent.subject);
+    console.log("Language:", language);
     console.log("Text:", emailContent.text.substring(0, 200) + "...");
     console.log("=====================================");
     return true;
@@ -361,7 +427,7 @@ export async function sendBookingConfirmationToCustomer(
 
   try {
     await transport.sendMail(emailContent);
-    console.log(`Email sent to customer: ${booking.customerEmail}`);
+    console.log(`Email sent to customer: ${booking.customerEmail} (lang: ${language})`);
     return true;
   } catch (error) {
     console.error("Failed to send customer confirmation email:", error);
@@ -423,10 +489,13 @@ interface MagicLinkData {
   email: string;
   token: string;
   baseUrl: string;
+  language?: Language;
 }
 
 function generateMagicLinkHtml(data: MagicLinkData): string {
-  const magicLinkUrl = `${data.baseUrl}/my-bookings?token=${data.token}`;
+  const { baseUrl, token, language = "en" } = data;
+  const magicLinkUrl = `${baseUrl}/my-bookings?token=${token}`;
+  const t = (key: string) => getEmailText(key, language);
   
   return `
 <!DOCTYPE html>
@@ -434,31 +503,31 @@ function generateMagicLinkHtml(data: MagicLinkData): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign in to FlowLift</title>
+  <title>${t("signInFlowLift")}</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
       <div style="text-align: center; margin-bottom: 32px;">
-        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #18181b;">Sign in to FlowLift</h1>
-        <p style="margin: 8px 0 0; color: #71717a; font-size: 16px;">Click the button below to access your bookings</p>
+        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #18181b;">${t("signInFlowLift")}</h1>
+        <p style="margin: 8px 0 0; color: #71717a; font-size: 16px;">${t("clickToAccess")}</p>
       </div>
       
       <div style="text-align: center; margin-bottom: 32px;">
         <a href="${magicLinkUrl}" style="display: inline-block; background: #18181b; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 16px;">
-          View My Bookings
+          ${t("viewMyBookings")}
         </a>
       </div>
       
       <div style="background: #f4f4f5; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
         <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">
-          <strong>Note:</strong> This link will expire in 1 hour. If you didn't request this email, you can safely ignore it.
+          <strong>Note:</strong> ${t("linkExpires")}
         </p>
       </div>
       
       <div style="border-top: 1px solid #e4e4e7; padding-top: 24px; text-align: center;">
         <p style="margin: 0; color: #71717a; font-size: 12px;">
-          If the button doesn't work, copy and paste this link into your browser:<br>
+          ${t("buttonNotWork")}<br>
           <a href="${magicLinkUrl}" style="color: #3b82f6; word-break: break-all;">${escapeHtml(magicLinkUrl)}</a>
         </p>
       </div>
@@ -466,7 +535,7 @@ function generateMagicLinkHtml(data: MagicLinkData): string {
     
     <div style="text-align: center; padding: 24px;">
       <p style="margin: 0; color: #a1a1aa; font-size: 12px;">
-        Powered by FlowLift
+        ${t("poweredBy")}
       </p>
     </div>
   </div>
@@ -476,30 +545,34 @@ function generateMagicLinkHtml(data: MagicLinkData): string {
 }
 
 function generateMagicLinkText(data: MagicLinkData): string {
-  const magicLinkUrl = `${data.baseUrl}/my-bookings?token=${data.token}`;
+  const { baseUrl, token, language = "en" } = data;
+  const magicLinkUrl = `${baseUrl}/my-bookings?token=${token}`;
+  const t = (key: string) => getEmailText(key, language);
   
   return `
-SIGN IN TO FLOWLIFT
+${t("signInFlowLift").toUpperCase()}
 
-Click the link below to access your bookings:
+${t("clickToAccess")}
 
 ${magicLinkUrl}
 
-This link will expire in 1 hour. If you didn't request this email, you can safely ignore it.
+${t("linkExpires")}
 
 ---
-Powered by FlowLift
+${t("poweredBy")}
   `.trim();
 }
 
 export async function sendMagicLinkEmail(data: MagicLinkData): Promise<boolean> {
   const config = getEmailConfig();
   const transport = getTransporter();
+  const { language = "en" } = data;
+  const t = (key: string) => getEmailText(key, language);
 
   const emailContent = {
     from: config?.from || "noreply@flowlift.app",
     to: data.email,
-    subject: "Sign in to FlowLift - View Your Bookings",
+    subject: `${t("signInFlowLift")} - ${t("viewMyBookings")}`,
     text: generateMagicLinkText(data),
     html: generateMagicLinkHtml(data),
   };
@@ -508,6 +581,7 @@ export async function sendMagicLinkEmail(data: MagicLinkData): Promise<boolean> 
     console.log("=== EMAIL (Magic Link) ===");
     console.log("To:", emailContent.to);
     console.log("Subject:", emailContent.subject);
+    console.log("Language:", language);
     console.log("Link:", `${data.baseUrl}/my-bookings?token=${data.token}`);
     console.log("==========================");
     return true;
@@ -515,7 +589,7 @@ export async function sendMagicLinkEmail(data: MagicLinkData): Promise<boolean> 
 
   try {
     await transport.sendMail(emailContent);
-    console.log(`Magic link email sent to: ${data.email}`);
+    console.log(`Magic link email sent to: ${data.email} (lang: ${language})`);
     return true;
   } catch (error) {
     console.error("Failed to send magic link email:", error);

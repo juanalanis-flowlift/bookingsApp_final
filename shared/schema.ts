@@ -111,6 +111,7 @@ export const customers = pgTable("customers", {
   email: varchar("email", { length: 255 }).notNull().unique(),
   name: varchar("name", { length: 255 }),
   phone: varchar("phone", { length: 50 }),
+  preferredLanguage: varchar("preferred_language", { length: 10 }).default("en"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

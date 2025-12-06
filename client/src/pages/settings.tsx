@@ -28,12 +28,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Upload, Camera } from "lucide-react";
+import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe } from "lucide-react";
 import type { Business } from "@shared/schema";
 import { businessCategories } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
+import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 
 const businessFormSchema = z.object({
   name: z.string().min(1, "Business name is required"),
@@ -52,26 +53,16 @@ const businessFormSchema = z.object({
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
 
-const CATEGORY_LABELS: Record<string, string> = {
-  barber: "Barber Shop",
-  hairdresser: "Hair Salon",
-  beauty_salon: "Beauty Salon",
-  spa: "Spa & Wellness",
-  massage: "Massage Therapy",
-  nail_salon: "Nail Salon",
-  inflatable_rentals: "Inflatable Rentals",
-  party_services: "Party Services",
-  photography: "Photography",
-  fitness: "Fitness & Training",
-  consulting: "Consulting",
-  other: "Other Services",
-};
-
 export default function Settings() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [copied, setCopied] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const { t, language } = useI18n();
+
+  const getCategoryLabel = (cat: string): string => {
+    return t(`categories.${cat}`);
+  };
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -131,7 +122,7 @@ export default function Settings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/business"] });
-      toast({ title: "Business profile saved" });
+      toast({ title: t("settings.profileSaved") });
     },
     onError: (error) => {
       if (isUnauthorizedError(error as Error)) {
@@ -159,7 +150,7 @@ export default function Settings() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/business"] });
-      toast({ title: "Logo updated successfully" });
+      toast({ title: t("settings.logoUpdated") });
       setIsUploading(false);
     },
     onError: (error) => {
@@ -208,7 +199,7 @@ export default function Settings() {
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast({ title: "Booking URL copied!" });
+    toast({ title: t("settings.urlCopied") });
   };
 
   if (isLoading || authLoading) {
@@ -225,10 +216,10 @@ export default function Settings() {
       {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-settings-title">
-          Business Settings
+          {t("settings.title")}
         </h1>
         <p className="text-muted-foreground">
-          Manage your business profile and public booking page
+          {t("settings.subtitle")}
         </p>
       </div>
 
@@ -255,7 +246,7 @@ export default function Settings() {
                 <CardTitle>{business?.name || "Your Business"}</CardTitle>
                 <CardDescription>
                   {business
-                    ? CATEGORY_LABELS[business.category] || business.category
+                    ? getCategoryLabel(business.category)
                     : "Set up your business profile"}
                 </CardDescription>
               </div>
@@ -272,7 +263,7 @@ export default function Settings() {
               >
                 <div className="flex items-center gap-2">
                   <Camera className="h-4 w-4" />
-                  <span>{isUploading || logoMutation.isPending ? "Uploading..." : "Change Logo"}</span>
+                  <span>{isUploading || logoMutation.isPending ? t("settings.uploading") : t("settings.changeLogo")}</span>
                 </div>
               </ObjectUploader>
             )}
@@ -280,12 +271,33 @@ export default function Settings() {
         </CardHeader>
       </Card>
 
+      {/* Language Preferences */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Globe className="h-5 w-5" />
+            {t("settings.preferences")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">{t("settings.language")}</label>
+              <p className="text-sm text-muted-foreground mb-3">
+                {t("settings.languageDescription")}
+              </p>
+              <LanguageSwitcher />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Business Form */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5" />
-            Business Information
+            {t("settings.businessInfo")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -297,7 +309,7 @@ export default function Settings() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Business Name *</FormLabel>
+                      <FormLabel>{t("settings.businessName")} *</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -316,20 +328,20 @@ export default function Settings() {
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category *</FormLabel>
+                      <FormLabel>{t("settings.category")} *</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger data-testid="select-category">
-                            <SelectValue placeholder="Select a category" />
+                            <SelectValue placeholder={t("settings.selectCategory")} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {businessCategories.map((cat) => (
                             <SelectItem key={cat} value={cat}>
-                              {CATEGORY_LABELS[cat] || cat}
+                              {getCategoryLabel(cat)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -345,7 +357,7 @@ export default function Settings() {
                 name="slug"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Booking Page URL *</FormLabel>
+                    <FormLabel>{t("settings.bookingPageUrl")} *</FormLabel>
                     <div className="flex gap-2">
                       <div className="flex-1 flex items-center">
                         <span className="text-sm text-muted-foreground bg-muted px-3 py-2 rounded-l-md border border-r-0">
@@ -377,7 +389,7 @@ export default function Settings() {
                       )}
                     </div>
                     <FormDescription>
-                      This is the URL where customers will book your services
+                      {t("settings.urlDescription")}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -389,11 +401,11 @@ export default function Settings() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{t("settings.description")}</FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Tell customers about your business..."
+                        placeholder={t("settings.descriptionPlaceholder")}
                         className="resize-none min-h-[100px]"
                         data-testid="input-description"
                       />
@@ -406,7 +418,7 @@ export default function Settings() {
               <div className="border-t pt-6">
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
-                  Location
+                  {t("settings.location")}
                 </h3>
                 <div className="grid gap-4 md:grid-cols-3">
                   <FormField
@@ -414,7 +426,7 @@ export default function Settings() {
                     name="address"
                     render={({ field }) => (
                       <FormItem className="md:col-span-3">
-                        <FormLabel>Address</FormLabel>
+                        <FormLabel>{t("settings.address")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -431,7 +443,7 @@ export default function Settings() {
                     name="city"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>City</FormLabel>
+                        <FormLabel>{t("settings.city")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -448,7 +460,7 @@ export default function Settings() {
                     name="country"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Country</FormLabel>
+                        <FormLabel>{t("settings.country")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -466,7 +478,7 @@ export default function Settings() {
               <div className="border-t pt-6">
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <Phone className="h-5 w-5" />
-                  Contact
+                  {t("settings.contact")}
                 </h3>
                 <div className="grid gap-4 md:grid-cols-2">
                   <FormField
@@ -474,7 +486,7 @@ export default function Settings() {
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone</FormLabel>
+                        <FormLabel>{t("settings.phone")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -492,7 +504,7 @@ export default function Settings() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>{t("settings.email")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
@@ -517,7 +529,7 @@ export default function Settings() {
                   >
                     <Button type="button" variant="outline" className="gap-2">
                       <ExternalLink className="h-4 w-4" />
-                      Preview Booking Page
+                      {t("settings.previewBooking")}
                     </Button>
                   </a>
                 )}
@@ -526,7 +538,7 @@ export default function Settings() {
                   disabled={saveMutation.isPending}
                   data-testid="button-save-business"
                 >
-                  {saveMutation.isPending ? "Saving..." : business ? "Update" : "Create Business"}
+                  {saveMutation.isPending ? t("settings.saving") : business ? t("settings.save") : t("settings.create")}
                 </Button>
               </div>
             </form>

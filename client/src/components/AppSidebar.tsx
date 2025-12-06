@@ -25,18 +25,20 @@ import {
   ExternalLink,
 } from "lucide-react";
 import type { Business } from "@shared/schema";
-
-const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Services", url: "/services", icon: Scissors },
-  { title: "Bookings", url: "/bookings", icon: Calendar },
-  { title: "Availability", url: "/availability", icon: Clock },
-  { title: "Settings", url: "/settings", icon: Settings },
-];
+import { useI18n } from "@/lib/i18n";
 
 export function AppSidebar() {
   const [location] = useLocation();
   const { user } = useAuth();
+  const { t } = useI18n();
+
+  const menuItems = [
+    { titleKey: "nav.dashboard", url: "/dashboard", icon: LayoutDashboard },
+    { titleKey: "nav.services", url: "/services", icon: Scissors },
+    { titleKey: "nav.bookings", url: "/bookings", icon: Calendar },
+    { titleKey: "nav.availability", url: "/availability", icon: Clock },
+    { titleKey: "nav.settings", url: "/settings", icon: Settings },
+  ];
 
   const { data: business } = useQuery<Business>({
     queryKey: ["/api/business"],
@@ -57,7 +59,7 @@ export function AppSidebar() {
             <Calendar className="h-5 w-5 text-primary-foreground" />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-bold text-lg truncate">FlowLift</span>
+            <span className="font-bold text-lg truncate">{t("app.name")}</span>
             {business && (
               <span className="text-xs text-muted-foreground truncate">
                 {business.name}
@@ -73,14 +75,14 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.titleKey}>
                   <SidebarMenuButton
                     asChild
-                    isActive={location === item.url}
+                    isActive={location === item.url || (item.url === "/dashboard" && location === "/")}
                   >
-                    <Link href={item.url} data-testid={`link-${item.title.toLowerCase()}`}>
+                    <Link href={item.url} data-testid={`link-${item.titleKey.split('.')[1]}`}>
                       <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
+                      <span>{t(item.titleKey)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -103,7 +105,7 @@ export function AppSidebar() {
                       data-testid="link-booking-page"
                     >
                       <ExternalLink className="h-4 w-4" />
-                      <span>View Booking Page</span>
+                      <span>{t("settings.previewBooking")}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -135,7 +137,7 @@ export function AppSidebar() {
             )}
           </div>
           <a href="/api/logout">
-            <Button variant="ghost" size="icon" data-testid="button-logout">
+            <Button variant="ghost" size="icon" data-testid="button-logout" title={t("nav.logout")}>
               <LogOut className="h-4 w-4" />
             </Button>
           </a>
