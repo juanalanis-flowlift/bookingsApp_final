@@ -67,15 +67,15 @@ export default function Settings() {
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
+        title: t("common.unauthorized"),
+        description: t("common.loggingIn"),
         variant: "destructive",
       });
       setTimeout(() => {
         window.location.href = "/api/login";
       }, 500);
     }
-  }, [isAuthenticated, authLoading, toast]);
+  }, [isAuthenticated, authLoading, toast, t]);
 
   const { data: business, isLoading } = useQuery<Business>({
     queryKey: ["/api/business"],
@@ -127,8 +127,8 @@ export default function Settings() {
     onError: (error) => {
       if (isUnauthorizedError(error as Error)) {
         toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
+          title: t("common.unauthorized"),
+          description: t("common.loggingIn"),
           variant: "destructive",
         });
         setTimeout(() => {
@@ -136,7 +136,7 @@ export default function Settings() {
         }, 500);
         return;
       }
-      toast({ title: "Failed to save business profile", variant: "destructive" });
+      toast({ title: t("common.failedToSave"), variant: "destructive" });
     },
   });
 
@@ -155,7 +155,7 @@ export default function Settings() {
     },
     onError: (error) => {
       console.error("Error updating logo:", error);
-      toast({ title: "Failed to update logo", variant: "destructive" });
+      toast({ title: t("common.failedToSave"), variant: "destructive" });
       setIsUploading(false);
     },
   });

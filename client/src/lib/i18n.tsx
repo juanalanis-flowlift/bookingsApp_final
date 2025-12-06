@@ -27,6 +27,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.settings": "Settings",
     "nav.logout": "Logout",
     
+    "sidebar.menu": "Menu",
+    "sidebar.quickActions": "Quick Actions",
+    
     "landing.hero.title": "Smart Booking for",
     "landing.hero.titleHighlight": "Service Businesses",
     "landing.hero.subtitle": "Stop juggling calls and messages. Let your customers book appointments online while you focus on what you do best.",
@@ -218,6 +221,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "common.filter": "Filter",
     "common.required": "Required",
     "common.optional": "Optional",
+    "common.unauthorized": "Unauthorized",
+    "common.loggingIn": "You are logged out. Logging in again...",
+    "common.failedToSave": "Failed to save",
     
     "email.bookingConfirmed": "Booking Confirmed",
     "email.appointmentScheduled": "Your appointment has been scheduled",
@@ -240,6 +246,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.availability": "Disponibilidad",
     "nav.settings": "Configuración",
     "nav.logout": "Cerrar sesión",
+    
+    "sidebar.menu": "Menú",
+    "sidebar.quickActions": "Acciones Rápidas",
     
     "landing.hero.title": "Reservas Inteligentes para",
     "landing.hero.titleHighlight": "Negocios de Servicios",
@@ -432,6 +441,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "common.filter": "Filtrar",
     "common.required": "Requerido",
     "common.optional": "Opcional",
+    "common.unauthorized": "No autorizado",
+    "common.loggingIn": "Has cerrado sesión. Iniciando sesión de nuevo...",
+    "common.failedToSave": "Error al guardar",
     
     "email.bookingConfirmed": "Reserva Confirmada",
     "email.appointmentScheduled": "Tu cita ha sido programada",

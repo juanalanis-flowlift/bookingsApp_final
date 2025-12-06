@@ -71,7 +71,7 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("sidebar.menu")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -93,7 +93,7 @@ export function AppSidebar() {
 
         {business && (
           <SidebarGroup>
-            <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
+            <SidebarGroupLabel>{t("sidebar.quickActions")}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
