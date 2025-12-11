@@ -243,11 +243,11 @@ export default function Settings() {
                 </Avatar>
               </div>
               <div>
-                <CardTitle>{business?.name || "Your Business"}</CardTitle>
+                <CardTitle>{business?.name || t("settings.yourBusiness")}</CardTitle>
                 <CardDescription>
                   {business
                     ? getCategoryLabel(business.category)
-                    : "Set up your business profile"}
+                    : t("dashboard.setupButton")}
                 </CardDescription>
               </div>
             </div>
@@ -314,7 +314,7 @@ export default function Settings() {
                         <Input
                           {...field}
                           onChange={handleNameChange}
-                          placeholder="Your Business Name"
+                          placeholder={t("settings.businessNamePlaceholder")}
                           data-testid="input-business-name"
                         />
                       </FormControl>

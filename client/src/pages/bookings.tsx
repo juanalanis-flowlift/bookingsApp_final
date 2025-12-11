@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/lib/i18n";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 export default function Bookings() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { t } = useI18n();
   const [view, setView] = useState<"list" | "calendar">("list");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [internalNotes, setInternalNotes] = useState("");

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +29,7 @@ interface DashboardStats {
 export default function Dashboard() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { t } = useI18n();
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -85,11 +87,11 @@ export default function Dashboard() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "confirmed":
-        return <Badge className="bg-green-500/10 text-green-600 dark:text-green-400">Confirmed</Badge>;
+        return <Badge className="bg-green-500/10 text-green-600 dark:text-green-400">{t("common.confirmed")}</Badge>;
       case "pending":
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t("common.pending")}</Badge>;
       case "cancelled":
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="destructive">{t("common.cancelled")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -117,13 +119,13 @@ export default function Dashboard() {
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
               <Plus className="h-8 w-8 text-primary" />
             </div>
-            <h2 className="text-2xl font-bold">Welcome to FlowLift</h2>
+            <h2 className="text-2xl font-bold">{t("dashboard.welcomeNewBusiness")}</h2>
             <p className="text-muted-foreground">
-              Let's set up your business profile to start accepting bookings.
+              {t("dashboard.setupNewBusiness")}
             </p>
             <Link href="/settings">
               <Button className="gap-2" data-testid="button-setup-business">
-                Set Up Your Business
+                {t("dashboard.setupButton")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -139,10 +141,10 @@ export default function Dashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-dashboard-title">
-            Dashboard
+            {t("dashboard.title")}
           </h1>
           <p className="text-muted-foreground">
-            Welcome back! Here's an overview of your business.
+            {t("dashboard.welcome")}
           </p>
         </div>
         <a
@@ -152,7 +154,7 @@ export default function Dashboard() {
         >
           <Button variant="outline" className="gap-2" data-testid="button-view-booking-page">
             <ExternalLink className="h-4 w-4" />
-            View Booking Page
+            {t("dashboard.viewBookingPage")}
           </Button>
         </a>
       </div>
@@ -162,7 +164,7 @@ export default function Dashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Upcoming Bookings
+              {t("dashboard.upcomingBookings")}
             </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -171,14 +173,14 @@ export default function Dashboard() {
               {stats.upcomingBookings}
             </div>
             <p className="text-xs text-muted-foreground">
-              Scheduled appointments
+              {t("dashboard.scheduledAppointments")}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Last 30 Days</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.last30Days")}</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -186,14 +188,14 @@ export default function Dashboard() {
               {stats.last30DaysBookings}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total bookings
+              {t("dashboard.totalBookings")}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Services</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.activeServices")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -201,7 +203,7 @@ export default function Dashboard() {
               {stats.totalServices}
             </div>
             <p className="text-xs text-muted-foreground">
-              Available for booking
+              {t("dashboard.availableForBooking")}
             </p>
           </CardContent>
         </Card>
@@ -210,10 +212,10 @@ export default function Dashboard() {
       {/* Upcoming Bookings */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-2">
-          <CardTitle>Upcoming Bookings</CardTitle>
+          <CardTitle>{t("dashboard.upcomingBookings")}</CardTitle>
           <Link href="/bookings">
             <Button variant="ghost" size="sm" className="gap-1" data-testid="link-view-all-bookings">
-              View All
+              {t("dashboard.viewAll")}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
@@ -259,9 +261,9 @@ export default function Dashboard() {
           ) : (
             <div className="text-center py-8">
               <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">No upcoming bookings</p>
+              <p className="text-muted-foreground">{t("dashboard.noUpcomingBookings")}</p>
               <p className="text-sm text-muted-foreground">
-                Share your booking page to start receiving appointments
+                {t("dashboard.shareYourBookingPage")}
               </p>
             </div>
           )}
