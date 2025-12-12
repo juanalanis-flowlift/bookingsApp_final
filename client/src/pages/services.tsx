@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/lib/i18n";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -47,6 +48,7 @@ type ServiceFormValues = z.infer<typeof serviceFormSchema>;
 export default function Services() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { t } = useI18n();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -240,10 +242,10 @@ export default function Services() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-services-title">
-            Services
+            {t("services.title")}
           </h1>
           <p className="text-muted-foreground">
-            Manage the services you offer to customers
+            {t("services.subtitle")}
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
@@ -253,13 +255,13 @@ export default function Services() {
           <DialogTrigger asChild>
             <Button className="gap-2" data-testid="button-add-service">
               <Plus className="h-4 w-4" />
-              Add Service
+              {t("services.addService")}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>
-                {editingService ? "Edit Service" : "Add New Service"}
+                {editingService ? t("services.editService") : t("services.addService")}
               </DialogTitle>
             </DialogHeader>
             <Form {...form}>
@@ -269,7 +271,7 @@ export default function Services() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Service Name *</FormLabel>
+                      <FormLabel>{t("services.name")} *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., Haircut, Massage"
@@ -287,7 +289,7 @@ export default function Services() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{t("services.description")}</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Describe your service..."
@@ -307,7 +309,7 @@ export default function Services() {
                     name="duration"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Duration (minutes) *</FormLabel>
+                        <FormLabel>{t("services.duration")} *</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -326,7 +328,7 @@ export default function Services() {
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price ($) *</FormLabel>
+                        <FormLabel>{t("services.price")} ($) *</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -347,7 +349,7 @@ export default function Services() {
                   name="tags"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tags (comma-separated)</FormLabel>
+                      <FormLabel>{t("services.tags")} ({t("common.commaSeparated")})</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="e.g., haircut, styling, men"
@@ -366,7 +368,7 @@ export default function Services() {
                   render={({ field }) => (
                     <FormItem className="flex items-center justify-between rounded-lg border p-3">
                       <div>
-                        <FormLabel className="text-base">Active</FormLabel>
+                        <FormLabel className="text-base">{t("services.active")}</FormLabel>
                         <p className="text-sm text-muted-foreground">
                           Show this service on your booking page
                         </p>
@@ -389,7 +391,7 @@ export default function Services() {
                     onClick={handleDialogClose}
                     data-testid="button-cancel"
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </Button>
                   <Button
                     type="submit"
@@ -397,10 +399,10 @@ export default function Services() {
                     data-testid="button-save-service"
                   >
                     {createMutation.isPending || updateMutation.isPending
-                      ? "Saving..."
+                      ? t("settings.saving")
                       : editingService
-                      ? "Update"
-                      : "Create"}
+                      ? t("common.edit")
+                      : t("services.save")}
                   </Button>
                 </DialogFooter>
               </form>
@@ -423,7 +425,7 @@ export default function Services() {
                   <CardTitle className="text-lg">{service.name}</CardTitle>
                   {!service.isActive && (
                     <Badge variant="secondary" className="text-xs">
-                      Inactive
+                      {t("common.inactive")}
                     </Badge>
                   )}
                 </div>
@@ -471,7 +473,7 @@ export default function Services() {
                     data-testid={`button-edit-service-${service.id}`}
                   >
                     <Pencil className="h-3.5 w-3.5" />
-                    Edit
+                    {t("common.edit")}
                   </Button>
                   <Dialog
                     open={deleteConfirmId === service.id}
@@ -491,18 +493,17 @@ export default function Services() {
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-md">
                       <DialogHeader>
-                        <DialogTitle>Delete Service</DialogTitle>
+                        <DialogTitle>{t("services.delete")}</DialogTitle>
                       </DialogHeader>
                       <p className="text-muted-foreground">
-                        Are you sure you want to delete "{service.name}"? This
-                        action cannot be undone.
+                        {t("services.deleteConfirm")}
                       </p>
                       <DialogFooter>
                         <Button
                           variant="outline"
                           onClick={() => setDeleteConfirmId(null)}
                         >
-                          Cancel
+                          {t("common.cancel")}
                         </Button>
                         <Button
                           variant="destructive"
@@ -510,7 +511,7 @@ export default function Services() {
                           disabled={deleteMutation.isPending}
                           data-testid="button-confirm-delete"
                         >
-                          {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                          {deleteMutation.isPending ? t("common.deleting") : t("common.delete")}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
@@ -526,12 +527,12 @@ export default function Services() {
             <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
               <Plus className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">No services yet</h3>
+            <h3 className="text-lg font-semibold mb-2">{t("services.noServices")}</h3>
             <p className="text-muted-foreground mb-4">
-              Add your first service to start accepting bookings
+              {t("services.noServicesDesc")}
             </p>
             <Button onClick={() => setIsDialogOpen(true)} data-testid="button-add-first-service">
-              Add Your First Service
+              {t("services.addService")}
             </Button>
           </CardContent>
         </Card>

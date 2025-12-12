@@ -137,13 +137,13 @@ export default function Bookings() {
       case "confirmed":
         return (
           <Badge className="bg-green-500/10 text-green-600 dark:text-green-400">
-            Confirmed
+            {t("common.confirmed")}
           </Badge>
         );
       case "pending":
-        return <Badge variant="secondary">Pending</Badge>;
+        return <Badge variant="secondary">{t("common.pending")}</Badge>;
       case "cancelled":
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="destructive">{t("common.cancelled")}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -222,10 +222,10 @@ export default function Bookings() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-bookings-title">
-            Bookings
+            {t("bookings.title")}
           </h1>
           <p className="text-muted-foreground">
-            Manage and track your customer appointments
+            {t("bookings.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -234,10 +234,10 @@ export default function Bookings() {
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="confirmed">Confirmed</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="all">{t("bookings.all")}</SelectItem>
+              <SelectItem value="pending">{t("bookings.pending")}</SelectItem>
+              <SelectItem value="confirmed">{t("bookings.confirmed")}</SelectItem>
+              <SelectItem value="cancelled">{t("bookings.cancelled")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -248,11 +248,11 @@ export default function Bookings() {
         <TabsList>
           <TabsTrigger value="list" className="gap-2" data-testid="tab-list-view">
             <List className="h-4 w-4" />
-            List
+            {t("bookings.list")}
           </TabsTrigger>
           <TabsTrigger value="calendar" className="gap-2" data-testid="tab-calendar-view">
             <CalendarIcon className="h-4 w-4" />
-            Calendar
+            {t("bookings.calendar")}
           </TabsTrigger>
         </TabsList>
 
@@ -264,11 +264,11 @@ export default function Bookings() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Customer</TableHead>
-                      <TableHead>Service</TableHead>
-                      <TableHead>Date & Time</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead>{t("booking.yourDetails")}</TableHead>
+                      <TableHead>{t("booking.selectedService")}</TableHead>
+                      <TableHead>{t("booking.selectDateTime")}</TableHead>
+                      <TableHead>{t("common.status")}</TableHead>
+                      <TableHead className="text-right">{t("common.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

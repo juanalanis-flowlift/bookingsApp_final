@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Calendar, Clock, Users, BarChart3, CheckCircle, ArrowRight } from "lucide-react";
 import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 
@@ -52,7 +51,6 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-2">
             <LanguageSwitcher minimal />
-            <ThemeToggle />
             <a href="/api/login">
               <Button data-testid="button-login">{t("landing.signIn")}</Button>
             </a>

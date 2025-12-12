@@ -64,24 +64,25 @@ function formatTime(time: string): string {
   return `${hour12}:${minutes} ${ampm}`;
 }
 
-function getStatusBadge(status: string, bookingDate: string) {
+function getStatusBadge(status: string, bookingDate: string, t: (key: string) => string) {
   const isInPast = isPast(parseISO(bookingDate));
   
   if (status === "cancelled") {
-    return <Badge variant="destructive" data-testid="badge-status-cancelled">Cancelled</Badge>;
+    return <Badge variant="destructive" data-testid="badge-status-cancelled">{t("common.cancelled")}</Badge>;
   }
   if (isInPast) {
     return <Badge variant="secondary" data-testid="badge-status-completed">Completed</Badge>;
   }
   if (status === "confirmed") {
-    return <Badge className="bg-green-500 hover:bg-green-600" data-testid="badge-status-confirmed">Confirmed</Badge>;
+    return <Badge className="bg-green-500 hover:bg-green-600" data-testid="badge-status-confirmed">{t("common.confirmed")}</Badge>;
   }
-  return <Badge variant="outline" data-testid="badge-status-pending">Pending</Badge>;
+  return <Badge variant="outline" data-testid="badge-status-pending">{t("common.pending")}</Badge>;
 }
 
 export default function MyBookings() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [sessionToken, setSessionToken] = useState<string | null>(() => {
     return localStorage.getItem("customer_session_token");
@@ -392,7 +393,7 @@ export default function MyBookings() {
                               {booking.business?.name || "Business"}
                             </p>
                           </div>
-                          {getStatusBadge(booking.status, booking.bookingDate)}
+                          {getStatusBadge(booking.status, booking.bookingDate, t)}
                         </div>
 
                         <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
@@ -519,7 +520,7 @@ export default function MyBookings() {
                               {booking.business?.name || "Business"}
                             </p>
                           </div>
-                          {getStatusBadge(booking.status, booking.bookingDate)}
+                          {getStatusBadge(booking.status, booking.bookingDate, t)}
                         </div>
 
                         <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">

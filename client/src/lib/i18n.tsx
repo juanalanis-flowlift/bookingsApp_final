@@ -227,6 +227,18 @@ export const translations: Record<Language, Record<string, string>> = {
     "common.confirmed": "Confirmed",
     "common.pending": "Pending",
     "common.cancelled": "Cancelled",
+    "common.status": "Status",
+    "common.actions": "Actions",
+    "common.inactive": "Inactive",
+    "common.deleting": "Deleting...",
+    "common.blockedTime": "Blocked Time",
+    "common.addBlockedTime": "Add Blocked Time",
+    "common.blockTimeOff": "Block Time Off",
+    "common.noBlockedTimeScheduled": "No blocked time scheduled",
+    "common.addTimeOffDescription": "Add time off for holidays, vacations, or breaks",
+    "common.commaSeparated": "comma-separated",
+    
+    "booking.selectDateTime": "Date & Time",
     
     "dashboard.scheduledAppointments": "Scheduled appointments",
     "dashboard.last30Days": "Last 30 Days",
@@ -466,6 +478,18 @@ export const translations: Record<Language, Record<string, string>> = {
     "common.confirmed": "Confirmado",
     "common.pending": "Pendiente",
     "common.cancelled": "Cancelado",
+    "common.status": "Estado",
+    "common.actions": "Acciones",
+    "common.inactive": "Inactivo",
+    "common.deleting": "Eliminando...",
+    "common.blockedTime": "Tiempo Bloqueado",
+    "common.addBlockedTime": "Agregar Tiempo Bloqueado",
+    "common.blockTimeOff": "Bloquear Tiempo Libre",
+    "common.noBlockedTimeScheduled": "Sin tiempo bloqueado programado",
+    "common.addTimeOffDescription": "Agrega tiempo libre para vacaciones, días festivos o descansos",
+    "common.commaSeparated": "separadas por coma",
+    
+    "booking.selectDateTime": "Fecha y Hora",
     
     "dashboard.scheduledAppointments": "Citas programadas",
     "dashboard.last30Days": "Últimos 30 Días",
@@ -552,10 +576,6 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     
     return text;
   };
-
-  if (!initialized) {
-    return null;
-  }
 
   return (
     <I18nContext.Provider value={{ language, setLanguage, t }}>

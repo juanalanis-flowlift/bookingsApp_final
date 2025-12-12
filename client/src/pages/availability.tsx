@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useI18n } from "@/lib/i18n";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,7 @@ const SLOT_DURATIONS = [15, 30, 45, 60, 90, 120];
 export default function AvailabilityPage() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { t } = useI18n();
   const [blockedTimeDialog, setBlockedTimeDialog] = useState(false);
   const [newBlockedTime, setNewBlockedTime] = useState({
     startDate: new Date(),
@@ -274,10 +276,10 @@ export default function AvailabilityPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-availability-title">
-          Availability
+          {t("availability.title")}
         </h1>
         <p className="text-muted-foreground">
-          Set your working hours and manage time off
+          {t("availability.subtitle")}
         </p>
       </div>
 
@@ -286,7 +288,7 @@ export default function AvailabilityPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Clock className="h-5 w-5" />
-            Working Hours
+            {t("availability.workingHours")}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -364,7 +366,7 @@ export default function AvailabilityPage() {
                       </div>
                     </div>
                   ) : (
-                    <Badge variant="secondary">Closed</Badge>
+                    <Badge variant="secondary">{t("availability.closed")}</Badge>
                   )}
                 </div>
               );
@@ -378,7 +380,7 @@ export default function AvailabilityPage() {
         <CardHeader className="flex flex-row items-center justify-between gap-2">
           <CardTitle className="flex items-center gap-2">
             <Ban className="h-5 w-5" />
-            Blocked Time
+            {t("common.blockedTime")}
           </CardTitle>
           <Dialog open={blockedTimeDialog} onOpenChange={setBlockedTimeDialog}>
             <Button
@@ -389,11 +391,11 @@ export default function AvailabilityPage() {
               data-testid="button-add-blocked-time"
             >
               <Plus className="h-4 w-4" />
-              Add Blocked Time
+              {t("common.addBlockedTime")}
             </Button>
             <DialogContent className="sm:max-w-lg">
               <DialogHeader>
-                <DialogTitle>Block Time Off</DialogTitle>
+                <DialogTitle>{t("common.blockTimeOff")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -496,14 +498,14 @@ export default function AvailabilityPage() {
                   variant="outline"
                   onClick={() => setBlockedTimeDialog(false)}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Button>
                 <Button
                   onClick={handleAddBlockedTime}
                   disabled={createBlockedTimeMutation.isPending}
                   data-testid="button-save-blocked-time"
                 >
-                  {createBlockedTimeMutation.isPending ? "Saving..." : "Add"}
+                  {createBlockedTimeMutation.isPending ? t("settings.saving") : t("common.add")}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -552,9 +554,9 @@ export default function AvailabilityPage() {
           ) : (
             <div className="text-center py-8">
               <Ban className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
-              <p className="text-muted-foreground">No blocked time scheduled</p>
+              <p className="text-muted-foreground">{t("common.noBlockedTimeScheduled")}</p>
               <p className="text-sm text-muted-foreground">
-                Add time off for holidays, vacations, or breaks
+                {t("common.addTimeOffDescription")}
               </p>
             </div>
           )}
