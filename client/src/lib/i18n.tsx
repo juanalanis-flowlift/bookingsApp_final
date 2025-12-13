@@ -90,6 +90,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "booking.step.datetime": "Date & Time",
     "booking.step.details": "Details",
     "booking.min": "min",
+    "booking.addToCalendar": "Add to Calendar",
+    "booking.googleCalendar": "Google Calendar",
+    "booking.outlookCalendar": "Outlook",
+    "booking.appleCalendar": "Apple Calendar",
     
     "settings.title": "Business Settings",
     "settings.subtitle": "Manage your business profile and public booking page",
@@ -341,6 +345,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "booking.step.datetime": "Fecha y Hora",
     "booking.step.details": "Detalles",
     "booking.min": "min",
+    "booking.addToCalendar": "Agregar al Calendario",
+    "booking.googleCalendar": "Google Calendar",
+    "booking.outlookCalendar": "Outlook",
+    "booking.appleCalendar": "Apple Calendar",
     
     "settings.title": "Configuración del Negocio",
     "settings.subtitle": "Administra tu perfil de negocio y página de reservas",

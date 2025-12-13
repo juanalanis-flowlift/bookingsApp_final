@@ -37,6 +37,8 @@ import type { Business, Service, Booking, Availability } from "@shared/schema";
 import { format, addDays, isBefore, startOfDay, isToday, addMinutes } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { useI18n, LanguageSwitcher } from "@/lib/i18n";
+import { createBookingEvent, generateGoogleCalendarUrl, generateOutlookCalendarUrl, downloadICSFile } from "@/lib/calendar";
+import { SiGoogle, SiApple } from "react-icons/si";
 
 const bookingFormSchema = z.object({
   customerName: z.string().min(1, "Name is required"),
@@ -298,6 +300,72 @@ export default function BookingPage() {
               <p className="text-sm text-muted-foreground">
                 {t("booking.confirmationSent")}
               </p>
+
+              {/* Add to Calendar Section */}
+              {selectedDate && selectedTime && selectedService && (
+                <div className="space-y-3">
+                  <p className="text-sm font-medium">{t("booking.addToCalendar")}</p>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const event = createBookingEvent(
+                          selectedService.name,
+                          business.name,
+                          selectedDate,
+                          selectedTime,
+                          selectedService.duration,
+                          business.address ? `${business.address}, ${business.city || ""}` : undefined
+                        );
+                        window.open(generateGoogleCalendarUrl(event), "_blank");
+                      }}
+                      data-testid="button-add-google-calendar"
+                    >
+                      <SiGoogle className="h-4 w-4 mr-2" />
+                      {t("booking.googleCalendar")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const event = createBookingEvent(
+                          selectedService.name,
+                          business.name,
+                          selectedDate,
+                          selectedTime,
+                          selectedService.duration,
+                          business.address ? `${business.address}, ${business.city || ""}` : undefined
+                        );
+                        window.open(generateOutlookCalendarUrl(event), "_blank");
+                      }}
+                      data-testid="button-add-outlook-calendar"
+                    >
+                      <Mail className="h-4 w-4 mr-2" />
+                      {t("booking.outlookCalendar")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const event = createBookingEvent(
+                          selectedService.name,
+                          business.name,
+                          selectedDate,
+                          selectedTime,
+                          selectedService.duration,
+                          business.address ? `${business.address}, ${business.city || ""}` : undefined
+                        );
+                        downloadICSFile(event, `${selectedService.name.replace(/\s+/g, "-")}-appointment.ics`);
+                      }}
+                      data-testid="button-add-apple-calendar"
+                    >
+                      <SiApple className="h-4 w-4 mr-2" />
+                      {t("booking.appleCalendar")}
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button
