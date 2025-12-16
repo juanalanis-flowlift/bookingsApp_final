@@ -71,7 +71,7 @@ function getStatusBadge(status: string, bookingDate: string, t: (key: string) =>
     return <Badge variant="destructive" data-testid="badge-status-cancelled">{t("common.cancelled")}</Badge>;
   }
   if (isInPast) {
-    return <Badge variant="secondary" data-testid="badge-status-completed">Completed</Badge>;
+    return <Badge variant="secondary" data-testid="badge-status-completed">{t("myBookings.completed")}</Badge>;
   }
   if (status === "confirmed") {
     return <Badge className="bg-green-500 hover:bg-green-600" data-testid="badge-status-confirmed">{t("common.confirmed")}</Badge>;
@@ -117,13 +117,13 @@ export default function MyBookings() {
       localStorage.setItem("customer_session_token", data.sessionToken);
       setSessionToken(data.sessionToken);
       toast({
-        title: "Signed in",
-        description: "You can now view and manage your bookings.",
+        title: t("auth.signedIn"),
+        description: t("auth.viewManageBookings"),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to verify token",
+        title: t("common.error"),
+        description: error instanceof Error ? error.message : t("auth.errorVerifyToken"),
         variant: "destructive",
       });
     }
@@ -183,14 +183,14 @@ export default function MyBookings() {
     },
     onSuccess: () => {
       toast({
-        title: "Booking cancelled",
-        description: "Your booking has been cancelled successfully.",
+        title: t("myBookings.bookingCancelled"),
+        description: t("myBookings.bookingCancelledDesc"),
       });
       queryClient.invalidateQueries({ queryKey: ["/api/customer/bookings"] });
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
+        title: t("common.error"),
         description: error.message,
         variant: "destructive",
       });
@@ -216,13 +216,13 @@ export default function MyBookings() {
 
       setAccessRequestSent(true);
       toast({
-        title: "Check your email",
-        description: "We've sent you a link to access your bookings.",
+        title: t("myBookings.checkEmail"),
+        description: t("myBookings.sentAccessLink"),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to request access",
+        title: t("common.error"),
+        description: error instanceof Error ? error.message : t("common.failedToSave"),
         variant: "destructive",
       });
     } finally {
@@ -266,9 +266,9 @@ export default function MyBookings() {
         <div className="container mx-auto px-4 py-12 max-w-md">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle>View Your Bookings</CardTitle>
+              <CardTitle>{t("myBookings.viewTitle")}</CardTitle>
               <CardDescription>
-                Enter your email to access your booking history
+                {t("myBookings.enterEmailDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -278,9 +278,9 @@ export default function MyBookings() {
                     <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-lg">Check your email</h3>
+                    <h3 className="font-medium text-lg">{t("myBookings.checkEmail")}</h3>
                     <p className="text-sm text-muted-foreground mt-1">
-                      We've sent a sign-in link to <strong>{email}</strong>
+                      {t("myBookings.sentSignInLink", { email })}
                     </p>
                   </div>
                   <Button
@@ -288,7 +288,7 @@ export default function MyBookings() {
                     onClick={() => setAccessRequestSent(false)}
                     data-testid="button-try-different-email"
                   >
-                    Try a different email
+                    {t("myBookings.tryDifferentEmail")}
                   </Button>
                 </div>
               ) : (
@@ -296,7 +296,7 @@ export default function MyBookings() {
                   <div>
                     <Input
                       type="email"
-                      placeholder="Enter your email address"
+                      placeholder={t("myBookings.enterEmailPlaceholder")}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
@@ -312,10 +312,10 @@ export default function MyBookings() {
                     {isRequestingAccess ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Sending...
+                        {t("myBookings.sending")}
                       </>
                     ) : (
-                      "Get Access Link"
+                      t("myBookings.getAccessLink")
                     )}
                   </Button>
                 </form>
@@ -371,13 +371,13 @@ export default function MyBookings() {
 
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold" data-testid="text-my-bookings-title">My Bookings</h2>
-          <p className="text-muted-foreground">View and manage your appointments</p>
+          <h2 className="text-2xl font-bold" data-testid="text-my-bookings-title">{t("myBookings.myBookingsTitle")}</h2>
+          <p className="text-muted-foreground">{t("myBookings.viewManageAppointments")}</p>
         </div>
 
         {upcomingBookings.length > 0 && (
           <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-4">Upcoming</h3>
+            <h3 className="text-lg font-semibold mb-4">{t("myBookings.upcoming")}</h3>
             <div className="space-y-4">
               {upcomingBookings.map((booking) => (
                 <Card key={booking.id} data-testid={`card-booking-${booking.id}`}>
@@ -451,23 +451,21 @@ export default function MyBookings() {
                               data-testid={`button-cancel-${booking.id}`}
                             >
                               <X className="w-4 h-4 mr-1" />
-                              Cancel
+                              {t("myBookings.cancel")}
                             </Button>
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Cancel Booking</AlertDialogTitle>
+                              <AlertDialogTitle>{t("myBookings.cancelBooking")}</AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to cancel your booking for{" "}
-                                <strong>{booking.service?.name}</strong> on{" "}
-                                <strong>
-                                  {format(parseISO(booking.bookingDate), "MMMM d, yyyy")}
-                                </strong>
-                                ?
+                                {t("myBookings.cancelBookingConfirm", { 
+                                  serviceName: booking.service?.name || "Service",
+                                  date: format(parseISO(booking.bookingDate), "MMMM d, yyyy")
+                                })}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Keep Booking</AlertDialogCancel>
+                              <AlertDialogCancel>{t("myBookings.keepBooking")}</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => cancelMutation.mutate(booking.id)}
                                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -476,7 +474,7 @@ export default function MyBookings() {
                                 {cancelMutation.isPending ? (
                                   <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : (
-                                  "Cancel Booking"
+                                  t("myBookings.cancelBooking")
                                 )}
                               </AlertDialogAction>
                             </AlertDialogFooter>
@@ -490,7 +488,7 @@ export default function MyBookings() {
                             onClick={() => setLocation(`/book/${booking.business!.slug}`)}
                             data-testid={`button-book-again-${booking.id}`}
                           >
-                            Book Again
+                            {t("myBookings.bookAgain")}
                           </Button>
                         )}
                       </div>
@@ -504,7 +502,7 @@ export default function MyBookings() {
 
         {pastBookings.length > 0 && (
           <div>
-            <h3 className="text-lg font-semibold mb-4">Past & Cancelled</h3>
+            <h3 className="text-lg font-semibold mb-4">{t("myBookings.pastCancelled")}</h3>
             <div className="space-y-4">
               {pastBookings.map((booking) => (
                 <Card key={booking.id} className="opacity-75" data-testid={`card-past-booking-${booking.id}`}>
@@ -546,7 +544,7 @@ export default function MyBookings() {
                           onClick={() => setLocation(`/book/${booking.business!.slug}`)}
                           data-testid={`button-book-again-past-${booking.id}`}
                         >
-                          Book Again
+                          {t("myBookings.bookAgain")}
                         </Button>
                       )}
                     </div>
@@ -561,9 +559,9 @@ export default function MyBookings() {
           <Card>
             <CardContent className="py-12 text-center">
               <Calendar className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No bookings yet</h3>
+              <h3 className="text-lg font-medium mb-2">{t("myBookings.noBookingsYet")}</h3>
               <p className="text-muted-foreground mb-4">
-                You haven't made any bookings with this email address.
+                {t("myBookings.noBookingsEmailDesc")}
               </p>
             </CardContent>
           </Card>
