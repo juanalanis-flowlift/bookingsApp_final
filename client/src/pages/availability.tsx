@@ -377,7 +377,7 @@ export default function AvailabilityPage() {
 
       {/* Blocked Times */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-2">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <CardTitle className="flex items-center gap-2">
             <Ban className="h-5 w-5" />
             {t("common.blockedTime")}
@@ -386,7 +386,7 @@ export default function AvailabilityPage() {
             <Button
               variant="outline"
               size="sm"
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
               onClick={() => setBlockedTimeDialog(true)}
               data-testid="button-add-blocked-time"
             >
