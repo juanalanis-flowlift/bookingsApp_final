@@ -393,11 +393,11 @@ export default function AvailabilityPage() {
               <Plus className="h-4 w-4" />
               {t("common.addBlockedTime")}
             </Button>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{t("common.blockTimeOff")}</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
+              <div className="space-y-4 pr-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-2 block">
