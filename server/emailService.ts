@@ -213,21 +213,21 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
       
       <div style="background: #f4f4f5; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
         <h2 style="margin: 0 0 16px; font-size: 18px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h2>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">${t("date")}:</span>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("date")}:</span>
             <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, language))}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">${t("time")}:</span>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("time")}:</span>
             <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">${t("duration")}:</span>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("duration")}:</span>
             <span style="color: #18181b; font-size: 14px; font-weight: 500;">${service.duration} ${t("minutes")}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">${t("price")}:</span>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("price")}:</span>
             <span style="color: #18181b; font-size: 14px; font-weight: 500;">$${parseFloat(String(service.price)).toFixed(2)}</span>
           </div>
         </div>
@@ -316,21 +316,21 @@ function generateBusinessNotificationHtml(data: BookingEmailData): string {
       
       <div style="background: #f4f4f5; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
         <h2 style="margin: 0 0 16px; font-size: 18px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h2>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">${t("date")}:</span>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("date")}:</span>
             <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, lang))}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">${t("time")}:</span>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("time")}:</span>
             <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">${t("duration")}:</span>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("duration")}:</span>
             <span style="color: #18181b; font-size: 14px; font-weight: 500;">${service.duration} ${t("minutes")}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <span style="color: #71717a; font-size: 14px;">${t("price")}:</span>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("price")}:</span>
             <span style="color: #18181b; font-size: 14px; font-weight: 500;">$${parseFloat(String(service.price)).toFixed(2)}</span>
           </div>
         </div>
