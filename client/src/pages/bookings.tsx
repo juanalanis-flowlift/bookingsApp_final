@@ -366,6 +366,7 @@ export default function Bookings() {
                   mode="single"
                   selected={calendarDate}
                   onSelect={(date) => date && setCalendarDate(date)}
+                  locale={language === "es" ? es : undefined}
                   modifiers={{
                     booked: getDatesWithBookings(),
                   }}
