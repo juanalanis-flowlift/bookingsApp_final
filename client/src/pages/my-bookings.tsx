@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
+import { es, enUS } from "date-fns/locale";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Calendar, Clock, MapPin, Mail, Phone, X, LogOut, Loader2, CheckCircle } from "lucide-react";
@@ -82,7 +83,9 @@ function getStatusBadge(status: string, bookingDate: string, t: (key: string) =>
 export default function MyBookings() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  
+  const getLocale = () => language === "es" ? es : enUS;
   const [email, setEmail] = useState("");
   const [sessionToken, setSessionToken] = useState<string | null>(() => {
     return localStorage.getItem("customer_session_token");
@@ -400,7 +403,7 @@ export default function MyBookings() {
                           <div className="flex items-center gap-1.5">
                             <Calendar className="w-4 h-4" />
                             <span data-testid={`text-booking-date-${booking.id}`}>
-                              {format(parseISO(booking.bookingDate), "EEEE, MMMM d, yyyy")}
+                              {format(parseISO(booking.bookingDate), "EEEE, MMMM d, yyyy", { locale: getLocale() })}
                             </span>
                           </div>
                           <div className="flex items-center gap-1.5">
@@ -460,7 +463,7 @@ export default function MyBookings() {
                               <AlertDialogDescription>
                                 {t("myBookings.cancelBookingConfirm", { 
                                   serviceName: booking.service?.name || "Service",
-                                  date: format(parseISO(booking.bookingDate), "MMMM d, yyyy")
+                                  date: format(parseISO(booking.bookingDate), "MMMM d, yyyy", { locale: getLocale() })
                                 })}
                               </AlertDialogDescription>
                             </AlertDialogHeader>
@@ -525,7 +528,7 @@ export default function MyBookings() {
                           <div className="flex items-center gap-1.5">
                             <Calendar className="w-4 h-4" />
                             <span>
-                              {format(parseISO(booking.bookingDate), "MMMM d, yyyy")}
+                              {format(parseISO(booking.bookingDate), "MMMM d, yyyy", { locale: getLocale() })}
                             </span>
                           </div>
                           <div className="flex items-center gap-1.5">

@@ -53,12 +53,15 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import type { Booking, Service, Business } from "@shared/schema";
 import { format, isSameDay, parseISO, startOfMonth, endOfMonth } from "date-fns";
+import { es, enUS } from "date-fns/locale";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
 export default function Bookings() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
+  
+  const getLocale = () => language === "es" ? es : enUS;
   const [view, setView] = useState<"list" | "calendar">("list");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [internalNotes, setInternalNotes] = useState("");
@@ -285,7 +288,7 @@ export default function Bookings() {
                         <TableCell>{getServiceName(booking.serviceId)}</TableCell>
                         <TableCell>
                           <div>
-                            <p>{format(new Date(booking.bookingDate), "MMM d, yyyy")}</p>
+                            <p>{format(new Date(booking.bookingDate), "MMM d, yyyy", { locale: getLocale() })}</p>
                             <p className="text-sm text-muted-foreground">
                               {booking.startTime} - {booking.endTime}
                             </p>
@@ -381,7 +384,7 @@ export default function Bookings() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CalendarIcon className="h-5 w-5" />
-                  {format(calendarDate, "EEEE, MMMM d, yyyy")}
+                  {format(calendarDate, "EEEE, MMMM d, yyyy", { locale: getLocale() })}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -459,7 +462,7 @@ export default function Bookings() {
                 <div className="flex items-center gap-3">
                   <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                   <span>
-                    {format(new Date(selectedBooking.bookingDate), "MMMM d, yyyy")}
+                    {format(new Date(selectedBooking.bookingDate), "MMMM d, yyyy", { locale: getLocale() })}
                   </span>
                 </div>
                 <div className="flex items-center gap-3">
