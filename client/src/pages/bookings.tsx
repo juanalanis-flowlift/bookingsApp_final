@@ -430,12 +430,12 @@ export default function Bookings() {
         open={!!selectedBooking}
         onOpenChange={(open) => !open && setSelectedBooking(null)}
       >
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Booking Details</DialogTitle>
           </DialogHeader>
           {selectedBooking && (
-            <div className="space-y-4">
+            <div className="space-y-4 pr-4">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Status</span>
                 {getStatusBadge(selectedBooking.status)}
