@@ -30,14 +30,14 @@ import type { Availability, BlockedTime, Business } from "@shared/schema";
 import { format } from "date-fns";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
-const DAYS_OF_WEEK = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
+const DAYS_OF_WEEK_KEYS = [
+  "days.sunday",
+  "days.monday",
+  "days.tuesday",
+  "days.wednesday",
+  "days.thursday",
+  "days.friday",
+  "days.saturday",
 ];
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
@@ -263,7 +263,7 @@ export default function AvailabilityPage() {
         <Card className="max-w-lg mx-auto">
           <CardContent className="pt-6 text-center">
             <p className="text-muted-foreground">
-              Please set up your business profile first.
+              {t("availability.setupFirst")}
             </p>
           </CardContent>
         </Card>
@@ -293,11 +293,11 @@ export default function AvailabilityPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {DAYS_OF_WEEK.map((day, index) => {
+            {DAYS_OF_WEEK_KEYS.map((dayKey, index) => {
               const dayAvail = getDayAvailability(index);
               return (
                 <div
-                  key={day}
+                  key={dayKey}
                   className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-lg border"
                   data-testid={`day-availability-${index}`}
                 >
@@ -307,7 +307,7 @@ export default function AvailabilityPage() {
                       onCheckedChange={(checked) => handleDayToggle(index, checked)}
                       data-testid={`switch-day-${index}`}
                     />
-                    <span className="font-medium">{day}</span>
+                    <span className="font-medium">{t(dayKey)}</span>
                   </div>
 
                   {dayAvail.isOpen ? (
@@ -328,7 +328,7 @@ export default function AvailabilityPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <span className="text-muted-foreground">to</span>
+                        <span className="text-muted-foreground">{t("availability.to")}</span>
                         <Select
                           value={dayAvail.endTime}
                           onValueChange={(v) => handleTimeChange(index, "endTime", v)}
@@ -347,7 +347,7 @@ export default function AvailabilityPage() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">Slot:</span>
+                        <span className="text-sm text-muted-foreground">{t("availability.slotLabel")}</span>
                         <Select
                           value={String(dayAvail.slotDuration || 30)}
                           onValueChange={(v) => handleSlotDurationChange(index, v)}
@@ -401,7 +401,7 @@ export default function AvailabilityPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-2 block">
-                      Start Date
+                      {t("availability.startDate")}
                     </label>
                     <Calendar
                       mode="single"
@@ -415,7 +415,7 @@ export default function AvailabilityPage() {
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-2 block">
-                      End Date
+                      {t("availability.endDate")}
                     </label>
                     <Calendar
                       mode="single"
@@ -432,7 +432,7 @@ export default function AvailabilityPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium mb-2 block">
-                      Start Time
+                      {t("availability.startDate") /* reused for time picker labels */}
                     </label>
                     <Select
                       value={newBlockedTime.startTime}
@@ -454,7 +454,7 @@ export default function AvailabilityPage() {
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-2 block">
-                      End Time
+                      {t("availability.endDate") /* reused for time picker labels */}
                     </label>
                     <Select
                       value={newBlockedTime.endTime}
@@ -478,7 +478,7 @@ export default function AvailabilityPage() {
 
                 <div>
                   <label className="text-sm font-medium mb-2 block">
-                    Reason (optional)
+                    {t("availability.reason")}
                   </label>
                   <Input
                     value={newBlockedTime.reason}

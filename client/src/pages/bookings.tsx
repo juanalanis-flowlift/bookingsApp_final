@@ -415,7 +415,7 @@ export default function Bookings() {
                   <div className="text-center py-8">
                     <CalendarIcon className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
                     <p className="text-muted-foreground">
-                      No bookings on this date
+                      {t("common.noBookingsOnDate")}
                     </p>
                   </div>
                 )}
