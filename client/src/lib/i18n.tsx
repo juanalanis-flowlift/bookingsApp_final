@@ -157,6 +157,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "bookings.cancelled": "Cancelled",
     "bookings.confirm": "Confirm",
     "bookings.cancel": "Cancel",
+    "bookings.viewDetails": "View Details",
+    "bookings.cancelBooking": "Cancel Booking",
     "bookings.customerNotes": "Customer Notes",
     "bookings.internalNotes": "Internal Notes",
     
@@ -441,6 +443,8 @@ export const translations: Record<Language, Record<string, string>> = {
     "bookings.cancelled": "Cancelada",
     "bookings.confirm": "Confirmar",
     "bookings.cancel": "Cancelar",
+    "bookings.viewDetails": "Ver Detalles",
+    "bookings.cancelBooking": "Cancelar Reserva",
     "bookings.customerNotes": "Notas del Cliente",
     "bookings.internalNotes": "Notas Internas",
     

@@ -305,7 +305,7 @@ export default function Bookings() {
                                 data-testid={`action-view-${booking.id}`}
                               >
                                 <FileText className="h-4 w-4 mr-2" />
-                                View Details
+                                {t("bookings.viewDetails")}
                               </DropdownMenuItem>
                               {booking.status !== "confirmed" && (
                                 <DropdownMenuItem
@@ -315,7 +315,7 @@ export default function Bookings() {
                                   data-testid={`action-confirm-${booking.id}`}
                                 >
                                   <CheckCircle className="h-4 w-4 mr-2" />
-                                  Confirm
+                                  {t("bookings.confirm")}
                                 </DropdownMenuItem>
                               )}
                               {booking.status !== "cancelled" && (
@@ -327,7 +327,7 @@ export default function Bookings() {
                                   data-testid={`action-cancel-${booking.id}`}
                                 >
                                   <XCircle className="h-4 w-4 mr-2" />
-                                  Cancel
+                                  {t("bookings.cancelBooking")}
                                 </DropdownMenuItem>
                               )}
                             </DropdownMenuContent>
@@ -432,12 +432,12 @@ export default function Bookings() {
       >
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Booking Details</DialogTitle>
+            <DialogTitle>{t("bookings.title")}</DialogTitle>
           </DialogHeader>
           {selectedBooking && (
             <div className="space-y-4 pr-4">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Status</span>
+                <span className="text-muted-foreground">{t("common.status")}</span>
                 {getStatusBadge(selectedBooking.status)}
               </div>
 
@@ -471,7 +471,7 @@ export default function Bookings() {
               </div>
 
               <div className="border-t pt-4">
-                <p className="font-medium mb-1">Service</p>
+                <p className="font-medium mb-1">{t("booking.selectedService")}</p>
                 <p className="text-muted-foreground">
                   {getServiceName(selectedBooking.serviceId)}
                 </p>
@@ -479,7 +479,7 @@ export default function Bookings() {
 
               {selectedBooking.customerNotes && (
                 <div className="border-t pt-4">
-                  <p className="font-medium mb-1">Customer Notes</p>
+                  <p className="font-medium mb-1">{t("bookings.customerNotes")}</p>
                   <p className="text-muted-foreground">
                     {selectedBooking.customerNotes}
                   </p>
@@ -487,11 +487,11 @@ export default function Bookings() {
               )}
 
               <div className="border-t pt-4">
-                <p className="font-medium mb-2">Internal Notes</p>
+                <p className="font-medium mb-2">{t("bookings.internalNotes")}</p>
                 <Textarea
                   value={internalNotes}
                   onChange={(e) => setInternalNotes(e.target.value)}
-                  placeholder="Add private notes about this booking..."
+                  placeholder={t("bookings.internalNotes")}
                   className="resize-none"
                   data-testid="input-internal-notes"
                 />
@@ -510,7 +510,7 @@ export default function Bookings() {
                 data-testid="button-dialog-confirm"
               >
                 <CheckCircle className="h-4 w-4" />
-                Confirm
+                {t("bookings.confirm")}
               </Button>
             )}
             {selectedBooking?.status !== "cancelled" && (
@@ -524,7 +524,7 @@ export default function Bookings() {
                 data-testid="button-dialog-cancel"
               >
                 <XCircle className="h-4 w-4" />
-                Cancel Booking
+                {t("bookings.cancelBooking")}
               </Button>
             )}
             <Button
@@ -532,7 +532,7 @@ export default function Bookings() {
               disabled={updateMutation.isPending}
               data-testid="button-save-notes"
             >
-              Save Notes
+              {t("common.save")}
             </Button>
           </DialogFooter>
         </DialogContent>
