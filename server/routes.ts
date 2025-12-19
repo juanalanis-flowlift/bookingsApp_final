@@ -342,6 +342,26 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       }
 
       const updated = await storage.updateBooking(req.params.id, req.body);
+      
+      // Send confirmation email when booking is confirmed (for services requiring confirmation)
+      if (req.body.status === "confirmed" && booking.status === "pending") {
+        const service = await storage.getServiceById(booking.serviceId);
+        if (service && service.requiresConfirmation) {
+          sendBookingEmails({
+            booking: {
+              ...updated,
+              date: booking.bookingDate,
+              notes: booking.customerNotes || null,
+            },
+            service,
+            business,
+            language: "en", // Default to English for business-confirmed bookings
+          }).catch((err) => {
+            console.error("Failed to send confirmation emails:", err);
+          });
+        }
+      }
+      
       res.json(updated);
     } catch (error) {
       console.error("Error updating booking:", error);
@@ -467,6 +487,9 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
         return res.status(400).json({ message: "Time slot not available" });
       }
 
+      // Set booking status based on whether service requires confirmation
+      const bookingStatus = service.requiresConfirmation ? "pending" : "confirmed";
+      
       const booking = await storage.createBooking({
         businessId: business.id,
         serviceId: req.body.serviceId,
@@ -477,24 +500,28 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
         bookingDate: bookingDate,
         startTime: req.body.startTime,
         endTime: req.body.endTime,
-        status: "pending",
+        status: bookingStatus,
       });
 
-      // Send confirmation emails (don't block response)
-      sendBookingEmails({
-        booking: {
-          ...booking,
-          date: bookingDate,
-          notes: req.body.customerNotes || null,
-        },
-        service,
-        business,
-        language: req.body.preferredLanguage === "es" ? "es" : "en",
-      }).catch((err) => {
-        console.error("Failed to send booking emails:", err);
-      });
+      // Only send confirmation emails if service doesn't require manual confirmation
+      // For services requiring confirmation, emails will be sent when business owner confirms
+      if (!service.requiresConfirmation) {
+        sendBookingEmails({
+          booking: {
+            ...booking,
+            date: bookingDate,
+            notes: req.body.customerNotes || null,
+          },
+          service,
+          business,
+          language: req.body.preferredLanguage === "es" ? "es" : "en",
+        }).catch((err) => {
+          console.error("Failed to send booking emails:", err);
+        });
+      }
 
-      res.json(booking);
+      // Return booking with requiresConfirmation flag for UI to handle display
+      res.json({ ...booking, requiresConfirmation: service.requiresConfirmation });
     } catch (error) {
       console.error("Error creating booking:", error);
       res.status(500).json({ message: "Failed to create booking" });
