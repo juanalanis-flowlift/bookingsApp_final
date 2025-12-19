@@ -28,6 +28,7 @@ import { Calendar as CalendarIcon, Plus, Trash2, Clock, Ban } from "lucide-react
 import { Calendar } from "@/components/ui/calendar";
 import type { Availability, BlockedTime, Business } from "@shared/schema";
 import { format } from "date-fns";
+import { es, enUS } from "date-fns/locale";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
 const DAYS_OF_WEEK_KEYS = [
@@ -52,7 +53,7 @@ const SLOT_DURATIONS = [15, 30, 45, 60, 90, 120];
 export default function AvailabilityPage() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const [blockedTimeDialog, setBlockedTimeDialog] = useState(false);
   const [newBlockedTime, setNewBlockedTime] = useState({
     startDate: new Date(),
@@ -410,6 +411,7 @@ export default function AvailabilityPage() {
                         date &&
                         setNewBlockedTime((prev) => ({ ...prev, startDate: date }))
                       }
+                      locale={language === "es" ? es : undefined}
                       className="rounded-md border"
                     />
                   </div>
@@ -424,6 +426,7 @@ export default function AvailabilityPage() {
                         date &&
                         setNewBlockedTime((prev) => ({ ...prev, endDate: date }))
                       }
+                      locale={language === "es" ? es : undefined}
                       className="rounded-md border"
                     />
                   </div>
@@ -526,11 +529,11 @@ export default function AvailabilityPage() {
                     </div>
                     <div>
                       <p className="font-medium">
-                        {format(new Date(bt.startDateTime), "MMM d, yyyy")}
+                        {format(new Date(bt.startDateTime), "MMM d, yyyy", { locale: language === "es" ? es : enUS })}
                         {!isSameDay(
                           new Date(bt.startDateTime),
                           new Date(bt.endDateTime)
-                        ) && ` - ${format(new Date(bt.endDateTime), "MMM d, yyyy")}`}
+                        ) && ` - ${format(new Date(bt.endDateTime), "MMM d, yyyy", { locale: language === "es" ? es : enUS })}`}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {format(new Date(bt.startDateTime), "HH:mm")} -{" "}
