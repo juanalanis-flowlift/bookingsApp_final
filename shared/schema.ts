@@ -79,6 +79,7 @@ export const services = pgTable("services", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   tags: text("tags").array(),
   isActive: boolean("is_active").default(true),
+  requiresConfirmation: boolean("requires_confirmation").default(false), // if true, bookings require manual confirmation
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

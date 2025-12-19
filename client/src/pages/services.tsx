@@ -41,6 +41,7 @@ const serviceFormSchema = z.object({
   price: z.coerce.number().min(0, "Price must be positive"),
   tags: z.string().optional(),
   isActive: z.boolean().default(true),
+  requiresConfirmation: z.boolean().default(false),
 });
 
 type ServiceFormValues = z.infer<typeof serviceFormSchema>;
@@ -84,6 +85,7 @@ export default function Services() {
       price: 0,
       tags: "",
       isActive: true,
+      requiresConfirmation: false,
     },
   });
 
@@ -184,6 +186,7 @@ export default function Services() {
       price: parseFloat(service.price),
       tags: service.tags?.join(", ") || "",
       isActive: service.isActive ?? true,
+      requiresConfirmation: service.requiresConfirmation ?? false,
     });
     setIsDialogOpen(true);
   };
@@ -378,6 +381,28 @@ export default function Services() {
                           checked={field.value}
                           onCheckedChange={field.onChange}
                           data-testid="switch-service-active"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="requiresConfirmation"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                      <div>
+                        <FormLabel className="text-base">{t("services.requiresConfirmation")}</FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                          {t("services.requiresConfirmationDesc")}
+                        </p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          data-testid="switch-service-requires-confirmation"
                         />
                       </FormControl>
                     </FormItem>
