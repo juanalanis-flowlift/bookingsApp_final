@@ -365,7 +365,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "booking.pleaseSelectDate": "Por favor selecciona una fecha para ver horarios disponibles",
     "booking.noSlots": "No hay horarios disponibles para esta fecha",
     "booking.summary": "Resumen de Reserva",
-    "booking.yourDetails": "Tus Datos",
+    "booking.yourDetails": "Clientes",
     "booking.name": "Nombre",
     "booking.email": "Correo Electrónico",
     "booking.phone": "Teléfono (Opcional)",
