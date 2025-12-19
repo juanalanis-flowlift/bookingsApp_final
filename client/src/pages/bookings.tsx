@@ -287,9 +287,9 @@ export default function Bookings() {
                         </TableCell>
                         <TableCell>{getServiceName(booking.serviceId)}</TableCell>
                         <TableCell>
-                          <div>
-                            <p>{format(new Date(booking.bookingDate), "MMM d, yyyy", { locale: getLocale() })}</p>
-                            <p className="text-sm text-muted-foreground">
+                          <div className="min-w-max">
+                            <p className="whitespace-normal">{format(new Date(booking.bookingDate), "MMM d, yyyy", { locale: getLocale() })}</p>
+                            <p className="text-sm text-muted-foreground whitespace-normal">
                               {booking.startTime} - {booking.endTime}
                             </p>
                           </div>
