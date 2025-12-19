@@ -259,7 +259,8 @@ export default function BookingPage() {
   }
 
   if (step === "confirmation" && confirmedBooking) {
-    const requiresConfirmation = (confirmedBooking as any).requiresConfirmation;
+    // Check if booking is pending (requires confirmation) by looking at the status
+    const isPendingConfirmation = confirmedBooking.status === "pending";
     
     return (
       <div className="min-h-screen bg-background p-6">
@@ -267,9 +268,9 @@ export default function BookingPage() {
           <Card>
             <CardContent className="pt-8 text-center space-y-6">
               <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto ${
-                requiresConfirmation ? "bg-yellow-500/10" : "bg-green-500/10"
+                isPendingConfirmation ? "bg-yellow-500/10" : "bg-green-500/10"
               }`}>
-                {requiresConfirmation ? (
+                {isPendingConfirmation ? (
                   <Clock className="h-8 w-8 text-yellow-500" />
                 ) : (
                   <Check className="h-8 w-8 text-green-500" />
@@ -277,12 +278,12 @@ export default function BookingPage() {
               </div>
               <div>
                 <h2 className="text-2xl font-bold mb-2">
-                  {requiresConfirmation 
+                  {isPendingConfirmation 
                     ? t("booking.requestSubmitted") 
                     : t("booking.confirmed")}
                 </h2>
                 <p className="text-muted-foreground">
-                  {requiresConfirmation 
+                  {isPendingConfirmation 
                     ? t("booking.pendingConfirmation", { business: business.name })
                     : `${t("booking.thankYou")} ${business.name}`}
                 </p>
@@ -312,13 +313,13 @@ export default function BookingPage() {
               </Card>
 
               <p className="text-sm text-muted-foreground">
-                {requiresConfirmation 
+                {isPendingConfirmation 
                   ? t("booking.pendingConfirmationNote")
                   : t("booking.confirmationSent")}
               </p>
 
               {/* Add to Calendar Section - only show when booking is confirmed */}
-              {!requiresConfirmation && selectedDate && selectedTime && selectedService && (
+              {!isPendingConfirmation && selectedDate && selectedTime && selectedService && (
                 <div className="space-y-3">
                   <p className="text-sm font-medium">{t("booking.addToCalendar")}</p>
                   <div className="flex flex-wrap gap-2 justify-center">

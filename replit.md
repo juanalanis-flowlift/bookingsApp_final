@@ -56,6 +56,12 @@ FlowLift is a multi-tenant booking SaaS platform for small service businesses. I
 3. **Public Booking Page**: `/book/:slug` - customers can book appointments
 4. **Double-booking Prevention**: Server-side validation for time conflicts
 5. **Dark Mode Support**: Toggle between light/dark themes
+6. **Requires Confirmation Feature**: Services can be configured to require manual confirmation before booking is finalized. When enabled:
+   - Bookings are created with "pending" status
+   - Customer sees "Booking Request Submitted" with yellow clock icon
+   - No confirmation email is sent immediately
+   - Business owner confirms from the Bookings section
+   - Confirmation email is sent only after approval
 
 ## API Routes
 ### Protected (requires auth)
