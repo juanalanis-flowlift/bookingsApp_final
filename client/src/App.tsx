@@ -18,6 +18,7 @@ import Availability from "@/pages/availability";
 import Settings from "@/pages/settings";
 import BookingPage from "@/pages/booking";
 import MyBookings from "@/pages/my-bookings";
+import ConfirmModification from "@/pages/confirm-modification";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -52,6 +53,9 @@ function Router() {
       
       {/* Customer bookings page - always accessible */}
       <Route path="/my-bookings" component={MyBookings} />
+      
+      {/* Confirm modification page - always accessible */}
+      <Route path="/confirm-modification" component={ConfirmModification} />
 
       {/* Landing page for non-authenticated users */}
       {isLoading || !isAuthenticated ? (
