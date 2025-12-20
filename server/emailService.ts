@@ -226,23 +226,23 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
       </div>
       
       <div style="background: #f4f4f5; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
-        <h2 style="margin: 0 0 16px; font-size: 18px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h2>
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("date")}:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, language))}</span>
+        <h2 style="margin: 0 0 20px; font-size: 18px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h2>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">
+            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("date")}</div>
+            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, language))}</div>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("time")}:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</span>
+          <div style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">
+            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("time")}</div>
+            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</div>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("duration")}:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${service.duration} ${t("minutes")}</span>
+          <div style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">
+            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("duration")}</div>
+            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${service.duration} ${t("minutes")}</div>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("price")}:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">$${parseFloat(String(service.price)).toFixed(2)}</span>
+          <div style="padding: 8px 0;">
+            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("price")}</div>
+            <div style="color: #18181b; font-size: 15px; font-weight: 500;">$${parseFloat(String(service.price)).toFixed(2)}</div>
           </div>
         </div>
       </div>
@@ -329,23 +329,23 @@ function generateBusinessNotificationHtml(data: BookingEmailData): string {
       </div>
       
       <div style="background: #f4f4f5; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
-        <h2 style="margin: 0 0 16px; font-size: 18px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h2>
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("date")}:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, lang))}</span>
+        <h2 style="margin: 0 0 20px; font-size: 18px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h2>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">
+            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("date")}</div>
+            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, lang))}</div>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("time")}:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</span>
+          <div style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">
+            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("time")}</div>
+            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</div>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("duration")}:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">${service.duration} ${t("minutes")}</span>
+          <div style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">
+            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("duration")}</div>
+            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${service.duration} ${t("minutes")}</div>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 4px;">
-            <span style="color: #71717a; font-size: 13px; font-weight: 500;">${t("price")}:</span>
-            <span style="color: #18181b; font-size: 14px; font-weight: 500;">$${parseFloat(String(service.price)).toFixed(2)}</span>
+          <div style="padding: 8px 0;">
+            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("price")}</div>
+            <div style="color: #18181b; font-size: 15px; font-weight: 500;">$${parseFloat(String(service.price)).toFixed(2)}</div>
           </div>
         </div>
       </div>
@@ -651,28 +651,28 @@ function generateModificationRequestHtml(data: ModificationEmailData): string {
       <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
         <div style="background: #fee2e2; border-radius: 8px; padding: 20px;">
           <h3 style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #991b1b; text-transform: uppercase;">${t("currentAppointment")}</h3>
-          <div style="display: flex; flex-direction: column; gap: 8px;">
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span style="color: #991b1b; font-size: 12px; font-weight: 500;">${t("date")}:</span>
-              <span style="color: #18181b; font-size: 14px; font-weight: 500; text-decoration: line-through;">${escapeHtml(formatDate(booking.bookingDate, language))}</span>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="padding: 6px 0; border-bottom: 1px solid #fecaca;">
+              <div style="color: #991b1b; font-size: 12px; font-weight: 500; margin-bottom: 3px;">${t("date")}</div>
+              <div style="color: #18181b; font-size: 13px; font-weight: 500; text-decoration: line-through;">${escapeHtml(formatDate(booking.bookingDate, language))}</div>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span style="color: #991b1b; font-size: 12px; font-weight: 500;">${t("time")}:</span>
-              <span style="color: #18181b; font-size: 14px; font-weight: 500; text-decoration: line-through;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</span>
+            <div style="padding: 6px 0;">
+              <div style="color: #991b1b; font-size: 12px; font-weight: 500; margin-bottom: 3px;">${t("time")}</div>
+              <div style="color: #18181b; font-size: 13px; font-weight: 500; text-decoration: line-through;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</div>
             </div>
           </div>
         </div>
         
         <div style="background: #d1fae5; border-radius: 8px; padding: 20px;">
           <h3 style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #065f46; text-transform: uppercase;">${t("proposedNewTime")}</h3>
-          <div style="display: flex; flex-direction: column; gap: 8px;">
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span style="color: #065f46; font-size: 12px; font-weight: 500;">${t("date")}:</span>
-              <span style="color: #18181b; font-size: 14px; font-weight: 600;">${escapeHtml(formatDate(proposedDate, language))}</span>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="padding: 6px 0; border-bottom: 1px solid #a7f3d0;">
+              <div style="color: #065f46; font-size: 12px; font-weight: 500; margin-bottom: 3px;">${t("date")}</div>
+              <div style="color: #18181b; font-size: 13px; font-weight: 600;">${escapeHtml(formatDate(proposedDate, language))}</div>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 2px;">
-              <span style="color: #065f46; font-size: 12px; font-weight: 500;">${t("time")}:</span>
-              <span style="color: #18181b; font-size: 14px; font-weight: 600;">${escapeHtml(formatTime(proposedStartTime))} - ${escapeHtml(formatTime(proposedEndTime))}</span>
+            <div style="padding: 6px 0;">
+              <div style="color: #065f46; font-size: 12px; font-weight: 500; margin-bottom: 3px;">${t("time")}</div>
+              <div style="color: #18181b; font-size: 13px; font-weight: 600;">${escapeHtml(formatTime(proposedStartTime))} - ${escapeHtml(formatTime(proposedEndTime))}</div>
             </div>
           </div>
         </div>
