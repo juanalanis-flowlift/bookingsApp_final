@@ -448,11 +448,19 @@ export default function Services() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-lg">{service.name}</CardTitle>
-                  {!service.isActive && (
-                    <Badge variant="secondary" className="text-xs">
-                      {t("common.inactive")}
-                    </Badge>
-                  )}
+                  <div className="flex gap-2">
+                    {service.requiresConfirmation && (
+                      <Badge variant="outline" className="text-xs gap-1" data-testid={`badge-requires-confirmation-${service.id}`}>
+                        <Clock className="h-3 w-3" />
+                        {t("services.confirmation")}
+                      </Badge>
+                    )}
+                    {!service.isActive && (
+                      <Badge variant="secondary" className="text-xs">
+                        {t("common.inactive")}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
