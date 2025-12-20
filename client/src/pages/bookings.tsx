@@ -43,7 +43,9 @@ import {
   CheckCircle,
   XCircle,
   MoreHorizontal,
+  Edit,
 } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,6 +69,14 @@ export default function Bookings() {
   const [internalNotes, setInternalNotes] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [calendarDate, setCalendarDate] = useState<Date>(new Date());
+  
+  // Modify booking state
+  const [modifyDialogOpen, setModifyDialogOpen] = useState(false);
+  const [bookingToModify, setBookingToModify] = useState<Booking | null>(null);
+  const [proposedDate, setProposedDate] = useState<Date | undefined>(undefined);
+  const [proposedStartTime, setProposedStartTime] = useState<string>("");
+  const [proposedEndTime, setProposedEndTime] = useState<string>("");
+  const [modificationReason, setModificationReason] = useState<string>("");
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -131,6 +141,53 @@ export default function Bookings() {
     },
   });
 
+  const modifyMutation = useMutation({
+    mutationFn: async ({
+      id,
+      proposedBookingDate,
+      proposedStartTime,
+      proposedEndTime,
+      modificationReason,
+    }: {
+      id: string;
+      proposedBookingDate: Date;
+      proposedStartTime: string;
+      proposedEndTime: string;
+      modificationReason?: string;
+    }) => {
+      return await apiRequest("POST", `/api/bookings/${id}/request-modification`, {
+        proposedBookingDate,
+        proposedStartTime,
+        proposedEndTime,
+        modificationReason,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      setModifyDialogOpen(false);
+      setBookingToModify(null);
+      setProposedDate(undefined);
+      setProposedStartTime("");
+      setProposedEndTime("");
+      setModificationReason("");
+      toast({ title: t("bookings.modificationRequestSent") });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({ title: t("bookings.modificationRequestFailed"), variant: "destructive" });
+    },
+  });
+
   const getServiceName = (serviceId: string) => {
     return services?.find((s) => s.id === serviceId)?.name || "Unknown Service";
   };
@@ -145,6 +202,12 @@ export default function Bookings() {
         );
       case "pending":
         return <Badge variant="secondary">{t("common.pending")}</Badge>;
+      case "modification_pending":
+        return (
+          <Badge className="bg-orange-500/10 text-orange-600 dark:text-orange-400">
+            {t("bookings.modificationPending")}
+          </Badge>
+        );
       case "cancelled":
         return <Badge variant="destructive">{t("common.cancelled")}</Badge>;
       default:
@@ -195,6 +258,43 @@ export default function Bookings() {
       });
     }
   };
+
+  const handleOpenModifyDialog = (booking: Booking) => {
+    setBookingToModify(booking);
+    setProposedDate(new Date(booking.bookingDate));
+    setProposedStartTime(booking.startTime);
+    setProposedEndTime(booking.endTime);
+    setModificationReason("");
+    setModifyDialogOpen(true);
+  };
+
+  const handleSubmitModification = () => {
+    if (!bookingToModify || !proposedDate || !proposedStartTime || !proposedEndTime) {
+      toast({ title: t("common.fillAllFields"), variant: "destructive" });
+      return;
+    }
+    modifyMutation.mutate({
+      id: bookingToModify.id,
+      proposedBookingDate: proposedDate,
+      proposedStartTime,
+      proposedEndTime,
+      modificationReason: modificationReason || undefined,
+    });
+  };
+
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let h = 6; h < 22; h++) {
+      for (let m = 0; m < 60; m += 30) {
+        const hour = h.toString().padStart(2, "0");
+        const min = m.toString().padStart(2, "0");
+        slots.push(`${hour}:${min}`);
+      }
+    }
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
 
   if (isLoading || authLoading) {
     return (
@@ -310,7 +410,16 @@ export default function Bookings() {
                                 <FileText className="h-4 w-4 mr-2" />
                                 {t("bookings.viewDetails")}
                               </DropdownMenuItem>
-                              {booking.status !== "confirmed" && (
+                              {booking.status !== "cancelled" && booking.status !== "modification_pending" && (
+                                <DropdownMenuItem
+                                  onClick={() => handleOpenModifyDialog(booking)}
+                                  data-testid={`action-modify-${booking.id}`}
+                                >
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  {t("bookings.modify")}
+                                </DropdownMenuItem>
+                              )}
+                              {booking.status !== "confirmed" && booking.status !== "modification_pending" && (
                                 <DropdownMenuItem
                                   onClick={() =>
                                     handleStatusChange(booking.id, "confirmed")
@@ -537,6 +646,114 @@ export default function Bookings() {
               data-testid="button-save-notes"
             >
               {t("common.save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modify Booking Dialog */}
+      <Dialog
+        open={modifyDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setModifyDialogOpen(false);
+            setBookingToModify(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("bookings.modifyBooking")}</DialogTitle>
+          </DialogHeader>
+          {bookingToModify && (
+            <div className="space-y-4 pr-4">
+              <div className="bg-muted/50 p-3 rounded-lg">
+                <p className="text-sm text-muted-foreground">{t("bookings.currentAppointment")}</p>
+                <p className="font-medium">{bookingToModify.customerName}</p>
+                <p className="text-sm">
+                  {format(new Date(bookingToModify.bookingDate), "MMMM d, yyyy", { locale: getLocale() })}
+                  {" • "}
+                  {bookingToModify.startTime} - {bookingToModify.endTime}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <Label className="mb-2 block">{t("bookings.proposedNewDate")}</Label>
+                  <div className="border rounded-md">
+                    <Calendar
+                      mode="single"
+                      selected={proposedDate}
+                      onSelect={setProposedDate}
+                      locale={language === "es" ? es : undefined}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      className="rounded-md"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="mb-2 block">{t("bookings.startTime")}</Label>
+                    <Select value={proposedStartTime} onValueChange={setProposedStartTime}>
+                      <SelectTrigger data-testid="select-start-time">
+                        <SelectValue placeholder={t("bookings.selectTime")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timeSlots.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="mb-2 block">{t("bookings.endTime")}</Label>
+                    <Select value={proposedEndTime} onValueChange={setProposedEndTime}>
+                      <SelectTrigger data-testid="select-end-time">
+                        <SelectValue placeholder={t("bookings.selectTime")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {timeSlots.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="mb-2 block">{t("bookings.reasonForChange")}</Label>
+                  <Textarea
+                    value={modificationReason}
+                    onChange={(e) => setModificationReason(e.target.value)}
+                    placeholder={t("bookings.reasonForChangePlaceholder")}
+                    className="resize-none"
+                    data-testid="input-modification-reason"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setModifyDialogOpen(false);
+                setBookingToModify(null);
+              }}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={handleSubmitModification}
+              disabled={modifyMutation.isPending || !proposedDate || !proposedStartTime || !proposedEndTime}
+              data-testid="button-send-modification-request"
+            >
+              {modifyMutation.isPending ? t("common.sending") : t("bookings.sendModificationRequest")}
             </Button>
           </DialogFooter>
         </DialogContent>
