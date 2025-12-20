@@ -58,6 +58,7 @@ export interface IStorage {
   // Booking operations
   getBookingsByBusinessId(businessId: string): Promise<Booking[]>;
   getBookingById(id: string): Promise<Booking | undefined>;
+  getBookingByModificationToken(token: string): Promise<Booking | undefined>;
   getBookingsByDateRange(
     businessId: string,
     startDate: Date,
@@ -245,6 +246,14 @@ export class DatabaseStorage implements IStorage {
 
   async getBookingById(id: string): Promise<Booking | undefined> {
     const [booking] = await db.select().from(bookings).where(eq(bookings.id, id));
+    return booking;
+  }
+
+  async getBookingByModificationToken(token: string): Promise<Booking | undefined> {
+    const [booking] = await db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.modificationToken, token));
     return booking;
   }
 
