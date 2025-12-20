@@ -8,7 +8,7 @@ import { z } from "zod";
 import { startOfDay, endOfDay, addHours } from "date-fns";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
 import { ObjectPermission } from "./objectAcl";
-import { sendBookingEmails, sendMagicLinkEmail, verifyEmailConnection } from "./emailService";
+import { sendBookingEmails, sendMagicLinkEmail, verifyEmailConnection, sendModificationRequestEmail } from "./emailService";
 
 export async function registerRoutes(server: Server, app: Express): Promise<void> {
   // Auth middleware
@@ -369,6 +369,72 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     }
   });
 
+  // Request modification - business owner proposes a new date/time
+  app.post("/api/bookings/:id/request-modification", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const booking = await storage.getBookingById(req.params.id);
+      if (!booking || booking.businessId !== business.id) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      // Validate input
+      const { proposedBookingDate, proposedStartTime, proposedEndTime, modificationReason } = req.body;
+      if (!proposedBookingDate || !proposedStartTime || !proposedEndTime) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Generate modification token
+      const modificationToken = randomBytes(32).toString("hex");
+      const modificationTokenExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
+
+      // Update booking with proposed changes
+      const updated = await storage.updateBooking(req.params.id, {
+        proposedBookingDate: new Date(proposedBookingDate),
+        proposedStartTime,
+        proposedEndTime,
+        modificationToken,
+        modificationTokenExpiresAt,
+        modificationReason: modificationReason || null,
+        status: "modification_pending",
+      });
+
+      // Get service for email
+      const service = await storage.getServiceById(booking.serviceId);
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+
+      // Send modification request email to customer
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      sendModificationRequestEmail({
+        booking,
+        service,
+        business,
+        proposedDate: new Date(proposedBookingDate),
+        proposedStartTime,
+        proposedEndTime,
+        modificationReason,
+        modificationToken,
+        baseUrl,
+        language: "en", // Default to English, could be enhanced to use customer preference
+      }).catch((err) => {
+        console.error("Failed to send modification request email:", err);
+      });
+
+      res.json(updated);
+    } catch (error) {
+      console.error("Error requesting modification:", error);
+      res.status(500).json({ message: "Failed to request modification" });
+    }
+  });
+
   // ============================================
   // Public Routes (for customer booking page)
   // ============================================
@@ -525,6 +591,122 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     } catch (error) {
       console.error("Error creating booking:", error);
       res.status(500).json({ message: "Failed to create booking" });
+    }
+  });
+
+  // Get modification details by token
+  app.get("/api/public/bookings/modification/:token", async (req, res) => {
+    try {
+      const booking = await storage.getBookingByModificationToken(req.params.token);
+      if (!booking) {
+        return res.status(404).json({ message: "Modification request not found" });
+      }
+
+      // Check if token has expired
+      if (booking.modificationTokenExpiresAt && new Date() > new Date(booking.modificationTokenExpiresAt)) {
+        return res.status(400).json({ message: "Modification request has expired" });
+      }
+
+      // Get service and business info
+      const service = await storage.getServiceById(booking.serviceId);
+      const business = await storage.getBusinessById(booking.businessId);
+
+      if (!service || !business) {
+        return res.status(404).json({ message: "Service or business not found" });
+      }
+
+      res.json({
+        booking: {
+          id: booking.id,
+          customerName: booking.customerName,
+          customerEmail: booking.customerEmail,
+          bookingDate: booking.bookingDate,
+          startTime: booking.startTime,
+          endTime: booking.endTime,
+          proposedBookingDate: booking.proposedBookingDate,
+          proposedStartTime: booking.proposedStartTime,
+          proposedEndTime: booking.proposedEndTime,
+          modificationReason: booking.modificationReason,
+        },
+        service: {
+          id: service.id,
+          name: service.name,
+          duration: service.duration,
+          price: service.price,
+        },
+        business: {
+          id: business.id,
+          name: business.name,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching modification details:", error);
+      res.status(500).json({ message: "Failed to fetch modification details" });
+    }
+  });
+
+  // Confirm modification - customer approves the proposed changes
+  app.post("/api/public/bookings/confirm-modification", async (req, res) => {
+    try {
+      const { token } = req.body;
+      if (!token) {
+        return res.status(400).json({ message: "Token is required" });
+      }
+
+      const booking = await storage.getBookingByModificationToken(token);
+      if (!booking) {
+        return res.status(404).json({ message: "Modification request not found" });
+      }
+
+      // Check if token has expired
+      if (booking.modificationTokenExpiresAt && new Date() > new Date(booking.modificationTokenExpiresAt)) {
+        return res.status(400).json({ message: "Modification request has expired" });
+      }
+
+      // Check that proposed values exist
+      if (!booking.proposedBookingDate || !booking.proposedStartTime || !booking.proposedEndTime) {
+        return res.status(400).json({ message: "Invalid modification request" });
+      }
+
+      // Apply the proposed changes
+      const updated = await storage.updateBooking(booking.id, {
+        bookingDate: booking.proposedBookingDate,
+        startTime: booking.proposedStartTime,
+        endTime: booking.proposedEndTime,
+        status: "confirmed",
+        // Clear modification fields
+        proposedBookingDate: null,
+        proposedStartTime: null,
+        proposedEndTime: null,
+        modificationToken: null,
+        modificationTokenExpiresAt: null,
+        modificationReason: null,
+      });
+
+      // Get service and business for confirmation email
+      const service = await storage.getServiceById(booking.serviceId);
+      const business = await storage.getBusinessById(booking.businessId);
+
+      if (service && business && updated) {
+        // Send confirmation email with new booking details
+        sendBookingEmails({
+          booking: {
+            ...updated,
+            date: updated.bookingDate,
+            notes: updated.customerNotes || null,
+          },
+          service,
+          business,
+          language: "en",
+        }).catch((err) => {
+          console.error("Failed to send confirmation emails:", err);
+        });
+      }
+
+      res.json({ success: true, booking: updated });
+    } catch (error) {
+      console.error("Error confirming modification:", error);
+      res.status(500).json({ message: "Failed to confirm modification" });
     }
   });
 

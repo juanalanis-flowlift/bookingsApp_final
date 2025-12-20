@@ -123,6 +123,13 @@ const emailTranslations: Record<Language, Record<string, string>> = {
     viewMyBookings: "View My Bookings",
     linkExpires: "This link will expire in 1 hour. If you didn't request this email, you can safely ignore it.",
     buttonNotWork: "If the button doesn't work, copy and paste this link into your browser:",
+    modificationRequested: "Booking Modification Requested",
+    modificationRequestDesc: "{businessName} has requested to modify your appointment",
+    currentAppointment: "Current Appointment",
+    proposedNewTime: "Proposed New Time",
+    modificationReason: "Reason for Change",
+    confirmModification: "Confirm Modification",
+    modificationExpires: "Please respond within 48 hours. If you don't confirm, the original appointment will remain unchanged.",
   },
   es: {
     bookingConfirmed: "Reserva Confirmada",
@@ -145,6 +152,13 @@ const emailTranslations: Record<Language, Record<string, string>> = {
     viewMyBookings: "Ver Mis Reservas",
     linkExpires: "Este enlace expirará en 1 hora. Si no solicitaste este correo, puedes ignorarlo con seguridad.",
     buttonNotWork: "Si el botón no funciona, copia y pega este enlace en tu navegador:",
+    modificationRequested: "Solicitud de Modificación de Reserva",
+    modificationRequestDesc: "{businessName} ha solicitado modificar tu cita",
+    currentAppointment: "Cita Actual",
+    proposedNewTime: "Nueva Hora Propuesta",
+    modificationReason: "Razón del Cambio",
+    confirmModification: "Confirmar Modificación",
+    modificationExpires: "Por favor responde en un plazo de 48 horas. Si no confirmas, la cita original permanecerá sin cambios.",
   },
 };
 
@@ -593,6 +607,176 @@ export async function sendMagicLinkEmail(data: MagicLinkData): Promise<boolean> 
     return true;
   } catch (error) {
     console.error("Failed to send magic link email:", error);
+    return false;
+  }
+}
+
+interface ModificationEmailData {
+  booking: Booking;
+  service: Service;
+  business: Business;
+  proposedDate: Date;
+  proposedStartTime: string;
+  proposedEndTime: string;
+  modificationReason?: string;
+  modificationToken: string;
+  baseUrl: string;
+  language?: Language;
+}
+
+function generateModificationRequestHtml(data: ModificationEmailData): string {
+  const { booking, service, business, proposedDate, proposedStartTime, proposedEndTime, modificationReason, modificationToken, baseUrl, language = "en" } = data;
+  const t = (key: string, params?: Record<string, string>) => getEmailText(key, language, params);
+  const confirmUrl = `${baseUrl}/confirm-modification?token=${modificationToken}`;
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${t("modificationRequested")}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
+  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+    <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <div style="text-align: center; margin-bottom: 32px;">
+        <div style="display: inline-block; background: #f59e0b; color: white; padding: 8px 16px; border-radius: 9999px; font-size: 14px; font-weight: 500; margin-bottom: 16px;">
+          ${t("modificationRequested")}
+        </div>
+        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h1>
+        <p style="margin: 8px 0 0; color: #71717a; font-size: 16px;">${t("modificationRequestDesc", { businessName: business.name })}</p>
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
+        <div style="background: #fee2e2; border-radius: 8px; padding: 20px;">
+          <h3 style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #991b1b; text-transform: uppercase;">${t("currentAppointment")}</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span style="color: #991b1b; font-size: 12px; font-weight: 500;">${t("date")}:</span>
+              <span style="color: #18181b; font-size: 14px; font-weight: 500; text-decoration: line-through;">${escapeHtml(formatDate(booking.bookingDate, language))}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span style="color: #991b1b; font-size: 12px; font-weight: 500;">${t("time")}:</span>
+              <span style="color: #18181b; font-size: 14px; font-weight: 500; text-decoration: line-through;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div style="background: #d1fae5; border-radius: 8px; padding: 20px;">
+          <h3 style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #065f46; text-transform: uppercase;">${t("proposedNewTime")}</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span style="color: #065f46; font-size: 12px; font-weight: 500;">${t("date")}:</span>
+              <span style="color: #18181b; font-size: 14px; font-weight: 600;">${escapeHtml(formatDate(proposedDate, language))}</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <span style="color: #065f46; font-size: 12px; font-weight: 500;">${t("time")}:</span>
+              <span style="color: #18181b; font-size: 14px; font-weight: 600;">${escapeHtml(formatTime(proposedStartTime))} - ${escapeHtml(formatTime(proposedEndTime))}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      ${modificationReason ? `
+      <div style="background: #f4f4f5; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+        <h3 style="margin: 0 0 8px; font-size: 14px; font-weight: 600; color: #18181b;">${t("modificationReason")}</h3>
+        <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">${escapeHtml(modificationReason)}</p>
+      </div>
+      ` : ""}
+      
+      <div style="text-align: center; margin-bottom: 24px;">
+        <a href="${confirmUrl}" style="display: inline-block; background: #22c55e; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 16px;">
+          ${t("confirmModification")}
+        </a>
+      </div>
+      
+      <div style="background: #fef3c7; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+        <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+          <strong>Note:</strong> ${t("modificationExpires")}
+        </p>
+      </div>
+      
+      <div style="border-top: 1px solid #e4e4e7; padding-top: 24px; text-align: center;">
+        <p style="margin: 0; color: #71717a; font-size: 12px;">
+          ${t("buttonNotWork")}<br>
+          <a href="${confirmUrl}" style="color: #3b82f6; word-break: break-all;">${escapeHtml(confirmUrl)}</a>
+        </p>
+      </div>
+    </div>
+    
+    <div style="text-align: center; padding: 24px;">
+      <p style="margin: 0; color: #a1a1aa; font-size: 12px;">
+        ${t("poweredBy")}
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+}
+
+function generateModificationRequestText(data: ModificationEmailData): string {
+  const { booking, service, business, proposedDate, proposedStartTime, proposedEndTime, modificationReason, modificationToken, baseUrl, language = "en" } = data;
+  const t = (key: string, params?: Record<string, string>) => getEmailText(key, language, params);
+  const confirmUrl = `${baseUrl}/confirm-modification?token=${modificationToken}`;
+
+  return `
+${t("modificationRequested").toUpperCase()}
+
+${t("modificationRequestDesc", { businessName: business.name })}
+
+${service.name}
+
+${t("currentAppointment")}:
+${t("date")}: ${formatDate(booking.bookingDate, language)}
+${t("time")}: ${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}
+
+${t("proposedNewTime")}:
+${t("date")}: ${formatDate(proposedDate, language)}
+${t("time")}: ${formatTime(proposedStartTime)} - ${formatTime(proposedEndTime)}
+
+${modificationReason ? `${t("modificationReason")}: ${modificationReason}` : ""}
+
+${t("confirmModification")}: ${confirmUrl}
+
+${t("modificationExpires")}
+
+---
+${t("poweredBy")}
+  `.trim();
+}
+
+export async function sendModificationRequestEmail(data: ModificationEmailData): Promise<boolean> {
+  const { booking, service, business, language = "en" } = data;
+  const config = getEmailConfig();
+  const transport = getTransporter();
+  const t = (key: string) => getEmailText(key, language);
+
+  const emailContent = {
+    from: config?.from || "noreply@flowlift.app",
+    to: booking.customerEmail,
+    subject: `${t("modificationRequested")}: ${service.name} - ${business.name}`,
+    text: generateModificationRequestText(data),
+    html: generateModificationRequestHtml(data),
+  };
+
+  if (!transport) {
+    console.log("=== EMAIL (Modification Request) ===");
+    console.log("To:", emailContent.to);
+    console.log("Subject:", emailContent.subject);
+    console.log("Language:", language);
+    console.log("Confirm URL:", `${data.baseUrl}/confirm-modification?token=${data.modificationToken}`);
+    console.log("=====================================");
+    return true;
+  }
+
+  try {
+    await transport.sendMail(emailContent);
+    console.log(`Modification request email sent to: ${booking.customerEmail} (lang: ${language})`);
+    return true;
+  } catch (error) {
+    console.error("Failed to send modification request email:", error);
     return false;
   }
 }
