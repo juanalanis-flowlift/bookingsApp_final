@@ -217,50 +217,65 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t("bookingConfirmed")}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff;">
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-    <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-      <div style="text-align: center; margin-bottom: 32px;">
-        <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: #dcfce7; border-radius: 50%; margin: 0 auto 16px;">
-          <span style="font-size: 32px; color: #16a34a;">✓</span>
-        </div>
-        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #18181b;">${t("bookingConfirmed")}</h1>
-        <p style="margin: 8px 0 0; color: #71717a; font-size: 16px;">${t("appointmentScheduled")} <strong>${escapeHtml(business.name)}</strong></p>
+    <!-- Checkmark Icon -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: #dcfce7; border-radius: 50%;">
+        <span style="font-size: 40px; color: #22c55e;">✓</span>
       </div>
-      
-      <div style="background: #f4f4f5; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
-        <h2 style="margin: 0 0 20px; font-size: 18px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h2>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <div style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">
-            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("date")}</div>
-            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, language))}</div>
-          </div>
-          <div style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">
-            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("time")}</div>
-            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</div>
-          </div>
-          <div style="padding: 8px 0;">
-            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("businessDetails")}</div>
-            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${escapeHtml(business.name)}</div>
-          </div>
-        </div>
+    </div>
+
+    <!-- Title -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h1 style="margin: 0 0 8px; font-size: 28px; font-weight: 700; color: #18181b;">${t("bookingConfirmed")}</h1>
+      <p style="margin: 0; color: #71717a; font-size: 16px;">${t("appointmentScheduled")} <strong style="color: #18181b;">${escapeHtml(business.name)}</strong></p>
+    </div>
+    
+    <!-- Booking Details Card -->
+    <div style="border: 1px solid #e4e4e7; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+      <div style="margin-bottom: 16px;">
+        <span style="font-size: 18px; margin-right: 12px;">📅</span>
+        <span style="font-size: 16px; color: #18181b; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, language))}</span>
       </div>
-      
-      <div style="margin-bottom: 24px;">
-        <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">
-          ${t("needChanges", { businessName: business.name })}
-        </p>
+      <div style="margin-bottom: 16px;">
+        <span style="font-size: 18px; margin-right: 12px;">🕐</span>
+        <span style="font-size: 16px; color: #18181b; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</span>
       </div>
-      
-      <div style="border-top: 1px solid #e4e4e7; padding-top: 24px; text-align: center;">
-        <p style="margin: 0; color: #71717a; font-size: 12px;">
-          ${t("poweredBy")}
-        </p>
+      <div>
+        <span style="font-size: 18px; margin-right: 12px;">🏷️</span>
+        <span style="font-size: 16px; color: #18181b; font-weight: 500;">${escapeHtml(service.name)}</span>
       </div>
     </div>
     
-    <div style="text-align: center; padding: 24px;">
-      <p style="margin: 0; color: #a1a1aa; font-size: 12px;">
+    <!-- Green Confirmation Message -->
+    <div style="border-left: 4px solid #22c55e; background: #f0fdf4; padding: 16px; margin-bottom: 32px;">
+      <p style="margin: 0; color: #166534; font-size: 14px; line-height: 1.6;">
+        A confirmation email has been sent to <a href="mailto:${escapeHtml(booking.customerEmail)}" style="color: #2563eb; text-decoration: underline;">${escapeHtml(booking.customerEmail)}</a>. You can manage all your bookings from your account.
+      </p>
+    </div>
+    
+    <!-- Business Details -->
+    <div style="margin-bottom: 24px;">
+      <h3 style="margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #18181b; text-transform: uppercase; letter-spacing: 0.5px;">BUSINESS DETAILS</h3>
+      <p style="margin: 0; color: #18181b; font-size: 15px; line-height: 1.8;">
+        <strong>${escapeHtml(business.name)}</strong><br>
+        ${business.email ? `<a href="mailto:${escapeHtml(business.email)}" style="color: #2563eb; text-decoration: none;">${escapeHtml(business.email)}</a><br>` : ""}
+        ${business.phone ? `<a href="tel:${escapeHtml(business.phone)}" style="color: #2563eb; text-decoration: none;">${escapeHtml(business.phone)}</a><br>` : ""}
+        ${business.address ? `<span style="color: #52525b;">${escapeHtml(business.address)}</span>` : ""}
+      </p>
+    </div>
+    
+    <!-- Need Changes -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <p style="margin: 0; color: #71717a; font-size: 14px;">
+        ${t("needChanges", { businessName: business.name })}
+      </p>
+    </div>
+    
+    <!-- Powered By -->
+    <div style="text-align: center; padding-top: 24px; border-top: 1px solid #f4f4f5;">
+      <p style="margin: 0; color: #a1a1aa; font-size: 13px;">
         ${t("poweredBy")}
       </p>
     </div>
@@ -316,63 +331,72 @@ function generateBusinessNotificationHtml(data: BookingEmailData): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t("newBooking")}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff;">
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-    <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-      <div style="text-align: center; margin-bottom: 32px;">
-        <div style="display: inline-block; background: #22c55e; color: white; padding: 8px 16px; border-radius: 9999px; font-size: 14px; font-weight: 500; margin-bottom: 16px;">
-          ${t("newBooking")}
-        </div>
-        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #18181b;">${t("newAppointment")}</h1>
+    <!-- Checkmark Icon -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: #dcfce7; border-radius: 50%;">
+        <span style="font-size: 40px; color: #22c55e;">✓</span>
       </div>
-      
-      <div style="background: #f4f4f5; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
-        <h2 style="margin: 0 0 20px; font-size: 18px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h2>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-          <div style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">
-            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("date")}</div>
-            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, lang))}</div>
-          </div>
-          <div style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">
-            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("time")}</div>
-            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</div>
-          </div>
-          <div style="padding: 8px 0; border-bottom: 1px solid #e4e4e7;">
-            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("duration")}</div>
-            <div style="color: #18181b; font-size: 15px; font-weight: 500;">${service.duration} ${t("minutes")}</div>
-          </div>
-          <div style="padding: 8px 0;">
-            <div style="color: #71717a; font-size: 13px; font-weight: 500; margin-bottom: 4px;">${t("price")}</div>
-            <div style="color: #18181b; font-size: 15px; font-weight: 500;">$${parseFloat(String(service.price)).toFixed(2)}</div>
-          </div>
-        </div>
+    </div>
+
+    <!-- Title -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h1 style="margin: 0 0 8px; font-size: 28px; font-weight: 700; color: #18181b;">${t("newBooking")}</h1>
+      <p style="margin: 0; color: #71717a; font-size: 16px;">${t("newAppointment")}</p>
+    </div>
+    
+    <!-- Booking Details Card -->
+    <div style="border: 1px solid #e4e4e7; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+      <div style="margin-bottom: 16px;">
+        <span style="font-size: 18px; margin-right: 12px;">📅</span>
+        <span style="font-size: 16px; color: #18181b; font-weight: 500;">${escapeHtml(formatDate(booking.bookingDate, lang))}</span>
       </div>
-      
-      <div style="margin-bottom: 24px;">
-        <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #18181b;">${t("customerDetails")}</h3>
-        <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">
-          <strong>${escapeHtml(booking.customerName)}</strong><br>
-          ${escapeHtml(booking.customerEmail)}
-          ${booking.customerPhone ? `<br>${escapeHtml(booking.customerPhone)}` : ""}
-        </p>
+      <div style="margin-bottom: 16px;">
+        <span style="font-size: 18px; margin-right: 12px;">🕐</span>
+        <span style="font-size: 16px; color: #18181b; font-weight: 500;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</span>
       </div>
-      
-      ${booking.customerNotes ? `
-      <div style="margin-bottom: 24px;">
-        <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 600; color: #18181b;">${t("customerNotes")}</h3>
-        <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">${escapeHtml(booking.customerNotes)}</p>
-      </div>
-      ` : ""}
-      
-      <div style="border-top: 1px solid #e4e4e7; padding-top: 24px; text-align: center;">
-        <p style="margin: 0; color: #71717a; font-size: 12px;">
-          ${t("loginDashboard")}
-        </p>
+      <div>
+        <span style="font-size: 18px; margin-right: 12px;">🏷️</span>
+        <span style="font-size: 16px; color: #18181b; font-weight: 500;">${escapeHtml(service.name)}</span>
       </div>
     </div>
     
-    <div style="text-align: center; padding: 24px;">
-      <p style="margin: 0; color: #a1a1aa; font-size: 12px;">
+    <!-- Green Confirmation Message -->
+    <div style="border-left: 4px solid #22c55e; background: #f0fdf4; padding: 16px; margin-bottom: 32px;">
+      <p style="margin: 0; color: #166534; font-size: 14px; line-height: 1.6;">
+        A confirmation email has been sent to <a href="mailto:${escapeHtml(booking.customerEmail)}" style="color: #2563eb; text-decoration: underline;">${escapeHtml(booking.customerEmail)}</a>. You can manage all your bookings from your account.
+      </p>
+    </div>
+    
+    <!-- Customer Details -->
+    <div style="margin-bottom: 24px;">
+      <h3 style="margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #18181b; text-transform: uppercase; letter-spacing: 0.5px;">CUSTOMER DETAILS</h3>
+      <p style="margin: 0; color: #18181b; font-size: 15px; line-height: 1.8;">
+        <strong>${escapeHtml(booking.customerName)}</strong><br>
+        <a href="mailto:${escapeHtml(booking.customerEmail)}" style="color: #2563eb; text-decoration: none;">${escapeHtml(booking.customerEmail)}</a>
+        ${booking.customerPhone ? `<br><a href="tel:${escapeHtml(booking.customerPhone)}" style="color: #2563eb; text-decoration: none;">${escapeHtml(booking.customerPhone)}</a>` : ""}
+      </p>
+    </div>
+    
+    ${booking.customerNotes ? `
+    <!-- Customer Notes -->
+    <div style="margin-bottom: 24px;">
+      <h3 style="margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #18181b; text-transform: uppercase; letter-spacing: 0.5px;">CUSTOMER NOTES</h3>
+      <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">${escapeHtml(booking.customerNotes)}</p>
+    </div>
+    ` : ""}
+    
+    <!-- Footer Message -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <p style="margin: 0; color: #71717a; font-size: 14px;">
+        ${t("loginDashboard")}
+      </p>
+    </div>
+    
+    <!-- Powered By -->
+    <div style="text-align: center; padding-top: 24px; border-top: 1px solid #f4f4f5;">
+      <p style="margin: 0; color: #a1a1aa; font-size: 13px;">
         ${t("poweredBy")}
       </p>
     </div>
@@ -635,76 +659,99 @@ function generateModificationRequestHtml(data: ModificationEmailData): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${t("modificationRequested")}</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff;">
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-    <div style="background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-      <div style="text-align: center; margin-bottom: 32px;">
-        <div style="display: inline-block; background: #f59e0b; color: white; padding: 8px 16px; border-radius: 9999px; font-size: 14px; font-weight: 500; margin-bottom: 16px;">
-          ${t("modificationRequested")}
-        </div>
-        <h1 style="margin: 0; font-size: 24px; font-weight: 600; color: #18181b;">${escapeHtml(service.name)}</h1>
-        <p style="margin: 8px 0 0; color: #71717a; font-size: 16px;">${t("modificationRequestDesc", { businessName: business.name })}</p>
+    <!-- Warning Icon -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: #fef3c7; border-radius: 50%;">
+        <span style="font-size: 40px;">⚠️</span>
       </div>
-      
-      <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
-        <div style="background: #fee2e2; border-radius: 8px; padding: 20px;">
-          <h3 style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #991b1b; text-transform: uppercase;">${t("currentAppointment")}</h3>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="padding: 6px 0; border-bottom: 1px solid #fecaca;">
-              <div style="color: #991b1b; font-size: 12px; font-weight: 500; margin-bottom: 3px;">${t("date")}</div>
-              <div style="color: #18181b; font-size: 13px; font-weight: 500; text-decoration: line-through;">${escapeHtml(formatDate(booking.bookingDate, language))}</div>
-            </div>
-            <div style="padding: 6px 0;">
-              <div style="color: #991b1b; font-size: 12px; font-weight: 500; margin-bottom: 3px;">${t("time")}</div>
-              <div style="color: #18181b; font-size: 13px; font-weight: 500; text-decoration: line-through;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</div>
-            </div>
-          </div>
-        </div>
-        
-        <div style="background: #d1fae5; border-radius: 8px; padding: 20px;">
-          <h3 style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #065f46; text-transform: uppercase;">${t("proposedNewTime")}</h3>
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div style="padding: 6px 0; border-bottom: 1px solid #a7f3d0;">
-              <div style="color: #065f46; font-size: 12px; font-weight: 500; margin-bottom: 3px;">${t("date")}</div>
-              <div style="color: #18181b; font-size: 13px; font-weight: 600;">${escapeHtml(formatDate(proposedDate, language))}</div>
-            </div>
-            <div style="padding: 6px 0;">
-              <div style="color: #065f46; font-size: 12px; font-weight: 500; margin-bottom: 3px;">${t("time")}</div>
-              <div style="color: #18181b; font-size: 13px; font-weight: 600;">${escapeHtml(formatTime(proposedStartTime))} - ${escapeHtml(formatTime(proposedEndTime))}</div>
-            </div>
-          </div>
-        </div>
+    </div>
+
+    <!-- Title -->
+    <div style="text-align: center; margin-bottom: 32px;">
+      <h1 style="margin: 0 0 8px; font-size: 28px; font-weight: 700; color: #18181b;">${t("modificationRequested")}</h1>
+      <p style="margin: 0; color: #71717a; font-size: 16px;">${t("modificationRequestDesc", { businessName: business.name })}</p>
+    </div>
+    
+    <!-- Current Appointment Card (Red/Strikethrough) -->
+    <div style="border: 1px solid #fecaca; border-radius: 12px; padding: 20px; margin-bottom: 16px; background: #fef2f2;">
+      <h3 style="margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #991b1b; text-transform: uppercase;">${t("currentAppointment")}</h3>
+      <div style="margin-bottom: 12px;">
+        <span style="font-size: 18px; margin-right: 12px;">📅</span>
+        <span style="font-size: 16px; color: #71717a; font-weight: 500; text-decoration: line-through;">${escapeHtml(formatDate(booking.bookingDate, language))}</span>
       </div>
-      
-      ${modificationReason ? `
-      <div style="background: #f4f4f5; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-        <h3 style="margin: 0 0 8px; font-size: 14px; font-weight: 600; color: #18181b;">${t("modificationReason")}</h3>
-        <p style="margin: 0; color: #52525b; font-size: 14px; line-height: 1.6;">${escapeHtml(modificationReason)}</p>
+      <div style="margin-bottom: 12px;">
+        <span style="font-size: 18px; margin-right: 12px;">🕐</span>
+        <span style="font-size: 16px; color: #71717a; font-weight: 500; text-decoration: line-through;">${escapeHtml(formatTime(booking.startTime))} - ${escapeHtml(formatTime(booking.endTime))}</span>
       </div>
-      ` : ""}
-      
-      <div style="text-align: center; margin-bottom: 24px;">
-        <a href="${confirmUrl}" style="display: inline-block; background: #22c55e; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 500; font-size: 16px;">
-          ${t("confirmModification")}
-        </a>
-      </div>
-      
-      <div style="background: #fef3c7; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-        <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
-          <strong>Note:</strong> ${t("modificationExpires")}
-        </p>
-      </div>
-      
-      <div style="border-top: 1px solid #e4e4e7; padding-top: 24px; text-align: center;">
-        <p style="margin: 0; color: #71717a; font-size: 12px;">
-          ${t("buttonNotWork")}<br>
-          <a href="${confirmUrl}" style="color: #3b82f6; word-break: break-all;">${escapeHtml(confirmUrl)}</a>
-        </p>
+      <div>
+        <span style="font-size: 18px; margin-right: 12px;">🏷️</span>
+        <span style="font-size: 16px; color: #71717a; font-weight: 500;">${escapeHtml(service.name)}</span>
       </div>
     </div>
     
-    <div style="text-align: center; padding: 24px;">
-      <p style="margin: 0; color: #a1a1aa; font-size: 12px;">
+    <!-- Proposed New Time Card (Green) -->
+    <div style="border: 1px solid #a7f3d0; border-radius: 12px; padding: 20px; margin-bottom: 24px; background: #f0fdf4;">
+      <h3 style="margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #166534; text-transform: uppercase;">${t("proposedNewTime")}</h3>
+      <div style="margin-bottom: 12px;">
+        <span style="font-size: 18px; margin-right: 12px;">📅</span>
+        <span style="font-size: 16px; color: #18181b; font-weight: 600;">${escapeHtml(formatDate(proposedDate, language))}</span>
+      </div>
+      <div style="margin-bottom: 12px;">
+        <span style="font-size: 18px; margin-right: 12px;">🕐</span>
+        <span style="font-size: 16px; color: #18181b; font-weight: 600;">${escapeHtml(formatTime(proposedStartTime))} - ${escapeHtml(formatTime(proposedEndTime))}</span>
+      </div>
+      <div>
+        <span style="font-size: 18px; margin-right: 12px;">🏷️</span>
+        <span style="font-size: 16px; color: #18181b; font-weight: 500;">${escapeHtml(service.name)}</span>
+      </div>
+    </div>
+    
+    ${modificationReason ? `
+    <!-- Reason -->
+    <div style="border-left: 4px solid #f59e0b; background: #fffbeb; padding: 16px; margin-bottom: 24px;">
+      <h3 style="margin: 0 0 8px; font-size: 14px; font-weight: 700; color: #92400e; text-transform: uppercase;">${t("modificationReason")}</h3>
+      <p style="margin: 0; color: #78350f; font-size: 14px; line-height: 1.6;">${escapeHtml(modificationReason)}</p>
+    </div>
+    ` : ""}
+    
+    <!-- Confirm Button -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <a href="${confirmUrl}" style="display: inline-block; background: #22c55e; color: white; padding: 16px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+        ${t("confirmModification")}
+      </a>
+    </div>
+    
+    <!-- Warning Message -->
+    <div style="border-left: 4px solid #f59e0b; background: #fffbeb; padding: 16px; margin-bottom: 32px;">
+      <p style="margin: 0; color: #92400e; font-size: 14px; line-height: 1.6;">
+        <strong>Note:</strong> ${t("modificationExpires")}
+      </p>
+    </div>
+    
+    <!-- Business Details -->
+    <div style="margin-bottom: 24px;">
+      <h3 style="margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #18181b; text-transform: uppercase; letter-spacing: 0.5px;">BUSINESS DETAILS</h3>
+      <p style="margin: 0; color: #18181b; font-size: 15px; line-height: 1.8;">
+        <strong>${escapeHtml(business.name)}</strong><br>
+        ${business.email ? `<a href="mailto:${escapeHtml(business.email)}" style="color: #2563eb; text-decoration: none;">${escapeHtml(business.email)}</a><br>` : ""}
+        ${business.phone ? `<a href="tel:${escapeHtml(business.phone)}" style="color: #2563eb; text-decoration: none;">${escapeHtml(business.phone)}</a><br>` : ""}
+        ${business.address ? `<span style="color: #52525b;">${escapeHtml(business.address)}</span>` : ""}
+      </p>
+    </div>
+    
+    <!-- Link Fallback -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <p style="margin: 0; color: #71717a; font-size: 12px;">
+        ${t("buttonNotWork")}<br>
+        <a href="${confirmUrl}" style="color: #2563eb; word-break: break-all;">${escapeHtml(confirmUrl)}</a>
+      </p>
+    </div>
+    
+    <!-- Powered By -->
+    <div style="text-align: center; padding-top: 24px; border-top: 1px solid #f4f4f5;">
+      <p style="margin: 0; color: #a1a1aa; font-size: 13px;">
         ${t("poweredBy")}
       </p>
     </div>
