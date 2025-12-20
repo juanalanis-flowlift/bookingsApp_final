@@ -128,7 +128,7 @@ export const customerTokens = pgTable("customer_tokens", {
 });
 
 // Booking status enum
-export const bookingStatuses = ["pending", "confirmed", "cancelled"] as const;
+export const bookingStatuses = ["pending", "confirmed", "cancelled", "modification_pending"] as const;
 
 // Bookings table
 export const bookings = pgTable("bookings", {
@@ -145,6 +145,13 @@ export const bookings = pgTable("bookings", {
   endTime: varchar("end_time", { length: 10 }).notNull(), // HH:MM format
   status: varchar("status", { length: 20 }).notNull().default("pending"),
   internalNotes: text("internal_notes"),
+  // Modification request fields
+  proposedBookingDate: timestamp("proposed_booking_date"),
+  proposedStartTime: varchar("proposed_start_time", { length: 10 }),
+  proposedEndTime: varchar("proposed_end_time", { length: 10 }),
+  modificationToken: varchar("modification_token", { length: 255 }),
+  modificationTokenExpiresAt: timestamp("modification_token_expires_at"),
+  modificationReason: text("modification_reason"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
