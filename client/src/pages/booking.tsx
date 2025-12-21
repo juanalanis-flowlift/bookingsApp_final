@@ -121,6 +121,10 @@ export default function BookingPage() {
       setConfirmedBooking(booking as unknown as Booking);
       setStep("confirmation");
     },
+    onError: (error) => {
+      console.error("Booking error:", error);
+      alert(error instanceof Error ? error.message : "Failed to create booking. Please try again.");
+    },
   });
 
   const formatPrice = (price: string | number) => {
@@ -202,6 +206,7 @@ export default function BookingPage() {
   };
 
   const onSubmit = (data: BookingFormValues) => {
+    console.log("Form submitted with data:", data);
     createBookingMutation.mutate(data);
   };
 
