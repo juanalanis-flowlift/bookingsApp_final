@@ -347,6 +347,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       if (req.body.status === "confirmed" && booking.status === "pending") {
         const service = await storage.getServiceById(booking.serviceId);
         if (service && service.requiresConfirmation) {
+          const baseUrl = `${req.protocol}://${req.get("host")}`;
           sendBookingEmails({
             booking: {
               ...updated,
@@ -356,6 +357,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
             service,
             business,
             language: "en", // Default to English for business-confirmed bookings
+            baseUrl,
           }).catch((err) => {
             console.error("Failed to send confirmation emails:", err);
           });
@@ -577,6 +579,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
 
       if (service && business && updated) {
         // Send confirmation email with new booking details
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
         sendBookingEmails({
           booking: {
             ...updated,
@@ -586,6 +589,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
           service,
           business,
           language: "en",
+          baseUrl,
         }).catch((err) => {
           console.error("Failed to send confirmation emails:", err);
         });
@@ -775,6 +779,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       // Only send confirmation emails if service doesn't require manual confirmation
       // For services requiring confirmation, emails will be sent when business owner confirms
       if (!service.requiresConfirmation) {
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
         sendBookingEmails({
           booking: {
             ...booking,
@@ -784,6 +789,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
           service,
           business,
           language: req.body.preferredLanguage === "es" ? "es" : "en",
+          baseUrl,
         }).catch((err) => {
           console.error("Failed to send booking emails:", err);
         });

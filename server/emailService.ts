@@ -130,6 +130,9 @@ const emailTranslations: Record<Language, Record<string, string>> = {
     modificationReason: "Reason for Change",
     confirmModification: "Confirm Modification",
     modificationExpires: "Please respond within 48 hours. If you don't confirm, the original appointment will remain unchanged.",
+    manageBooking: "MANAGE YOUR BOOKING",
+    modifyBooking: "Modify Booking",
+    cancelBooking: "Cancel Booking",
   },
   es: {
     bookingConfirmed: "Reserva Confirmada",
@@ -159,6 +162,9 @@ const emailTranslations: Record<Language, Record<string, string>> = {
     modificationReason: "Razón del Cambio",
     confirmModification: "Confirmar Modificación",
     modificationExpires: "Por favor responde en un plazo de 48 horas. Si no confirmas, la cita original permanecerá sin cambios.",
+    manageBooking: "GESTIONAR TU RESERVA",
+    modifyBooking: "Modificar Reserva",
+    cancelBooking: "Cancelar Reserva",
   },
 };
 
@@ -203,11 +209,15 @@ interface BookingEmailData {
   service: Service;
   business: Business;
   language?: Language;
+  baseUrl?: string;
 }
 
 function generateCustomerConfirmationHtml(data: BookingEmailData): string {
-  const { booking, service, business, language = "en" } = data;
+  const { booking, service, business, language = "en", baseUrl = "" } = data;
   const t = (key: string, params?: Record<string, string>) => getEmailText(key, language, params);
+
+  const customerActionToken = (booking as any).customerActionToken;
+  const cancelUrl = customerActionToken ? `${baseUrl}/customer-cancel?token=${customerActionToken}` : "";
 
   return `
 <!DOCTYPE html>
@@ -266,12 +276,25 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
       </p>
     </div>
     
+    ${cancelUrl ? `
+    <!-- Manage Booking Section -->
+    <div style="margin-bottom: 24px;">
+      <h3 style="margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #18181b; text-transform: uppercase; letter-spacing: 0.5px;">${t("manageBooking")}</h3>
+      <div style="display: flex; gap: 12px;">
+        <a href="${cancelUrl}" style="display: inline-block; padding: 12px 24px; background-color: #fef2f2; color: #dc2626; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; border: 1px solid #fecaca;">${t("cancelBooking")}</a>
+      </div>
+      <p style="margin: 12px 0 0; color: #71717a; font-size: 13px;">
+        ${t("needChanges", { businessName: business.name })}
+      </p>
+    </div>
+    ` : `
     <!-- Need Changes -->
     <div style="text-align: center; margin-bottom: 32px;">
       <p style="margin: 0; color: #71717a; font-size: 14px;">
         ${t("needChanges", { businessName: business.name })}
       </p>
     </div>
+    `}
     
     <!-- Powered By -->
     <div style="text-align: center; padding-top: 24px; border-top: 1px solid #f4f4f5;">

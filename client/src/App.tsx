@@ -19,6 +19,7 @@ import Settings from "@/pages/settings";
 import BookingPage from "@/pages/booking";
 import MyBookings from "@/pages/my-bookings";
 import ConfirmModification from "@/pages/confirm-modification";
+import CustomerCancel from "@/pages/customer-cancel";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -56,6 +57,9 @@ function Router() {
       
       {/* Confirm modification page - always accessible */}
       <Route path="/confirm-modification" component={ConfirmModification} />
+      
+      {/* Customer cancel page - always accessible */}
+      <Route path="/customer-cancel" component={CustomerCancel} />
 
       {/* Landing page for non-authenticated users */}
       {isLoading || !isAuthenticated ? (
