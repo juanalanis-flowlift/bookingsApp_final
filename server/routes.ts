@@ -598,6 +598,93 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     }
   });
 
+  // Get booking details by customer action token - for modify/cancel pages
+  app.get("/api/public/bookings/customer-action/:token", async (req, res) => {
+    try {
+      const booking = await storage.getBookingByCustomerActionToken(req.params.token);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      // Don't allow actions on cancelled bookings
+      if (booking.status === "cancelled") {
+        return res.status(400).json({ message: "This booking has already been cancelled" });
+      }
+
+      // Get service and business info
+      const service = await storage.getServiceById(booking.serviceId);
+      const business = await storage.getBusinessById(booking.businessId);
+
+      if (!service || !business) {
+        return res.status(404).json({ message: "Service or business not found" });
+      }
+
+      res.json({
+        booking: {
+          id: booking.id,
+          customerName: booking.customerName,
+          customerEmail: booking.customerEmail,
+          bookingDate: booking.bookingDate,
+          startTime: booking.startTime,
+          endTime: booking.endTime,
+          status: booking.status,
+        },
+        service: {
+          id: service.id,
+          name: service.name,
+          duration: service.duration,
+          price: service.price,
+        },
+        business: {
+          id: business.id,
+          name: business.name,
+          email: business.email,
+          phone: business.phone,
+        },
+      });
+    } catch (error) {
+      console.error("Error fetching booking for customer action:", error);
+      res.status(500).json({ message: "Failed to fetch booking details" });
+    }
+  });
+
+  // Customer cancels their booking
+  app.post("/api/public/bookings/customer-cancel", async (req, res) => {
+    try {
+      const { token, reason } = req.body;
+      if (!token) {
+        return res.status(400).json({ message: "Token is required" });
+      }
+
+      const booking = await storage.getBookingByCustomerActionToken(token);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      // Don't allow cancelling already cancelled bookings
+      if (booking.status === "cancelled") {
+        return res.status(400).json({ message: "This booking has already been cancelled" });
+      }
+
+      // Update the booking to cancelled status
+      const updated = await storage.updateBooking(booking.id, {
+        status: "cancelled",
+        cancellationReason: reason || null,
+      });
+
+      // Get service and business for notification
+      const service = await storage.getServiceById(booking.serviceId);
+      const business = await storage.getBusinessById(booking.businessId);
+
+      // TODO: Send cancellation notification email to business
+
+      res.json({ success: true, booking: updated });
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      res.status(500).json({ message: "Failed to cancel booking" });
+    }
+  });
+
   app.get("/api/public/bookings/:slug/:date", async (req, res) => {
     try {
       const business = await storage.getBusinessBySlug(req.params.slug);
