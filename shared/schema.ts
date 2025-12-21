@@ -145,6 +145,10 @@ export const bookings = pgTable("bookings", {
   endTime: varchar("end_time", { length: 10 }).notNull(), // HH:MM format
   status: varchar("status", { length: 20 }).notNull().default("pending"),
   internalNotes: text("internal_notes"),
+  // Customer action token for modify/cancel links in emails (permanent, doesn't expire)
+  customerActionToken: varchar("customer_action_token", { length: 255 }),
+  // Cancellation reason when customer cancels
+  cancellationReason: text("cancellation_reason"),
   // Modification request fields
   proposedBookingDate: timestamp("proposed_booking_date"),
   proposedStartTime: varchar("proposed_start_time", { length: 10 }),

@@ -26,6 +26,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc, isNull } from "drizzle-orm";
+import { randomBytes } from "crypto";
 
 export interface IStorage {
   // User operations (required for Replit Auth)
@@ -59,6 +60,7 @@ export interface IStorage {
   getBookingsByBusinessId(businessId: string): Promise<Booking[]>;
   getBookingById(id: string): Promise<Booking | undefined>;
   getBookingByModificationToken(token: string): Promise<Booking | undefined>;
+  getBookingByCustomerActionToken(token: string): Promise<Booking | undefined>;
   getBookingsByDateRange(
     businessId: string,
     startDate: Date,
@@ -257,6 +259,14 @@ export class DatabaseStorage implements IStorage {
     return booking;
   }
 
+  async getBookingByCustomerActionToken(token: string): Promise<Booking | undefined> {
+    const [booking] = await db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.customerActionToken, token));
+    return booking;
+  }
+
   async getBookingsByDateRange(
     businessId: string,
     startDate: Date,
@@ -275,7 +285,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBooking(booking: InsertBooking): Promise<Booking> {
-    const [created] = await db.insert(bookings).values(booking).returning();
+    const customerActionToken = randomBytes(32).toString("hex");
+    const [created] = await db.insert(bookings).values({
+      ...booking,
+      customerActionToken,
+    }).returning();
     return created;
   }
 
