@@ -689,6 +689,74 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     }
   });
 
+  // Customer modifies their booking
+  app.post("/api/public/bookings/customer-modify", async (req, res) => {
+    try {
+      const { token, newDate, newStartTime, newEndTime } = req.body;
+      if (!token || !newDate || !newStartTime || !newEndTime) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      const booking = await storage.getBookingByCustomerActionToken(token);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      // Don't allow modifying cancelled bookings
+      if (booking.status === "cancelled") {
+        return res.status(400).json({ message: "Cannot modify a cancelled booking" });
+      }
+
+      // Get service and business for validation
+      const service = await storage.getServiceById(booking.serviceId);
+      const business = await storage.getBusinessById(booking.businessId);
+
+      if (!service || !business) {
+        return res.status(404).json({ message: "Service or business not found" });
+      }
+
+      // Check for double-booking
+      const bookingDate = new Date(newDate);
+      const existingBookings = await storage.getBookingsByDateRange(
+        business.id,
+        startOfDay(bookingDate),
+        endOfDay(bookingDate)
+      );
+
+      const hasConflict = existingBookings.some((b) => {
+        if (b.id === booking.id || b.status === "cancelled") return false;
+        return !(newEndTime <= b.startTime || newStartTime >= b.endTime);
+      });
+
+      if (hasConflict) {
+        return res.status(400).json({ message: "This time slot is no longer available" });
+      }
+
+      // Update the booking with new time
+      const updated = await storage.updateBooking(booking.id, {
+        bookingDate,
+        startTime: newStartTime,
+        endTime: newEndTime,
+        status: "confirmed", // Reset to confirmed if it was pending
+      });
+
+      // Send confirmation email with new details
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      await sendBookingEmails({
+        booking: updated!,
+        service,
+        business,
+        language: (booking as any).preferredLanguage || "en",
+        baseUrl,
+      });
+
+      res.json({ success: true, booking: updated });
+    } catch (error) {
+      console.error("Error modifying booking:", error);
+      res.status(500).json({ message: "Failed to modify booking" });
+    }
+  });
+
   app.get("/api/public/bookings/:slug/:date", async (req, res) => {
     try {
       const business = await storage.getBusinessBySlug(req.params.slug);

@@ -218,6 +218,7 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
 
   const customerActionToken = (booking as any).customerActionToken;
   const cancelUrl = customerActionToken ? `${baseUrl}/customer-cancel?token=${customerActionToken}` : "";
+  const modifyUrl = customerActionToken ? `${baseUrl}/customer-modify?token=${customerActionToken}` : "";
 
   return `
 <!DOCTYPE html>
@@ -280,9 +281,16 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
     <!-- Manage Booking Section -->
     <div style="margin-bottom: 24px;">
       <h3 style="margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #18181b; text-transform: uppercase; letter-spacing: 0.5px;">${t("manageBooking")}</h3>
-      <div style="display: flex; gap: 12px;">
-        <a href="${cancelUrl}" style="display: inline-block; padding: 12px 24px; background-color: #fef2f2; color: #dc2626; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; border: 1px solid #fecaca;">${t("cancelBooking")}</a>
-      </div>
+      <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate;">
+        <tr>
+          <td style="padding-right: 12px;">
+            <a href="${modifyUrl}" style="display: inline-block; padding: 12px 24px; background-color: #eff6ff; color: #2563eb; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; border: 1px solid #bfdbfe;">${t("modifyBooking")}</a>
+          </td>
+          <td>
+            <a href="${cancelUrl}" style="display: inline-block; padding: 12px 24px; background-color: #fef2f2; color: #dc2626; text-decoration: none; border-radius: 8px; font-weight: 500; font-size: 14px; border: 1px solid #fecaca;">${t("cancelBooking")}</a>
+          </td>
+        </tr>
+      </table>
       <p style="margin: 12px 0 0; color: #71717a; font-size: 13px;">
         ${t("needChanges", { businessName: business.name })}
       </p>
