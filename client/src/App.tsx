@@ -21,6 +21,7 @@ import MyBookings from "@/pages/my-bookings";
 import ConfirmModification from "@/pages/confirm-modification";
 import CustomerCancel from "@/pages/customer-cancel";
 import CustomerModify from "@/pages/customer-modify";
+import Team from "@/pages/team";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -99,6 +100,11 @@ function Router() {
           <Route path="/settings">
             <AuthenticatedLayout>
               <Settings />
+            </AuthenticatedLayout>
+          </Route>
+          <Route path="/team">
+            <AuthenticatedLayout>
+              <Team />
             </AuthenticatedLayout>
           </Route>
         </>
