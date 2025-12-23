@@ -7,6 +7,9 @@ import {
   bookings,
   customers,
   customerTokens,
+  teamMembers,
+  teamMemberServices,
+  teamMemberAvailability,
   type User,
   type UpsertUser,
   type Business,
@@ -23,6 +26,12 @@ import {
   type InsertCustomer,
   type CustomerToken,
   type InsertCustomerToken,
+  type TeamMember,
+  type InsertTeamMember,
+  type TeamMemberService,
+  type InsertTeamMemberService,
+  type TeamMemberAvailability,
+  type InsertTeamMemberAvailability,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, gte, lte, desc, isNull } from "drizzle-orm";
@@ -82,6 +91,21 @@ export interface IStorage {
   getValidToken(token: string): Promise<CustomerToken | undefined>;
   markTokenAsUsed(tokenId: string): Promise<void>;
   deleteExpiredTokens(): Promise<void>;
+
+  // Team member operations
+  getTeamMembersByBusinessId(businessId: string): Promise<TeamMember[]>;
+  getTeamMemberById(id: string): Promise<TeamMember | undefined>;
+  createTeamMember(teamMember: InsertTeamMember): Promise<TeamMember>;
+  updateTeamMember(id: string, teamMember: Partial<InsertTeamMember>): Promise<TeamMember | undefined>;
+  deleteTeamMember(id: string): Promise<void>;
+
+  // Team member services operations
+  getTeamMemberServices(teamMemberId: string): Promise<TeamMemberService[]>;
+  setTeamMemberServices(teamMemberId: string, serviceIds: string[]): Promise<void>;
+
+  // Team member availability operations
+  getTeamMemberAvailability(teamMemberId: string): Promise<TeamMemberAvailability[]>;
+  upsertTeamMemberAvailability(avail: InsertTeamMemberAvailability): Promise<TeamMemberAvailability>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -396,6 +420,102 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(customerTokens)
       .where(lte(customerTokens.expiresAt, new Date()));
+  }
+
+  // Team member operations
+  async getTeamMembersByBusinessId(businessId: string): Promise<TeamMember[]> {
+    return await db
+      .select()
+      .from(teamMembers)
+      .where(eq(teamMembers.businessId, businessId))
+      .orderBy(desc(teamMembers.createdAt));
+  }
+
+  async getTeamMemberById(id: string): Promise<TeamMember | undefined> {
+    const [member] = await db
+      .select()
+      .from(teamMembers)
+      .where(eq(teamMembers.id, id));
+    return member;
+  }
+
+  async createTeamMember(teamMember: InsertTeamMember): Promise<TeamMember> {
+    const [created] = await db.insert(teamMembers).values(teamMember).returning();
+    return created;
+  }
+
+  async updateTeamMember(
+    id: string,
+    teamMember: Partial<InsertTeamMember>
+  ): Promise<TeamMember | undefined> {
+    const [updated] = await db
+      .update(teamMembers)
+      .set({ ...teamMember, updatedAt: new Date() })
+      .where(eq(teamMembers.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteTeamMember(id: string): Promise<void> {
+    await db.delete(teamMembers).where(eq(teamMembers.id, id));
+  }
+
+  // Team member services operations
+  async getTeamMemberServices(teamMemberId: string): Promise<TeamMemberService[]> {
+    return await db
+      .select()
+      .from(teamMemberServices)
+      .where(eq(teamMemberServices.teamMemberId, teamMemberId));
+  }
+
+  async setTeamMemberServices(teamMemberId: string, serviceIds: string[]): Promise<void> {
+    // Delete existing assignments
+    await db
+      .delete(teamMemberServices)
+      .where(eq(teamMemberServices.teamMemberId, teamMemberId));
+
+    // Insert new assignments
+    if (serviceIds.length > 0) {
+      await db.insert(teamMemberServices).values(
+        serviceIds.map((serviceId) => ({
+          teamMemberId,
+          serviceId,
+        }))
+      );
+    }
+  }
+
+  // Team member availability operations
+  async getTeamMemberAvailability(teamMemberId: string): Promise<TeamMemberAvailability[]> {
+    return await db
+      .select()
+      .from(teamMemberAvailability)
+      .where(eq(teamMemberAvailability.teamMemberId, teamMemberId));
+  }
+
+  async upsertTeamMemberAvailability(avail: InsertTeamMemberAvailability): Promise<TeamMemberAvailability> {
+    // Check if availability exists for this team member and day
+    const [existing] = await db
+      .select()
+      .from(teamMemberAvailability)
+      .where(
+        and(
+          eq(teamMemberAvailability.teamMemberId, avail.teamMemberId),
+          eq(teamMemberAvailability.dayOfWeek, avail.dayOfWeek)
+        )
+      );
+
+    if (existing) {
+      const [updated] = await db
+        .update(teamMemberAvailability)
+        .set(avail)
+        .where(eq(teamMemberAvailability.id, existing.id))
+        .returning();
+      return updated;
+    } else {
+      const [created] = await db.insert(teamMemberAvailability).values(avail).returning();
+      return created;
+    }
   }
 }
 
