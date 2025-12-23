@@ -65,6 +65,17 @@ export const businesses = pgTable("businesses", {
   phone: varchar("phone", { length: 50 }),
   email: varchar("email", { length: 255 }),
   logoUrl: varchar("logo_url", { length: 500 }),
+  // Social media usernames
+  socialFacebook: varchar("social_facebook", { length: 255 }),
+  socialInstagram: varchar("social_instagram", { length: 255 }),
+  socialTwitter: varchar("social_twitter", { length: 255 }),
+  socialLinkedin: varchar("social_linkedin", { length: 255 }),
+  socialYoutube: varchar("social_youtube", { length: 255 }),
+  socialTiktok: varchar("social_tiktok", { length: 255 }),
+  socialPinterest: varchar("social_pinterest", { length: 255 }),
+  socialSnapchat: varchar("social_snapchat", { length: 255 }),
+  socialWhatsapp: varchar("social_whatsapp", { length: 255 }),
+  socialThreads: varchar("social_threads", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

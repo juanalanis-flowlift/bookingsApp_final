@@ -28,7 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe } from "lucide-react";
+import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2 } from "lucide-react";
+import { SiFacebook, SiInstagram, SiX, SiLinkedin, SiYoutube, SiTiktok, SiPinterest, SiSnapchat, SiWhatsapp, SiThreads } from "react-icons/si";
 import type { Business } from "@shared/schema";
 import { businessCategories } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -49,6 +50,16 @@ const businessFormSchema = z.object({
   country: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
+  socialFacebook: z.string().optional(),
+  socialInstagram: z.string().optional(),
+  socialTwitter: z.string().optional(),
+  socialLinkedin: z.string().optional(),
+  socialYoutube: z.string().optional(),
+  socialTiktok: z.string().optional(),
+  socialPinterest: z.string().optional(),
+  socialSnapchat: z.string().optional(),
+  socialWhatsapp: z.string().optional(),
+  socialThreads: z.string().optional(),
 });
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
@@ -93,6 +104,16 @@ export default function Settings() {
       country: "",
       phone: "",
       email: "",
+      socialFacebook: "",
+      socialInstagram: "",
+      socialTwitter: "",
+      socialLinkedin: "",
+      socialYoutube: "",
+      socialTiktok: "",
+      socialPinterest: "",
+      socialSnapchat: "",
+      socialWhatsapp: "",
+      socialThreads: "",
     },
   });
 
@@ -108,6 +129,16 @@ export default function Settings() {
         country: business.country || "",
         phone: business.phone || "",
         email: business.email || "",
+        socialFacebook: business.socialFacebook || "",
+        socialInstagram: business.socialInstagram || "",
+        socialTwitter: business.socialTwitter || "",
+        socialLinkedin: business.socialLinkedin || "",
+        socialYoutube: business.socialYoutube || "",
+        socialTiktok: business.socialTiktok || "",
+        socialPinterest: business.socialPinterest || "",
+        socialSnapchat: business.socialSnapchat || "",
+        socialWhatsapp: business.socialWhatsapp || "",
+        socialThreads: business.socialThreads || "",
       });
     }
   }, [business, form]);
@@ -511,6 +542,216 @@ export default function Settings() {
                             type="email"
                             placeholder="contact@business.com"
                             data-testid="input-email"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Share2 className="h-5 w-5" />
+                  {t("settings.socialMedia")}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">{t("settings.socialMediaDescription")}</p>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="socialFacebook"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <SiFacebook className="h-4 w-4 text-[#1877F2]" />
+                          Facebook
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="username"
+                            data-testid="input-social-facebook"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="socialInstagram"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <SiInstagram className="h-4 w-4 text-[#E4405F]" />
+                          Instagram
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="username"
+                            data-testid="input-social-instagram"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="socialTwitter"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <SiX className="h-4 w-4" />
+                          X (Twitter)
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="username"
+                            data-testid="input-social-twitter"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="socialLinkedin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <SiLinkedin className="h-4 w-4 text-[#0A66C2]" />
+                          LinkedIn
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="username"
+                            data-testid="input-social-linkedin"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="socialYoutube"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <SiYoutube className="h-4 w-4 text-[#FF0000]" />
+                          YouTube
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="channel"
+                            data-testid="input-social-youtube"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="socialTiktok"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <SiTiktok className="h-4 w-4" />
+                          TikTok
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="username"
+                            data-testid="input-social-tiktok"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="socialPinterest"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <SiPinterest className="h-4 w-4 text-[#E60023]" />
+                          Pinterest
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="username"
+                            data-testid="input-social-pinterest"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="socialSnapchat"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <SiSnapchat className="h-4 w-4 text-[#FFFC00]" />
+                          Snapchat
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="username"
+                            data-testid="input-social-snapchat"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="socialWhatsapp"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <SiWhatsapp className="h-4 w-4 text-[#25D366]" />
+                          WhatsApp
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="+1234567890"
+                            data-testid="input-social-whatsapp"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="socialThreads"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <SiThreads className="h-4 w-4" />
+                          Threads
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="username"
+                            data-testid="input-social-threads"
                           />
                         </FormControl>
                         <FormMessage />
