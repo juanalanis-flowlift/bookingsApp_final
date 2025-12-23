@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -85,10 +86,12 @@ export default function BookingPage() {
     enabled: !!business,
   });
 
-  const { data: existingBookings } = useQuery<Booking[]>({
+  const { data: existingBookings, refetch: refetchBookings } = useQuery<Booking[]>({
     queryKey: ["/api/public/bookings", slug, selectedDate?.toISOString()],
     enabled: !!business && !!selectedDate,
   });
+
+  const { toast } = useToast();
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
@@ -121,9 +124,18 @@ export default function BookingPage() {
       setConfirmedBooking(booking as unknown as Booking);
       setStep("confirmation");
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Booking error:", error);
-      alert(error instanceof Error ? error.message : "Failed to create booking. Please try again.");
+      const errorMessage = error?.details || error?.message || t("booking.errorGeneric");
+      toast({
+        title: t("booking.bookingFailed"),
+        description: errorMessage,
+        variant: "destructive",
+      });
+      // Refresh bookings to show updated availability
+      if (selectedDate) {
+        refetchBookings();
+      }
     },
   });
 

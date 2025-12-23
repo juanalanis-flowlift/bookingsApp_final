@@ -1052,7 +1052,11 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       });
 
       if (hasConflict) {
-        return res.status(400).json({ message: "Time slot not available" });
+        return res.status(400).json({ 
+          message: "Time slot not available",
+          error: "slot_conflict",
+          details: "This time slot has already been booked. Please select a different time."
+        });
       }
 
       // Set booking status based on whether service requires confirmation
