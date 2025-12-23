@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { queryClient } from "@/lib/queryClient";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import { useForm } from "react-hook-form";
@@ -33,8 +34,10 @@ import {
   ArrowRight,
   Check,
   Tag,
+  User,
+  Users,
 } from "lucide-react";
-import type { Business, Service, Booking, Availability } from "@shared/schema";
+import type { Business, Service, Booking, Availability, TeamMember, TeamMemberAvailability } from "@shared/schema";
 import { format, addDays, isBefore, startOfDay, isToday, addMinutes } from "date-fns";
 import { es, enUS } from "date-fns/locale";
 import { useI18n, LanguageSwitcher } from "@/lib/i18n";
@@ -50,17 +53,22 @@ const bookingFormSchema = z.object({
 
 type BookingFormValues = z.infer<typeof bookingFormSchema>;
 
-type BookingStep = "services" | "datetime" | "details" | "confirmation";
+type BookingStep = "services" | "team" | "datetime" | "details" | "confirmation";
 
 interface TimeSlot {
   time: string;
   available: boolean;
 }
 
+interface TeamMemberWithAvailability extends TeamMember {
+  availability: TeamMemberAvailability[];
+}
+
 export default function BookingPage() {
   const { slug } = useParams<{ slug: string }>();
   const [step, setStep] = useState<BookingStep>("services");
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedTeamMember, setSelectedTeamMember] = useState<TeamMemberWithAvailability | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
@@ -91,6 +99,12 @@ export default function BookingPage() {
     enabled: !!business && !!selectedDate,
   });
 
+  // Fetch team members for the selected service
+  const { data: teamMembers, isLoading: teamMembersLoading } = useQuery<TeamMemberWithAvailability[]>({
+    queryKey: ["/api/public/team-members", selectedService?.id],
+    enabled: !!selectedService,
+  });
+
   const { toast } = useToast();
 
   const form = useForm<BookingFormValues>({
@@ -113,6 +127,7 @@ export default function BookingPage() {
 
       return await apiRequest("POST", `/api/public/bookings/${slug}`, {
         serviceId: selectedService.id,
+        teamMemberId: selectedTeamMember?.id || null,
         bookingDate: selectedDate.toISOString(),
         startTime: selectedTime,
         endTime,
@@ -224,8 +239,15 @@ export default function BookingPage() {
 
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service);
+    setSelectedTeamMember(null);
     setSelectedDate(undefined);
     setSelectedTime(null);
+    // We'll navigate to team step after team members are loaded via useEffect
+    setStep("team");
+  };
+
+  const handleTeamMemberSelect = (member: TeamMemberWithAvailability | null) => {
+    setSelectedTeamMember(member);
     setStep("datetime");
   };
 
@@ -240,14 +262,39 @@ export default function BookingPage() {
   };
 
   const handleBack = () => {
-    if (step === "datetime") {
+    if (step === "team") {
       setStep("services");
       setSelectedService(null);
+      setSelectedTeamMember(null);
+    } else if (step === "datetime") {
+      // Go back to team step if there are multiple team members, otherwise go to services
+      if (teamMembers && teamMembers.length > 1) {
+        setStep("team");
+      } else {
+        setStep("services");
+        setSelectedService(null);
+        setSelectedTeamMember(null);
+      }
     } else if (step === "details") {
       setStep("datetime");
       setSelectedTime(null);
     }
   };
+
+  // Auto-skip team step if there's 0 or 1 team member
+  useEffect(() => {
+    if (step === "team" && !teamMembersLoading && teamMembers) {
+      if (teamMembers.length === 0) {
+        // No team members, skip to datetime
+        setStep("datetime");
+      } else if (teamMembers.length === 1) {
+        // Only one team member, auto-select and skip
+        setSelectedTeamMember(teamMembers[0]);
+        setStep("datetime");
+      }
+      // If more than 1, stay on team step and let user choose
+    }
+  }, [step, teamMembersLoading, teamMembers]);
 
   if (businessLoading) {
     return (
@@ -406,6 +453,7 @@ export default function BookingPage() {
                   onClick={() => {
                     setStep("services");
                     setSelectedService(null);
+                    setSelectedTeamMember(null);
                     setSelectedDate(undefined);
                     setSelectedTime(null);
                     setConfirmedBooking(null);
@@ -599,6 +647,105 @@ export default function BookingPage() {
           </div>
         )}
 
+        {/* Step: Team Member Selection */}
+        {step === "team" && selectedService && (
+          <div className="max-w-4xl mx-auto space-y-6">
+            <Button
+              variant="ghost"
+              onClick={handleBack}
+              className="gap-2"
+              data-testid="button-back"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {t("booking.back")}
+            </Button>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("booking.selectedService")}</CardTitle>
+                <CardDescription>
+                  {selectedService.name} - {selectedService.duration} {t("booking.min")} -{" "}
+                  {formatPrice(selectedService.price)}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <div>
+              <h3 className="text-xl font-semibold mb-4">{t("booking.selectTeamMember")}</h3>
+              {teamMembersLoading ? (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {[1, 2, 3].map((i) => (
+                    <Card key={i}>
+                      <CardContent className="pt-6">
+                        <Skeleton className="h-20 w-20 rounded-full mx-auto mb-4" />
+                        <Skeleton className="h-5 w-32 mx-auto mb-2" />
+                        <Skeleton className="h-4 w-24 mx-auto" />
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : teamMembers && teamMembers.length > 1 ? (
+                <div className="space-y-4">
+                  {/* Option to skip team member selection */}
+                  <Card
+                    className="cursor-pointer hover-elevate border-dashed"
+                    onClick={() => handleTeamMemberSelect(null)}
+                    data-testid="team-member-any"
+                  >
+                    <CardContent className="pt-6 flex items-center gap-4">
+                      <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <Users className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-lg font-semibold">{t("booking.anyTeamMember")}</h4>
+                        <p className="text-sm text-muted-foreground">
+                          {t("booking.anyTeamMemberDesc")}
+                        </p>
+                      </div>
+                      <Button variant="outline" data-testid="button-select-any-team-member">
+                        {t("booking.select")}
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {teamMembers.map((member) => (
+                      <Card
+                        key={member.id}
+                        className="cursor-pointer hover-elevate"
+                        onClick={() => handleTeamMemberSelect(member)}
+                        data-testid={`team-member-card-${member.id}`}
+                      >
+                        <CardContent className="pt-6 text-center space-y-3">
+                          <Avatar className="h-20 w-20 mx-auto">
+                            <AvatarImage src={member.photoUrl || undefined} className="object-cover" />
+                            <AvatarFallback className="text-xl">
+                              {member.name.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h4 className="text-lg font-semibold">{member.name}</h4>
+                            {member.role && (
+                              <p className="text-sm text-muted-foreground">{member.role}</p>
+                            )}
+                          </div>
+                          <Button className="w-full" data-testid={`button-select-team-member-${member.id}`}>
+                            {t("booking.select")}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-center py-8">
+                  <Skeleton className="h-8 w-8 rounded-full animate-spin" />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Step: Date & Time */}
         {step === "datetime" && selectedService && (
           <div className="max-w-4xl mx-auto space-y-6">
@@ -618,6 +765,11 @@ export default function BookingPage() {
                 <CardDescription>
                   {selectedService.name} - {selectedService.duration} {t("booking.min")} -{" "}
                   {formatPrice(selectedService.price)}
+                  {selectedTeamMember && (
+                    <span className="block mt-1">
+                      {t("booking.withTeamMember")}: {selectedTeamMember.name}
+                    </span>
+                  )}
                 </CardDescription>
               </CardHeader>
             </Card>
