@@ -143,7 +143,6 @@ const emailTranslations: Record<Language, Record<string, string>> = {
     price: "Precio",
     minutes: "minutos",
     businessDetails: "Detalles del Negocio",
-    //needChanges: "¿Necesitas hacer cambios? Contacta a {businessName} directamente.",
     poweredBy: "Desarrollado por FlowLift",
     newBooking: "Nueva Reservacion",
     newAppointment: "Tienes una nueva cita",
