@@ -228,6 +228,36 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     }
   });
 
+  // Team members with availability (for bookings team load view)
+  app.get("/api/team-members", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const teamMembersList = await storage.getTeamMembersByBusinessId(business.id);
+      
+      // Return team members with their availability
+      const membersWithAvailability = await Promise.all(
+        teamMembersList.map(async (member) => {
+          const memberAvailability = await storage.getTeamMemberAvailability(member.id);
+          return {
+            ...member,
+            availability: memberAvailability,
+          };
+        })
+      );
+      
+      res.json(membersWithAvailability);
+    } catch (error) {
+      console.error("Error fetching team members with availability:", error);
+      res.status(500).json({ message: "Failed to fetch team members" });
+    }
+  });
+
   app.post("/api/team", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
@@ -1095,6 +1125,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       const booking = await storage.createBooking({
         businessId: business.id,
         serviceId: req.body.serviceId,
+        teamMemberId: req.body.teamMemberId || null,
         customerName: req.body.customerName,
         customerEmail: req.body.customerEmail,
         customerPhone: req.body.customerPhone || null,

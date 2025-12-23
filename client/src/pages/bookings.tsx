@@ -37,6 +37,7 @@ import {
   List,
   Clock,
   User,
+  Users,
   Mail,
   Phone,
   FileText,
@@ -44,6 +45,8 @@ import {
   XCircle,
   MoreHorizontal,
   Edit,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
@@ -53,9 +56,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Calendar } from "@/components/ui/calendar";
-import type { Booking, Service, Business } from "@shared/schema";
-import { format, isSameDay, parseISO, startOfMonth, endOfMonth } from "date-fns";
+import type { Booking, Service, Business, TeamMember, TeamMemberAvailability } from "@shared/schema";
+import { format, isSameDay, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays } from "date-fns";
 import { es, enUS } from "date-fns/locale";
+
+interface TeamMemberWithAvailability extends TeamMember {
+  availability: TeamMemberAvailability[];
+}
 import { isUnauthorizedError } from "@/lib/authUtils";
 
 export default function Bookings() {
@@ -64,11 +71,12 @@ export default function Bookings() {
   const { t, language } = useI18n();
   
   const getLocale = () => language === "es" ? es : enUS;
-  const [view, setView] = useState<"list" | "calendar">("list");
+  const [view, setView] = useState<"list" | "calendar" | "teamLoad">("list");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [internalNotes, setInternalNotes] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [calendarDate, setCalendarDate] = useState<Date>(new Date());
+  const [weekStartDate, setWeekStartDate] = useState<Date>(startOfWeek(new Date(), { weekStartsOn: 1 }));
   
   // Modify booking state
   const [modifyDialogOpen, setModifyDialogOpen] = useState(false);
@@ -102,6 +110,11 @@ export default function Bookings() {
 
   const { data: services } = useQuery<Service[]>({
     queryKey: ["/api/services"],
+    enabled: !!business,
+  });
+
+  const { data: teamMembers } = useQuery<TeamMemberWithAvailability[]>({
+    queryKey: ["/api/team-members"],
     enabled: !!business,
   });
 
@@ -190,6 +203,63 @@ export default function Bookings() {
 
   const getServiceName = (serviceId: string) => {
     return services?.find((s) => s.id === serviceId)?.name || "Unknown Service";
+  };
+
+  const getTeamMemberName = (teamMemberId: string | null | undefined) => {
+    if (!teamMemberId) return null;
+    return teamMembers?.find((m) => m.id === teamMemberId)?.name || null;
+  };
+
+  // Get the week days for the team load view
+  const getWeekDays = () => {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      days.push(addDays(weekStartDate, i));
+    }
+    return days;
+  };
+
+  // Get bookings for a specific team member on a specific date
+  const getTeamMemberBookingsForDate = (teamMemberId: string, date: Date) => {
+    return bookings?.filter((booking) => 
+      booking.teamMemberId === teamMemberId &&
+      isSameDay(new Date(booking.bookingDate), date) &&
+      booking.status !== "cancelled"
+    ) || [];
+  };
+
+  // Get all bookings for a date (for team members without specific assignment)
+  const getBookingsForDateWithoutTeamMember = (date: Date) => {
+    return bookings?.filter((booking) => 
+      !booking.teamMemberId &&
+      isSameDay(new Date(booking.bookingDate), date) &&
+      booking.status !== "cancelled"
+    ) || [];
+  };
+
+  // Convert time string to minutes from midnight
+  const timeToMinutes = (time: string) => {
+    const [hours, minutes] = time.split(":").map(Number);
+    return hours * 60 + minutes;
+  };
+
+  // Get team member availability for a specific day
+  const getTeamMemberAvailabilityForDay = (member: TeamMemberWithAvailability, dayOfWeek: number) => {
+    return member.availability?.find((a) => a.dayOfWeek === dayOfWeek && a.isAvailable);
+  };
+
+  // Color palette for team members
+  const teamMemberColors = [
+    { bg: "bg-blue-100 dark:bg-blue-900/30", border: "border-blue-300 dark:border-blue-700", text: "text-blue-700 dark:text-blue-300" },
+    { bg: "bg-rose-100 dark:bg-rose-900/30", border: "border-rose-300 dark:border-rose-700", text: "text-rose-700 dark:text-rose-300" },
+    { bg: "bg-green-100 dark:bg-green-900/30", border: "border-green-300 dark:border-green-700", text: "text-green-700 dark:text-green-300" },
+    { bg: "bg-purple-100 dark:bg-purple-900/30", border: "border-purple-300 dark:border-purple-700", text: "text-purple-700 dark:text-purple-300" },
+    { bg: "bg-amber-100 dark:bg-amber-900/30", border: "border-amber-300 dark:border-amber-700", text: "text-amber-700 dark:text-amber-300" },
+    { bg: "bg-cyan-100 dark:bg-cyan-900/30", border: "border-cyan-300 dark:border-cyan-700", text: "text-cyan-700 dark:text-cyan-300" },
+  ];
+
+  const getTeamMemberColor = (index: number) => {
+    return teamMemberColors[index % teamMemberColors.length];
   };
 
   const getStatusBadge = (status: string) => {
@@ -347,7 +417,7 @@ export default function Bookings() {
       </div>
 
       {/* View Tabs */}
-      <Tabs value={view} onValueChange={(v) => setView(v as "list" | "calendar")}>
+      <Tabs value={view} onValueChange={(v) => setView(v as "list" | "calendar" | "teamLoad")}>
         <TabsList>
           <TabsTrigger value="list" className="gap-2" data-testid="tab-list-view">
             <List className="h-4 w-4" />
@@ -356,6 +426,10 @@ export default function Bookings() {
           <TabsTrigger value="calendar" className="gap-2" data-testid="tab-calendar-view">
             <CalendarIcon className="h-4 w-4" />
             {t("bookings.calendar")}
+          </TabsTrigger>
+          <TabsTrigger value="teamLoad" className="gap-2" data-testid="tab-team-load-view">
+            <Users className="h-4 w-4" />
+            {t("bookings.teamLoad")}
           </TabsTrigger>
         </TabsList>
 
@@ -535,6 +609,205 @@ export default function Bookings() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        {/* Team Load View */}
+        <TabsContent value="teamLoad" className="mt-4">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  {t("bookings.teamSchedule")}
+                </CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setWeekStartDate(subWeeks(weekStartDate, 1))}
+                    data-testid="button-prev-week"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm font-medium min-w-[200px] text-center">
+                    {format(weekStartDate, "MMM d", { locale: getLocale() })} - {format(addDays(weekStartDate, 6), "MMM d, yyyy", { locale: getLocale() })}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setWeekStartDate(addWeeks(weekStartDate, 1))}
+                    data-testid="button-next-week"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setWeekStartDate(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+                    data-testid="button-today"
+                  >
+                    {t("bookings.today")}
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {teamMembers && teamMembers.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <div className="min-w-[800px]">
+                    {/* Week Header */}
+                    <div className="grid grid-cols-8 gap-2 mb-4">
+                      <div className="font-medium text-sm text-muted-foreground">
+                        {t("bookings.teamMember")}
+                      </div>
+                      {getWeekDays().map((day, index) => {
+                        const isToday = isSameDay(day, new Date());
+                        return (
+                          <div
+                            key={index}
+                            className={`text-center p-2 rounded-lg ${isToday ? "bg-primary/10" : ""}`}
+                          >
+                            <div className="text-xs text-muted-foreground uppercase">
+                              {format(day, "EEE", { locale: getLocale() })}
+                            </div>
+                            <div className={`text-lg font-semibold ${isToday ? "text-primary" : ""}`}>
+                              {format(day, "d")}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Team Members Rows */}
+                    {teamMembers.filter(m => m.isActive).map((member, memberIndex) => {
+                      const color = getTeamMemberColor(memberIndex);
+                      return (
+                        <div key={member.id} className="grid grid-cols-8 gap-2 mb-4">
+                          {/* Team Member Info */}
+                          <div className="flex items-start gap-2 p-2">
+                            <div className={`w-10 h-10 rounded-full ${color.bg} flex items-center justify-center flex-shrink-0`}>
+                              <span className={`text-sm font-medium ${color.text}`}>
+                                {member.name.charAt(0)}
+                              </span>
+                            </div>
+                            <div className="overflow-hidden">
+                              <p className="text-sm font-medium truncate">{member.name}</p>
+                              {member.role && (
+                                <p className="text-xs text-muted-foreground truncate">{member.role}</p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Days Columns */}
+                          {getWeekDays().map((day, dayIndex) => {
+                            const dayOfWeek = day.getDay();
+                            const memberAvail = getTeamMemberAvailabilityForDay(member, dayOfWeek);
+                            const dayBookings = getTeamMemberBookingsForDate(member.id, day);
+
+                            return (
+                              <div
+                                key={dayIndex}
+                                className={`min-h-[100px] border rounded-lg p-1 ${
+                                  memberAvail ? "bg-background" : "bg-muted/50"
+                                }`}
+                              >
+                                {memberAvail && (
+                                  <div className="text-[10px] text-muted-foreground mb-1 text-center">
+                                    {memberAvail.startTime} - {memberAvail.endTime}
+                                  </div>
+                                )}
+                                <div className="space-y-1">
+                                  {dayBookings
+                                    .sort((a, b) => a.startTime.localeCompare(b.startTime))
+                                    .map((booking) => (
+                                      <div
+                                        key={booking.id}
+                                        className={`p-1.5 rounded text-xs cursor-pointer hover:opacity-80 ${color.bg} ${color.border} border-l-2`}
+                                        onClick={() => handleViewDetails(booking)}
+                                        data-testid={`team-load-booking-${booking.id}`}
+                                      >
+                                        <div className={`font-medium ${color.text}`}>
+                                          {booking.startTime} - {booking.endTime}
+                                        </div>
+                                        <div className="truncate text-muted-foreground">
+                                          {booking.customerName}
+                                        </div>
+                                        <div className="truncate text-muted-foreground opacity-75">
+                                          {getServiceName(booking.serviceId)}
+                                        </div>
+                                        {booking.status === "confirmed" && (
+                                          <CheckCircle className="h-3 w-3 text-green-500 mt-0.5" />
+                                        )}
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+
+                    {/* Unassigned Bookings Row */}
+                    {getWeekDays().some(day => getBookingsForDateWithoutTeamMember(day).length > 0) && (
+                      <div className="grid grid-cols-8 gap-2 mb-4 pt-4 border-t">
+                        <div className="flex items-start gap-2 p-2">
+                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                            <Users className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium">{t("bookings.unassigned")}</p>
+                            <p className="text-xs text-muted-foreground">{t("bookings.noTeamMember")}</p>
+                          </div>
+                        </div>
+
+                        {getWeekDays().map((day, dayIndex) => {
+                          const dayBookings = getBookingsForDateWithoutTeamMember(day);
+                          return (
+                            <div
+                              key={dayIndex}
+                              className="min-h-[100px] border rounded-lg p-1 bg-background border-dashed"
+                            >
+                              <div className="space-y-1">
+                                {dayBookings
+                                  .sort((a, b) => a.startTime.localeCompare(b.startTime))
+                                  .map((booking) => (
+                                    <div
+                                      key={booking.id}
+                                      className="p-1.5 rounded text-xs cursor-pointer hover:opacity-80 bg-muted border-l-2 border-muted-foreground"
+                                      onClick={() => handleViewDetails(booking)}
+                                      data-testid={`team-load-unassigned-${booking.id}`}
+                                    >
+                                      <div className="font-medium">
+                                        {booking.startTime} - {booking.endTime}
+                                      </div>
+                                      <div className="truncate text-muted-foreground">
+                                        {booking.customerName}
+                                      </div>
+                                      <div className="truncate text-muted-foreground opacity-75">
+                                        {getServiceName(booking.serviceId)}
+                                      </div>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                  <h3 className="text-lg font-semibold mb-2">{t("bookings.noTeamMembers")}</h3>
+                  <p className="text-muted-foreground">
+                    {t("bookings.addTeamMembersFirst")}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
