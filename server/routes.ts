@@ -711,6 +711,36 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     }
   });
 
+  // Get team members for a specific service (for customer booking flow)
+  app.get("/api/public/team-members/:serviceId", async (req, res) => {
+    try {
+      const serviceId = req.params.serviceId;
+      const service = await storage.getServiceById(serviceId);
+      
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+
+      const teamMembersList = await storage.getTeamMembersByServiceId(serviceId);
+      
+      // Return team members with their availability
+      const membersWithAvailability = await Promise.all(
+        teamMembersList.map(async (member) => {
+          const memberAvailability = await storage.getTeamMemberAvailability(member.id);
+          return {
+            ...member,
+            availability: memberAvailability,
+          };
+        })
+      );
+      
+      res.json(membersWithAvailability);
+    } catch (error) {
+      console.error("Error fetching team members for service:", error);
+      res.status(500).json({ message: "Failed to fetch team members" });
+    }
+  });
+
   // Get modification details by token - MUST be before :slug/:date route
   app.get("/api/public/bookings/modification/:token", async (req, res) => {
     try {

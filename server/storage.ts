@@ -101,6 +101,7 @@ export interface IStorage {
 
   // Team member services operations
   getTeamMemberServices(teamMemberId: string): Promise<TeamMemberService[]>;
+  getTeamMembersByServiceId(serviceId: string): Promise<TeamMember[]>;
   setTeamMemberServices(teamMemberId: string, serviceIds: string[]): Promise<void>;
 
   // Team member availability operations
@@ -466,6 +467,22 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(teamMemberServices)
       .where(eq(teamMemberServices.teamMemberId, teamMemberId));
+  }
+
+  async getTeamMembersByServiceId(serviceId: string): Promise<TeamMember[]> {
+    const assignments = await db
+      .select({
+        teamMember: teamMembers,
+      })
+      .from(teamMemberServices)
+      .innerJoin(teamMembers, eq(teamMemberServices.teamMemberId, teamMembers.id))
+      .where(
+        and(
+          eq(teamMemberServices.serviceId, serviceId),
+          eq(teamMembers.isActive, true)
+        )
+      );
+    return assignments.map(a => a.teamMember);
   }
 
   async setTeamMemberServices(teamMemberId: string, serviceIds: string[]): Promise<void> {

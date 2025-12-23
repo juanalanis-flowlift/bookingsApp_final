@@ -177,6 +177,7 @@ export const bookings = pgTable("bookings", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   businessId: varchar("business_id").notNull().references(() => businesses.id, { onDelete: "cascade" }),
   serviceId: varchar("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
+  teamMemberId: varchar("team_member_id").references(() => teamMembers.id, { onDelete: "set null" }),
   customerId: varchar("customer_id").references(() => customers.id, { onDelete: "set null" }),
   customerName: varchar("customer_name", { length: 255 }).notNull(),
   customerEmail: varchar("customer_email", { length: 255 }).notNull(),
@@ -248,6 +249,10 @@ export const bookingsRelations = relations(bookings, ({ one }) => ({
   service: one(services, {
     fields: [bookings.serviceId],
     references: [services.id],
+  }),
+  teamMember: one(teamMembers, {
+    fields: [bookings.teamMemberId],
+    references: [teamMembers.id],
   }),
   customer: one(customers, {
     fields: [bookings.customerId],
