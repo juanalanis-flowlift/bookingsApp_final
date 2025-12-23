@@ -209,6 +209,205 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
   });
 
   // ============================================
+  // Team Member Routes (Protected)
+  // ============================================
+  app.get("/api/team", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const teamMembersList = await storage.getTeamMembersByBusinessId(business.id);
+      res.json(teamMembersList);
+    } catch (error) {
+      console.error("Error fetching team members:", error);
+      res.status(500).json({ message: "Failed to fetch team members" });
+    }
+  });
+
+  app.post("/api/team", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const member = await storage.createTeamMember({
+        ...req.body,
+        businessId: business.id,
+      });
+      res.json(member);
+    } catch (error) {
+      console.error("Error creating team member:", error);
+      res.status(500).json({ message: "Failed to create team member" });
+    }
+  });
+
+  app.get("/api/team/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const member = await storage.getTeamMemberById(req.params.id);
+      if (!member || member.businessId !== business.id) {
+        return res.status(404).json({ message: "Team member not found" });
+      }
+
+      res.json(member);
+    } catch (error) {
+      console.error("Error fetching team member:", error);
+      res.status(500).json({ message: "Failed to fetch team member" });
+    }
+  });
+
+  app.patch("/api/team/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const member = await storage.getTeamMemberById(req.params.id);
+      if (!member || member.businessId !== business.id) {
+        return res.status(404).json({ message: "Team member not found" });
+      }
+
+      const updated = await storage.updateTeamMember(req.params.id, req.body);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating team member:", error);
+      res.status(500).json({ message: "Failed to update team member" });
+    }
+  });
+
+  app.delete("/api/team/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const member = await storage.getTeamMemberById(req.params.id);
+      if (!member || member.businessId !== business.id) {
+        return res.status(404).json({ message: "Team member not found" });
+      }
+
+      await storage.deleteTeamMember(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting team member:", error);
+      res.status(500).json({ message: "Failed to delete team member" });
+    }
+  });
+
+  // Team member services
+  app.get("/api/team/:id/services", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const member = await storage.getTeamMemberById(req.params.id);
+      if (!member || member.businessId !== business.id) {
+        return res.status(404).json({ message: "Team member not found" });
+      }
+
+      const memberServices = await storage.getTeamMemberServices(req.params.id);
+      res.json(memberServices.map(ms => ms.serviceId));
+    } catch (error) {
+      console.error("Error fetching team member services:", error);
+      res.status(500).json({ message: "Failed to fetch team member services" });
+    }
+  });
+
+  app.put("/api/team/:id/services", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const member = await storage.getTeamMemberById(req.params.id);
+      if (!member || member.businessId !== business.id) {
+        return res.status(404).json({ message: "Team member not found" });
+      }
+
+      const { serviceIds } = req.body;
+      await storage.setTeamMemberServices(req.params.id, serviceIds || []);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating team member services:", error);
+      res.status(500).json({ message: "Failed to update team member services" });
+    }
+  });
+
+  // Team member availability
+  app.get("/api/team/:id/availability", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const member = await storage.getTeamMemberById(req.params.id);
+      if (!member || member.businessId !== business.id) {
+        return res.status(404).json({ message: "Team member not found" });
+      }
+
+      const avail = await storage.getTeamMemberAvailability(req.params.id);
+      res.json(avail);
+    } catch (error) {
+      console.error("Error fetching team member availability:", error);
+      res.status(500).json({ message: "Failed to fetch team member availability" });
+    }
+  });
+
+  app.post("/api/team/:id/availability", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const member = await storage.getTeamMemberById(req.params.id);
+      if (!member || member.businessId !== business.id) {
+        return res.status(404).json({ message: "Team member not found" });
+      }
+
+      const avail = await storage.upsertTeamMemberAvailability({
+        ...req.body,
+        teamMemberId: req.params.id,
+      });
+      res.json(avail);
+    } catch (error) {
+      console.error("Error updating team member availability:", error);
+      res.status(500).json({ message: "Failed to update team member availability" });
+    }
+  });
+
+  // ============================================
   // Availability Routes (Protected)
   // ============================================
   app.get("/api/availability", isAuthenticated, async (req: any, res) => {
