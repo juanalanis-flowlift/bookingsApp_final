@@ -148,7 +148,7 @@ const emailTranslations: Record<Language, Record<string, string>> = {
     newAppointment: "Tienes una nueva cita",
     customerDetails: "Detalles del Cliente",
     customerNotes: "Notas del Cliente",
-    loginDashboard: "Inicia sesión en tu panel de FlowLift para gestionar esta reserva.",
+    loginDashboard: "Inicia sesión en tu panel de FlowLift para gestionar esta reservacion.",
     signInFlowLift: "Inicia sesión en FlowLift",
     clickToAccess: "Haz clic en el botón de abajo para acceder a tus reservaciones",
     viewMyBookings: "Ver Mis Reservaciones",

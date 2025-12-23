@@ -127,6 +127,37 @@ export const customerTokens = pgTable("customer_tokens", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Team members table
+export const teamMembers = pgTable("team_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  businessId: varchar("business_id").notNull().references(() => businesses.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  role: varchar("role", { length: 100 }), // e.g., "stylist", "barber", "therapist"
+  photoUrl: varchar("photo_url", { length: 500 }),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Team member services junction table - which services each team member can perform
+export const teamMemberServices = pgTable("team_member_services", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  teamMemberId: varchar("team_member_id").notNull().references(() => teamMembers.id, { onDelete: "cascade" }),
+  serviceId: varchar("service_id").notNull().references(() => services.id, { onDelete: "cascade" }),
+});
+
+// Team member availability - individual schedules for team members
+export const teamMemberAvailability = pgTable("team_member_availability", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  teamMemberId: varchar("team_member_id").notNull().references(() => teamMembers.id, { onDelete: "cascade" }),
+  dayOfWeek: integer("day_of_week").notNull(), // 0 = Sunday, 6 = Saturday
+  startTime: varchar("start_time", { length: 10 }).notNull(), // HH:MM format
+  endTime: varchar("end_time", { length: 10 }).notNull(), // HH:MM format
+  isAvailable: boolean("is_available").default(true),
+});
+
 // Booking status enum
 export const bookingStatuses = ["pending", "confirmed", "cancelled", "modification_pending"] as const;
 
@@ -225,6 +256,33 @@ export const customerTokensRelations = relations(customerTokens, ({ one }) => ({
   }),
 }));
 
+export const teamMembersRelations = relations(teamMembers, ({ one, many }) => ({
+  business: one(businesses, {
+    fields: [teamMembers.businessId],
+    references: [businesses.id],
+  }),
+  services: many(teamMemberServices),
+  availability: many(teamMemberAvailability),
+}));
+
+export const teamMemberServicesRelations = relations(teamMemberServices, ({ one }) => ({
+  teamMember: one(teamMembers, {
+    fields: [teamMemberServices.teamMemberId],
+    references: [teamMembers.id],
+  }),
+  service: one(services, {
+    fields: [teamMemberServices.serviceId],
+    references: [services.id],
+  }),
+}));
+
+export const teamMemberAvailabilityRelations = relations(teamMemberAvailability, ({ one }) => ({
+  teamMember: one(teamMembers, {
+    fields: [teamMemberAvailability.teamMemberId],
+    references: [teamMembers.id],
+  }),
+}));
+
 // Zod schemas for validation
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -269,6 +327,20 @@ export const insertCustomerTokenSchema = createInsertSchema(customerTokens).omit
   createdAt: true,
 });
 
+export const insertTeamMemberSchema = createInsertSchema(teamMembers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTeamMemberServiceSchema = createInsertSchema(teamMemberServices).omit({
+  id: true,
+});
+
+export const insertTeamMemberAvailabilitySchema = createInsertSchema(teamMemberAvailability).omit({
+  id: true,
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
@@ -293,6 +365,15 @@ export type Customer = typeof customers.$inferSelect;
 
 export type InsertCustomerToken = z.infer<typeof insertCustomerTokenSchema>;
 export type CustomerToken = typeof customerTokens.$inferSelect;
+
+export type InsertTeamMember = z.infer<typeof insertTeamMemberSchema>;
+export type TeamMember = typeof teamMembers.$inferSelect;
+
+export type InsertTeamMemberService = z.infer<typeof insertTeamMemberServiceSchema>;
+export type TeamMemberService = typeof teamMemberServices.$inferSelect;
+
+export type InsertTeamMemberAvailability = z.infer<typeof insertTeamMemberAvailabilitySchema>;
+export type TeamMemberAvailability = typeof teamMemberAvailability.$inferSelect;
 
 export type BookingStatus = typeof bookingStatuses[number];
 export type BusinessCategory = typeof businessCategories[number];

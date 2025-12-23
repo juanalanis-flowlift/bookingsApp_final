@@ -405,7 +405,7 @@ export const translations: Record<Language, Record<string, string>> = {
     
     "nav.dashboard": "Panel",
     "nav.services": "Servicios",
-    "nav.bookings": "Reservas",
+    "nav.bookings": "Reservaciones",
     "nav.availability": "Disponibilidad",
     "nav.settings": "Configuración",
     "nav.logout": "Cerrar sesión",
