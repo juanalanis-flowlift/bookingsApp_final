@@ -466,7 +466,7 @@ export default function Team() {
                             <div className="flex-1">
                               <p className="font-medium">{service.name}</p>
                               <p className="text-sm text-muted-foreground">
-                                {service.duration} {t("common.minutes")} • ${service.price}
+                                {service.duration} {t("common.minutes")} • ${Number(service.price).toFixed(2)}
                               </p>
                             </div>
                           </div>

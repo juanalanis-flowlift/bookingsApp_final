@@ -351,7 +351,19 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       }
 
       const { serviceIds } = req.body;
-      await storage.setTeamMemberServices(req.params.id, serviceIds || []);
+      
+      // Validate serviceIds is an array of strings
+      if (!Array.isArray(serviceIds)) {
+        return res.status(400).json({ message: "serviceIds must be an array" });
+      }
+      
+      // Filter to only valid service IDs that belong to this business
+      const businessServices = await storage.getServicesByBusinessId(business.id);
+      const validServiceIds = serviceIds.filter((id: string) => 
+        typeof id === 'string' && businessServices.some(s => s.id === id)
+      );
+      
+      await storage.setTeamMemberServices(req.params.id, validServiceIds);
       res.json({ success: true });
     } catch (error) {
       console.error("Error updating team member services:", error);
@@ -396,9 +408,25 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
         return res.status(404).json({ message: "Team member not found" });
       }
 
+      const { dayOfWeek, startTime, endTime, isAvailable } = req.body;
+      
+      // Validate required fields
+      if (typeof dayOfWeek !== 'number' || dayOfWeek < 0 || dayOfWeek > 6) {
+        return res.status(400).json({ message: "dayOfWeek must be a number between 0 and 6" });
+      }
+      if (typeof startTime !== 'string' || !/^\d{2}:\d{2}$/.test(startTime)) {
+        return res.status(400).json({ message: "startTime must be in HH:MM format" });
+      }
+      if (typeof endTime !== 'string' || !/^\d{2}:\d{2}$/.test(endTime)) {
+        return res.status(400).json({ message: "endTime must be in HH:MM format" });
+      }
+
       const avail = await storage.upsertTeamMemberAvailability({
-        ...req.body,
         teamMemberId: req.params.id,
+        dayOfWeek,
+        startTime,
+        endTime,
+        isAvailable: isAvailable ?? true,
       });
       res.json(avail);
     } catch (error) {
