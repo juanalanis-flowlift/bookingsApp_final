@@ -42,7 +42,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 border-b backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-[#f1f4f8]">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <img 
             src={flowliftLogo} 
@@ -57,7 +57,6 @@ export default function Landing() {
           </div>
         </div>
       </header>
-
       {/* Hero Section */}
       <section className="py-16 md:py-24 lg:py-32">
         <div className="container mx-auto px-4">
@@ -85,7 +84,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* Features Section */}
       <section id="features" className="py-16 md:py-24 bg-muted/30">
         <div className="container mx-auto px-4">
@@ -112,7 +110,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* Benefits Section */}
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
@@ -139,7 +136,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-
       {/* CTA Section */}
       <section className="py-16 md:py-24 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
@@ -162,7 +158,6 @@ export default function Landing() {
           </a>
         </div>
       </section>
-
       {/* Footer */}
       <footer className="border-t py-8">
         <div className="container mx-auto px-4">
