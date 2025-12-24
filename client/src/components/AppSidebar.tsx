@@ -57,17 +57,20 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center flex-shrink-0">
-            <Calendar className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="font-bold text-lg truncate">{t("app.name")}</span>
-            {business && (
-              <span className="text-xs text-muted-foreground truncate">
-                {business.name}
-              </span>
-            )}
-          </div>
+          {business?.logoUrl ? (
+            <img 
+              src={business.logoUrl} 
+              alt={business.name} 
+              className="w-10 h-10 rounded-md object-contain flex-shrink-0"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-md bg-primary flex items-center justify-center flex-shrink-0">
+              <Calendar className="h-6 w-6 text-primary-foreground" />
+            </div>
+          )}
+          <span className="font-bold text-xl truncate">
+            {business?.name || t("app.name")}
+          </span>
         </div>
       </SidebarHeader>
 
