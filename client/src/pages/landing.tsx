@@ -3,9 +3,63 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Clock, Users, BarChart3, CheckCircle, ArrowRight } from "lucide-react";
 import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 import flowliftLogo from "@assets/flowlift_logo_full_large_white_1766548850207.png";
+import { useState, useEffect, useCallback } from "react";
+
+function RotatingText({ phrases, interval = 2750 }: { phrases: string[], interval?: number }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const nextPhrase = useCallback(() => {
+    if (isPaused) return;
+    setIsAnimating(true);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % phrases.length);
+      setIsAnimating(false);
+    }, 300);
+  }, [isPaused, phrases.length]);
+
+  useEffect(() => {
+    const timer = setInterval(nextPhrase, interval);
+    return () => clearInterval(timer);
+  }, [nextPhrase, interval]);
+
+  const handleInteractionStart = () => setIsPaused(true);
+  const handleInteractionEnd = () => setIsPaused(false);
+
+  return (
+    <span
+      className="inline-block relative"
+      onMouseEnter={handleInteractionStart}
+      onMouseLeave={handleInteractionEnd}
+      onTouchStart={handleInteractionStart}
+      onTouchEnd={handleInteractionEnd}
+    >
+      <span
+        className={`inline-block transition-all duration-300 ease-in-out ${
+          isAnimating 
+            ? "opacity-0 translate-y-2" 
+            : "opacity-100 translate-y-0"
+        }`}
+        style={{ fontFamily: "'Playfair Display', serif" }}
+      >
+        {phrases[currentIndex]}
+      </span>
+    </span>
+  );
+}
 
 export default function Landing() {
   const { t } = useI18n();
+
+  const rotatingPhrases = [
+    t("landing.hero.rotating.haircut"),
+    t("landing.hero.rotating.photoSession"),
+    t("landing.hero.rotating.consultation"),
+    t("landing.hero.rotating.classOrLesson"),
+    t("landing.hero.rotating.equipmentHire"),
+    t("landing.hero.rotating.venueHire"),
+  ];
 
   const features = [
     {
@@ -60,11 +114,15 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="py-16 md:py-24 lg:py-32">
         <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
-              {t("landing.hero.title")}{" "}
-              <span className="text-primary">{t("landing.hero.titleHighlight")}</span>
-            </h1>
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            <div className="space-y-2">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+                {t("landing.hero.fixedText")}
+              </h1>
+              <p className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+                <RotatingText phrases={rotatingPhrases} interval={2750} />
+              </p>
+            </div>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               {t("landing.hero.subtitle")}
             </p>
