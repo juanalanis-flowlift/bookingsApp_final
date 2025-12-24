@@ -42,7 +42,7 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-[#f1f4f8]">
+      <header className="sticky top-0 z-50 border-b backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-[#F1F4F8]">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <img 
             src={flowliftLogo} 
