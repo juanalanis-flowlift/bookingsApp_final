@@ -36,7 +36,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.hero.subtitle": "Stop juggling calls and messages. Let your customers book appointments online while you focus on what you do best.",
     "landing.hero.cta": "Get Started Free",
     "landing.hero.learnMore": "Learn More",
-    "landing.signIn": "Sign In",
+    "landing.signIn": "Start for free",
     "landing.startFree": "Start for free",
     
     "landing.features.title": "Everything You Need to Manage Bookings",
@@ -476,7 +476,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.hero.subtitle": "Deja de hacer malabares con llamadas y mensajes. Permite que tus clientes reserven citas en línea mientras te enfocas en lo que mejor haces.",
     "landing.hero.cta": "Comenzar Gratis",
     "landing.hero.learnMore": "Más Información",
-    "landing.signIn": "Iniciar Sesión",
+    "landing.signIn": "Empieza gratis",
     "landing.startFree": "Comienza gratis",
     
     "landing.features.title": "Todo lo que Necesitas para Gestionar Reservas",
