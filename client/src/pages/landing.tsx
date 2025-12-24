@@ -52,7 +52,7 @@ export default function Landing() {
           <div className="flex items-center gap-2">
             <LanguageSwitcher minimal />
             <a href="/api/login">
-              <Button data-testid="button-login">{t("landing.signIn")}</Button>
+              <Button data-testid="button-login">{t("landing.startFree")}</Button>
             </a>
           </div>
         </div>

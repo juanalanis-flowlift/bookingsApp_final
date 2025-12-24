@@ -37,6 +37,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.hero.cta": "Get Started Free",
     "landing.hero.learnMore": "Learn More",
     "landing.signIn": "Sign In",
+    "landing.startFree": "Start for free",
     
     "landing.features.title": "Everything You Need to Manage Bookings",
     "landing.features.subtitle": "Simple, powerful tools designed for small service businesses",
@@ -476,6 +477,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.hero.cta": "Comenzar Gratis",
     "landing.hero.learnMore": "Más Información",
     "landing.signIn": "Iniciar Sesión",
+    "landing.startFree": "Comienza gratis",
     
     "landing.features.title": "Todo lo que Necesitas para Gestionar Reservas",
     "landing.features.subtitle": "Herramientas simples y poderosas diseñadas para pequeños negocios de servicios",
