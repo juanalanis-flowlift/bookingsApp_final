@@ -24,18 +24,18 @@ function RotatingText({
   const [isAnimating, setIsAnimating] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
+  useEffect(() => {
+    onIndexChange?.(currentIndex);
+  }, [currentIndex, onIndexChange]);
+
   const nextPhrase = useCallback(() => {
     if (isPaused) return;
     setIsAnimating(true);
     setTimeout(() => {
-      setCurrentIndex((prev) => {
-        const newIndex = (prev + 1) % phrases.length;
-        onIndexChange?.(newIndex);
-        return newIndex;
-      });
+      setCurrentIndex((prev) => (prev + 1) % phrases.length);
       setIsAnimating(false);
     }, 300);
-  }, [isPaused, phrases.length, onIndexChange]);
+  }, [isPaused, phrases.length]);
 
   useEffect(() => {
     const timer = setInterval(nextPhrase, interval);
@@ -79,7 +79,7 @@ function HaircutImageCarousel({ isVisible }: { isVisible: boolean }) {
   }, []);
 
   return (
-    <div className="w-full overflow-hidden py-4">
+    <div className="w-[90%] mx-auto overflow-hidden py-4">
       <div className="flex justify-center items-center w-full">
         {images.map((img, index) => (
           <div
@@ -96,7 +96,7 @@ function HaircutImageCarousel({ isVisible }: { isVisible: boolean }) {
               transitionDelay: `${index * 80}ms`,
             }}
           >
-            <div className="h-24 md:h-32 lg:h-48 xl:h-56 w-16 md:w-24 lg:w-34 xl:w-40 overflow-hidden rounded-md">
+            <div className="h-28 md:h-40 lg:h-64 xl:h-80 w-20 md:w-32 lg:w-48 xl:w-56 overflow-hidden rounded-md">
               <img
                 src={img}
                 alt={`Haircut ${index + 1}`}
