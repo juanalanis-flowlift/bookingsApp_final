@@ -80,11 +80,11 @@ function HaircutImageCarousel({ isVisible }: { isVisible: boolean }) {
 
   return (
     <div className="w-full overflow-hidden py-4">
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center items-center w-full">
         {images.map((img, index) => (
           <div
             key={index}
-            className={`relative transition-all duration-500 ease-out ${
+            className={`relative transition-all duration-500 ease-out flex-shrink-0 ${
               isVisible 
                 ? "opacity-100 translate-y-0" 
                 : "opacity-0 translate-y-8"
@@ -96,7 +96,7 @@ function HaircutImageCarousel({ isVisible }: { isVisible: boolean }) {
               transitionDelay: `${index * 80}ms`,
             }}
           >
-            <div className="h-24 md:h-32 lg:h-40 w-16 md:w-24 lg:w-28 overflow-hidden rounded-md">
+            <div className="h-24 md:h-32 lg:h-48 xl:h-56 w-16 md:w-24 lg:w-34 xl:w-40 overflow-hidden rounded-md">
               <img
                 src={img}
                 alt={`Haircut ${index + 1}`}
