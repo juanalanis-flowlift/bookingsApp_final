@@ -3,9 +3,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Clock, Users, BarChart3, CheckCircle, ArrowRight } from "lucide-react";
 import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 import flowliftLogo from "@assets/flowlift_logo_full_large_white_1766548850207.png";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
-function RotatingText({ phrases, interval = 2750 }: { phrases: string[], interval?: number }) {
+import haircutImg1 from "@assets/adam-winger-FkAZqQJTbXM-unsplash_1766644171026.jpeg";
+import haircutImg2 from "@assets/baylee-gramling-MMz03PyCOZg-unsplash_1766644171026.jpeg";
+import haircutImg3 from "@assets/agustin-fernandez-1Pmp9uxK8X8-unsplash_1766644171026.jpeg";
+import haircutImg4 from "@assets/nathon-oski-fE42nRlBcG8-unsplash_1766644171026.jpeg";
+import haircutImg5 from "@assets/benyamin-bohlouli-LGXN4OSQSa4-unsplash_1766644171026.jpeg";
+
+function RotatingText({ 
+  phrases, 
+  interval = 2750, 
+  onIndexChange 
+}: { 
+  phrases: string[], 
+  interval?: number, 
+  onIndexChange?: (index: number) => void 
+}) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -14,10 +28,14 @@ function RotatingText({ phrases, interval = 2750 }: { phrases: string[], interva
     if (isPaused) return;
     setIsAnimating(true);
     setTimeout(() => {
-      setCurrentIndex((prev) => (prev + 1) % phrases.length);
+      setCurrentIndex((prev) => {
+        const newIndex = (prev + 1) % phrases.length;
+        onIndexChange?.(newIndex);
+        return newIndex;
+      });
       setIsAnimating(false);
     }, 300);
-  }, [isPaused, phrases.length]);
+  }, [isPaused, phrases.length, onIndexChange]);
 
   useEffect(() => {
     const timer = setInterval(nextPhrase, interval);
@@ -49,8 +67,52 @@ function RotatingText({ phrases, interval = 2750 }: { phrases: string[], interva
   );
 }
 
+function HaircutImageCarousel({ isVisible }: { isVisible: boolean }) {
+  const images = [haircutImg1, haircutImg2, haircutImg3, haircutImg4, haircutImg5];
+  
+  const imageStyles = useMemo(() => {
+    return images.map((_, i) => ({
+      marginLeft: i === 0 ? 0 : Math.floor(Math.random() * 20) + 8,
+      marginRight: Math.floor(Math.random() * 20) + 8,
+      translateY: Math.floor(Math.random() * 31) - 15,
+    }));
+  }, []);
+
+  return (
+    <div className="w-full overflow-hidden py-4">
+      <div className="flex justify-center items-center">
+        {images.map((img, index) => (
+          <div
+            key={index}
+            className={`relative transition-all duration-500 ease-out ${
+              isVisible 
+                ? "opacity-100 translate-y-0" 
+                : "opacity-0 translate-y-8"
+            }`}
+            style={{
+              marginLeft: `${imageStyles[index].marginLeft}px`,
+              marginRight: `${imageStyles[index].marginRight}px`,
+              transform: `translateY(${imageStyles[index].translateY}px)`,
+              transitionDelay: `${index * 80}ms`,
+            }}
+          >
+            <div className="h-24 md:h-32 lg:h-40 w-16 md:w-24 lg:w-28 overflow-hidden rounded-md">
+              <img
+                src={img}
+                alt={`Haircut ${index + 1}`}
+                className="w-full h-[150%] object-cover object-top"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Landing() {
   const { t } = useI18n();
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
 
   const rotatingPhrases = [
     t("landing.hero.rotating.haircut"),
@@ -60,6 +122,10 @@ export default function Landing() {
     t("landing.hero.rotating.equipmentHire"),
     t("landing.hero.rotating.venueHire"),
   ];
+
+  const handlePhraseChange = useCallback((index: number) => {
+    setCurrentPhraseIndex(index);
+  }, []);
 
   const features = [
     {
@@ -120,9 +186,14 @@ export default function Landing() {
                 {t("landing.hero.fixedText")}
               </h1>
               <p className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-                <RotatingText phrases={rotatingPhrases} interval={2750} />
+                <RotatingText 
+                  phrases={rotatingPhrases} 
+                  interval={2750} 
+                  onIndexChange={handlePhraseChange}
+                />
               </p>
             </div>
+            <HaircutImageCarousel isVisible={currentPhraseIndex === 0} />
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               {t("landing.hero.subtitle")}
             </p>
