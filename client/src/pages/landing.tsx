@@ -26,6 +26,13 @@ import consultationImg4 from "@assets/amy-hirschi-JaoVGh5aJ3E-unsplash_176672124
 import consultationImg5 from "@assets/charlesdeluvio-Lks7vei-eAg-unsplash_1766721245961.jpeg";
 import consultationImg6 from "@assets/nick-morrison-FHnnjk1Yj7Y-unsplash_1766721245961.jpeg";
 
+import classImg1 from "@assets/tim-schmidbauer-bUiT0-6kB64-unsplash_1766721913013.jpeg";
+import classImg2 from "@assets/april-walker-9oB319CAOWU-unsplash_1766721913013.jpeg";
+import classImg3 from "@assets/angry-_-kat-9XYHYERuFAk-unsplash_1766721913013.jpeg";
+import classImg4 from "@assets/vitaly-gariev-IIisONUL2d8-unsplash_1766721913013.jpeg";
+import classImg5 from "@assets/sweet-life-j14Q19jXDFQ-unsplash_1766721913013.jpeg";
+import classImg6 from "@assets/andrey-k-rccbptXljzw-unsplash_1766721913013.jpeg";
+
 import flowlift_logo_Btext_noBG from "@assets/flowlift_logo_Btext_noBG.png";
 
 function RotatingText({ 
@@ -217,6 +224,49 @@ function ConsultationCarousel({ isVisible }: { isVisible: boolean }) {
   );
 }
 
+function ClassLessonCarousel({ isVisible }: { isVisible: boolean }) {
+  const images = [classImg1, classImg2, classImg3, classImg4, classImg5, classImg6];
+  
+  const imageStyles = useMemo(() => {
+    return images.map((_, i) => ({
+      marginLeft: i === 0 ? 0 : Math.floor(Math.random() * 8) + 2,
+      marginRight: Math.floor(Math.random() * 8) + 2,
+      translateY: Math.floor(Math.random() * 31) - 15,
+    }));
+  }, []);
+
+  return (
+    <div className="w-[90%] mx-auto overflow-hidden py-4">
+      <div className="flex justify-center items-center w-full">
+        {images.map((img, index) => (
+          <div
+            key={index}
+            className={`relative transition-all duration-500 ease-out flex-shrink-0 ${
+              isVisible 
+                ? "opacity-100 translate-y-0" 
+                : "opacity-0 translate-y-8"
+            }`}
+            style={{
+              marginLeft: `${imageStyles[index].marginLeft}px`,
+              marginRight: `${imageStyles[index].marginRight}px`,
+              transform: `translateY(${imageStyles[index].translateY}px)`,
+              transitionDelay: `${index * 80}ms`,
+            }}
+          >
+            <div className="h-28 md:h-40 lg:h-64 xl:h-80 w-20 md:w-32 lg:w-48 xl:w-56 overflow-hidden rounded-md">
+              <img
+                src={img}
+                alt={`Class or Lesson ${index + 1}`}
+                className="w-full h-[150%] object-cover object-top"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Landing() {
   const { t } = useI18n();
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
@@ -309,6 +359,9 @@ export default function Landing() {
               </div>
               <div className="absolute inset-0">
                 <ConsultationCarousel isVisible={currentPhraseIndex === 2} />
+              </div>
+              <div className="absolute inset-0">
+                <ClassLessonCarousel isVisible={currentPhraseIndex === 3} />
               </div>
             </div>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
