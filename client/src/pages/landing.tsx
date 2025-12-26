@@ -19,6 +19,13 @@ import photoImg4 from "@assets/reinhart-julian-WxM465oM4j4-unsplash_176672028525
 import photoImg5 from "@assets/noemi-macavei-katocz-zrk7WirlxgM-unsplash_1766720285257.jpeg";
 import photoImg6 from "@assets/redd-francisco-0eo4e1eh13I-unsplash_1766720285257.jpeg";
 
+import consultationImg1 from "@assets/charlesdeluvio-rRWiVQzLm7k-unsplash_1766721245961.jpeg";
+import consultationImg2 from "@assets/startae-team-7tXA8xwe4W4-unsplash_1766721245961.jpeg";
+import consultationImg3 from "@assets/gabrielle-henderson-HJckKnwCXxQ-unsplash_1766721245961.jpeg";
+import consultationImg4 from "@assets/amy-hirschi-JaoVGh5aJ3E-unsplash_1766721245961.jpeg";
+import consultationImg5 from "@assets/charlesdeluvio-Lks7vei-eAg-unsplash_1766721245961.jpeg";
+import consultationImg6 from "@assets/nick-morrison-FHnnjk1Yj7Y-unsplash_1766721245961.jpeg";
+
 import flowlift_logo_Btext_noBG from "@assets/flowlift_logo_Btext_noBG.png";
 
 function RotatingText({ 
@@ -164,6 +171,52 @@ function PhotoSessionCarousel({ isVisible }: { isVisible: boolean }) {
   );
 }
 
+function ConsultationCarousel({ isVisible }: { isVisible: boolean }) {
+  const images = [
+    consultationImg1, consultationImg2, consultationImg3, 
+    consultationImg4, consultationImg5, consultationImg6
+  ];
+  
+  const imageStyles = useMemo(() => {
+    return images.map((_, i) => ({
+      marginLeft: i === 0 ? 0 : Math.floor(Math.random() * 8) + 2,
+      marginRight: Math.floor(Math.random() * 8) + 2,
+      translateY: Math.floor(Math.random() * 31) - 15,
+    }));
+  }, []);
+
+  return (
+    <div className="w-[90%] mx-auto overflow-hidden py-4">
+      <div className="flex justify-center items-center w-full">
+        {images.map((img, index) => (
+          <div
+            key={index}
+            className={`relative transition-all duration-500 ease-out flex-shrink-0 ${
+              isVisible 
+                ? "opacity-100 translate-y-0" 
+                : "opacity-0 translate-y-8"
+            }`}
+            style={{
+              marginLeft: `${imageStyles[index].marginLeft}px`,
+              marginRight: `${imageStyles[index].marginRight}px`,
+              transform: `translateY(${imageStyles[index].translateY}px)`,
+              transitionDelay: `${index * 80}ms`,
+            }}
+          >
+            <div className="h-28 md:h-40 lg:h-64 xl:h-80 w-20 md:w-32 lg:w-48 xl:w-56 overflow-hidden rounded-md">
+              <img
+                src={img}
+                alt={`Consultation ${index + 1}`}
+                className="w-full h-[150%] object-cover object-top"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Landing() {
   const { t } = useI18n();
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
@@ -253,6 +306,9 @@ export default function Landing() {
               </div>
               <div className="absolute inset-0">
                 <PhotoSessionCarousel isVisible={currentPhraseIndex === 1} />
+              </div>
+              <div className="absolute inset-0">
+                <ConsultationCarousel isVisible={currentPhraseIndex === 2} />
               </div>
             </div>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
