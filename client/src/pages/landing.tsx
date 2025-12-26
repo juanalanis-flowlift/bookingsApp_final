@@ -40,6 +40,13 @@ import equipmentImg4 from "@assets/photos-by-lanty-O38Id_cyV4M-unsplash_17667228
 import equipmentImg5 from "@assets/ted-balmer-puFgHWFtUzI-unsplash_1766722836984.jpeg";
 import equipmentImg6 from "@assets/jackery-power-station-wrGNZIPfias-unsplash_1766722836984.jpeg";
 
+import venueImg1 from "@assets/john-towner-X48hkTT1qQc-unsplash_1766785219140.jpeg";
+import venueImg2 from "@assets/alesia-kazantceva-VWcPlbHglYc-unsplash_1766785219140.jpeg";
+import venueImg3 from "@assets/jose-alejandro-cuffia-NtiZoP2CKOs-unsplash_1766785219140.jpeg";
+import venueImg4 from "@assets/anisa-ryanda-putri-JPVCcArnKNc-unsplash_1766785219140.jpeg";
+import venueImg5 from "@assets/soulseeker-creative-photography-aRQrz0fclB8-unsplash_1766785219140.jpeg";
+import venueImg6 from "@assets/benjamin-child-GWe0dlVD9e0-unsplash_1766785219140.jpeg";
+
 import flowlift_logo_Btext_noBG from "@assets/flowlift_logo_Btext_noBG.png";
 
 function RotatingText({ 
@@ -317,6 +324,49 @@ function EquipmentHireCarousel({ isVisible }: { isVisible: boolean }) {
   );
 }
 
+function VenueHireCarousel({ isVisible }: { isVisible: boolean }) {
+  const images = [venueImg1, venueImg2, venueImg3, venueImg4, venueImg5, venueImg6];
+  
+  const imageStyles = useMemo(() => {
+    return images.map((_, i) => ({
+      marginLeft: i === 0 ? 0 : Math.floor(Math.random() * 8) + 2,
+      marginRight: Math.floor(Math.random() * 8) + 2,
+      translateY: Math.floor(Math.random() * 31) - 15,
+    }));
+  }, []);
+
+  return (
+    <div className="w-[90%] mx-auto overflow-hidden py-4">
+      <div className="flex justify-center items-center w-full">
+        {images.map((img, index) => (
+          <div
+            key={index}
+            className={`relative transition-all duration-500 ease-out flex-shrink-0 ${
+              isVisible 
+                ? "opacity-100 translate-y-0" 
+                : "opacity-0 translate-y-8"
+            }`}
+            style={{
+              marginLeft: `${imageStyles[index].marginLeft}px`,
+              marginRight: `${imageStyles[index].marginRight}px`,
+              transform: `translateY(${imageStyles[index].translateY}px)`,
+              transitionDelay: `${index * 80}ms`,
+            }}
+          >
+            <div className="h-28 md:h-40 lg:h-64 xl:h-80 w-20 md:w-32 lg:w-48 xl:w-56 overflow-hidden rounded-md">
+              <img
+                src={img}
+                alt={`Venue Hire ${index + 1}`}
+                className="w-full h-[150%] object-cover object-top"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Landing() {
   const { t } = useI18n();
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
@@ -415,6 +465,9 @@ export default function Landing() {
               </div>
               <div className="absolute inset-0">
                 <EquipmentHireCarousel isVisible={currentPhraseIndex === 4} />
+              </div>
+              <div className="absolute inset-0">
+                <VenueHireCarousel isVisible={currentPhraseIndex === 5} />
               </div>
             </div>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
