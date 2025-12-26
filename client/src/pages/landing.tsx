@@ -424,7 +424,7 @@ export default function Landing() {
           <img 
             src={flowlift_logo_Btext_noBG} 
             alt="FlowLift" 
-            className="h-10 object-contain"
+            className="h-7 md:h-10 object-contain"
           />
           <div className="flex items-center gap-2">
             <LanguageSwitcher minimal />
