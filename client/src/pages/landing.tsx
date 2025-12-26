@@ -247,8 +247,14 @@ export default function Landing() {
                 />
               </p>
             </div>
-            <HaircutImageCarousel isVisible={currentPhraseIndex === 0} />
-            <PhotoSessionCarousel isVisible={currentPhraseIndex === 1} />
+            <div className="relative h-32 md:h-44 lg:h-72 xl:h-88">
+              <div className="absolute inset-0">
+                <HaircutImageCarousel isVisible={currentPhraseIndex === 0} />
+              </div>
+              <div className="absolute inset-0">
+                <PhotoSessionCarousel isVisible={currentPhraseIndex === 1} />
+              </div>
+            </div>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               {t("landing.hero.subtitle")}
             </p>
