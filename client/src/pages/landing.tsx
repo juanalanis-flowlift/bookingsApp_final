@@ -11,6 +11,8 @@ import haircutImg3 from "@assets/agustin-fernandez-1Pmp9uxK8X8-unsplash_17666441
 import haircutImg4 from "@assets/nathon-oski-fE42nRlBcG8-unsplash_1766644171026.jpeg";
 import haircutImg5 from "@assets/benyamin-bohlouli-LGXN4OSQSa4-unsplash_1766644171026.jpeg";
 
+import flowlift_logo_Btext_noBG from "@assets/flowlift_logo_Btext_noBG.png";
+
 function RotatingText({ 
   phrases, 
   interval = 2750, 
@@ -165,7 +167,7 @@ export default function Landing() {
       <header className="sticky top-0 z-50 border-b backdrop-blur supports-[backdrop-filter]:bg-background/60 bg-[#F1F4F8]">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
           <img 
-            src={flowliftLogo} 
+            src={flowlift_logo_Btext_noBG} 
             alt="FlowLift" 
             className="h-10 object-contain"
           />
