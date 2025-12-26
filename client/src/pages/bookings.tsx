@@ -821,7 +821,7 @@ export default function Bookings() {
             <DialogTitle>{t("bookings.title")}</DialogTitle>
           </DialogHeader>
           {selectedBooking && (
-            <div className="space-y-4 pr-4">
+            <div className="space-y-4 pr-2">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">{t("common.status")}</span>
                 {getStatusBadge(selectedBooking.status)}

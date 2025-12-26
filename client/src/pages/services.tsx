@@ -524,7 +524,7 @@ export default function Services() {
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
+                    <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>{t("services.delete")}</DialogTitle>
                       </DialogHeader>
