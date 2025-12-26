@@ -12,6 +12,13 @@ import haircutImg4 from "@assets/nathon-oski-fE42nRlBcG8-unsplash_1766644171026.
 import haircutImg5 from "@assets/benyamin-bohlouli-LGXN4OSQSa4-unsplash_1766644171026.jpeg";
 import haircutImg6 from "@assets/adam-winger-ZsUbK9zSgMo-unsplash_1766719768370.jpeg";
 
+import photoImg1 from "@assets/gemali-martinez-naO7yFfuBa4-unsplash_1766720285256.jpeg";
+import photoImg2 from "@assets/matthias-blonski-EAYkeJ0zc4w-unsplash_1766720285257.jpeg";
+import photoImg3 from "@assets/patricia-palma-Se58TjWOmJM-unsplash_1766720285257.jpeg";
+import photoImg4 from "@assets/reinhart-julian-WxM465oM4j4-unsplash_1766720285257.jpeg";
+import photoImg5 from "@assets/noemi-macavei-katocz-zrk7WirlxgM-unsplash_1766720285257.jpeg";
+import photoImg6 from "@assets/redd-francisco-0eo4e1eh13I-unsplash_1766720285257.jpeg";
+
 import flowlift_logo_Btext_noBG from "@assets/flowlift_logo_Btext_noBG.png";
 
 function RotatingText({ 
@@ -113,6 +120,50 @@ function HaircutImageCarousel({ isVisible }: { isVisible: boolean }) {
   );
 }
 
+function PhotoSessionCarousel({ isVisible }: { isVisible: boolean }) {
+  const images = [photoImg1, photoImg2, photoImg3, photoImg4, photoImg5, photoImg6];
+  
+  const imageStyles = useMemo(() => {
+    return images.map((_, i) => ({
+      marginLeft: i === 0 ? 0 : Math.floor(Math.random() * 8) + 2,
+      marginRight: Math.floor(Math.random() * 8) + 2,
+      // Different vertical range than haircut (e.g. 20-50px offset instead of -15 to 15)
+      translateY: Math.floor(Math.random() * 31) + 20, 
+    }));
+  }, []);
+
+  return (
+    <div className="w-[90%] mx-auto overflow-hidden py-4">
+      <div className="flex justify-center items-center w-full">
+        {images.map((img, index) => (
+          <div
+            key={index}
+            className={`relative transition-all duration-500 ease-out flex-shrink-0 ${
+              isVisible 
+                ? "opacity-100 translate-y-0" 
+                : "opacity-0 translate-y-8"
+            }`}
+            style={{
+              marginLeft: `${imageStyles[index].marginLeft}px`,
+              marginRight: `${imageStyles[index].marginRight}px`,
+              transform: `translateY(${imageStyles[index].translateY}px)`,
+              transitionDelay: `${index * 80}ms`,
+            }}
+          >
+            <div className="h-28 md:h-40 lg:h-64 xl:h-80 w-20 md:w-32 lg:w-48 xl:w-56 overflow-hidden rounded-md">
+              <img
+                src={img}
+                alt={`Photo Session ${index + 1}`}
+                className="w-full h-[150%] object-cover object-top"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Landing() {
   const { t } = useI18n();
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
@@ -197,6 +248,7 @@ export default function Landing() {
               </p>
             </div>
             <HaircutImageCarousel isVisible={currentPhraseIndex === 0} />
+            <PhotoSessionCarousel isVisible={currentPhraseIndex === 1} />
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
               {t("landing.hero.subtitle")}
             </p>
