@@ -10,6 +10,7 @@ import haircutImg2 from "@assets/baylee-gramling-MMz03PyCOZg-unsplash_1766644171
 import haircutImg3 from "@assets/agustin-fernandez-1Pmp9uxK8X8-unsplash_1766644171026.jpeg";
 import haircutImg4 from "@assets/nathon-oski-fE42nRlBcG8-unsplash_1766644171026.jpeg";
 import haircutImg5 from "@assets/benyamin-bohlouli-LGXN4OSQSa4-unsplash_1766644171026.jpeg";
+import haircutImg6 from "@assets/adam-winger-ZsUbK9zSgMo-unsplash_1766719768370.jpeg";
 
 import flowlift_logo_Btext_noBG from "@assets/flowlift_logo_Btext_noBG.png";
 
@@ -70,7 +71,7 @@ function RotatingText({
 }
 
 function HaircutImageCarousel({ isVisible }: { isVisible: boolean }) {
-  const images = [haircutImg1, haircutImg2, haircutImg3, haircutImg4, haircutImg5];
+  const images = [haircutImg1, haircutImg2, haircutImg3, haircutImg4, haircutImg5, haircutImg6];
   
   const imageStyles = useMemo(() => {
     return images.map((_, i) => ({
