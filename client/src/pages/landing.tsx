@@ -75,8 +75,8 @@ function HaircutImageCarousel({ isVisible }: { isVisible: boolean }) {
   
   const imageStyles = useMemo(() => {
     return images.map((_, i) => ({
-      marginLeft: i === 0 ? 0 : Math.floor(Math.random() * 20) + 8,
-      marginRight: Math.floor(Math.random() * 20) + 8,
+      marginLeft: i === 0 ? 0 : Math.floor(Math.random() * 8) + 2,
+      marginRight: Math.floor(Math.random() * 8) + 2,
       translateY: Math.floor(Math.random() * 31) - 15,
     }));
   }, []);
