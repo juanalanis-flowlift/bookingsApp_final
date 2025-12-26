@@ -127,8 +127,8 @@ function PhotoSessionCarousel({ isVisible }: { isVisible: boolean }) {
     return images.map((_, i) => ({
       marginLeft: i === 0 ? 0 : Math.floor(Math.random() * 8) + 2,
       marginRight: Math.floor(Math.random() * 8) + 2,
-      // Different vertical range than haircut (e.g. 20-50px offset instead of -15 to 15)
-      translateY: Math.floor(Math.random() * 31) + 20, 
+      // Offset by 5-20px lower than haircut range (-15 to +15)
+      translateY: Math.floor(Math.random() * 16) + 5, 
     }));
   }, []);
 
