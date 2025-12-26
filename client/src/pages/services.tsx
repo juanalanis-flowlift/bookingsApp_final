@@ -268,7 +268,7 @@ export default function Services() {
               </DialogTitle>
             </DialogHeader>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pr-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pr-2">
                 <FormField
                   control={form.control}
                   name="name"
@@ -528,9 +528,11 @@ export default function Services() {
                       <DialogHeader>
                         <DialogTitle>{t("services.delete")}</DialogTitle>
                       </DialogHeader>
-                      <p className="text-muted-foreground">
-                        {t("services.deleteConfirm")}
-                      </p>
+                      <div className="space-y-4 pr-2 text-muted-foreground">
+                        <p>
+                          {t("services.deleteConfirm")}
+                        </p>
+                      </div>
                       <DialogFooter>
                         <Button
                           variant="outline"
