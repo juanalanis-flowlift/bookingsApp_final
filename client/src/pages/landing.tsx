@@ -33,6 +33,13 @@ import classImg4 from "@assets/vitaly-gariev-IIisONUL2d8-unsplash_1766721913013.
 import classImg5 from "@assets/sweet-life-j14Q19jXDFQ-unsplash_1766721913013.jpeg";
 import classImg6 from "@assets/andrey-k-rccbptXljzw-unsplash_1766721913013.jpeg";
 
+import equipmentImg1 from "@assets/chirayu-trivedi-wzvy-_V3e2E-unsplash_1766722836984.jpeg";
+import equipmentImg2 from "@assets/skylar-zilka-MIsJh2WezM8-unsplash_1766722836984.jpeg";
+import equipmentImg3 from "@assets/edward-howell-z80bSH93Wk4-unsplash_1766722836984.jpeg";
+import equipmentImg4 from "@assets/photos-by-lanty-O38Id_cyV4M-unsplash_1766722836984.jpeg";
+import equipmentImg5 from "@assets/ted-balmer-puFgHWFtUzI-unsplash_1766722836984.jpeg";
+import equipmentImg6 from "@assets/jackery-power-station-wrGNZIPfias-unsplash_1766722836984.jpeg";
+
 import flowlift_logo_Btext_noBG from "@assets/flowlift_logo_Btext_noBG.png";
 
 function RotatingText({ 
@@ -267,6 +274,49 @@ function ClassLessonCarousel({ isVisible }: { isVisible: boolean }) {
   );
 }
 
+function EquipmentHireCarousel({ isVisible }: { isVisible: boolean }) {
+  const images = [equipmentImg1, equipmentImg2, equipmentImg3, equipmentImg4, equipmentImg5, equipmentImg6];
+  
+  const imageStyles = useMemo(() => {
+    return images.map((_, i) => ({
+      marginLeft: i === 0 ? 0 : Math.floor(Math.random() * 8) + 2,
+      marginRight: Math.floor(Math.random() * 8) + 2,
+      translateY: Math.floor(Math.random() * 31) - 15,
+    }));
+  }, []);
+
+  return (
+    <div className="w-[90%] mx-auto overflow-hidden py-4">
+      <div className="flex justify-center items-center w-full">
+        {images.map((img, index) => (
+          <div
+            key={index}
+            className={`relative transition-all duration-500 ease-out flex-shrink-0 ${
+              isVisible 
+                ? "opacity-100 translate-y-0" 
+                : "opacity-0 translate-y-8"
+            }`}
+            style={{
+              marginLeft: `${imageStyles[index].marginLeft}px`,
+              marginRight: `${imageStyles[index].marginRight}px`,
+              transform: `translateY(${imageStyles[index].translateY}px)`,
+              transitionDelay: `${index * 80}ms`,
+            }}
+          >
+            <div className="h-28 md:h-40 lg:h-64 xl:h-80 w-20 md:w-32 lg:w-48 xl:w-56 overflow-hidden rounded-md">
+              <img
+                src={img}
+                alt={`Equipment Hire ${index + 1}`}
+                className="w-full h-[150%] object-cover object-top"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Landing() {
   const { t } = useI18n();
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
@@ -362,6 +412,9 @@ export default function Landing() {
               </div>
               <div className="absolute inset-0">
                 <ClassLessonCarousel isVisible={currentPhraseIndex === 3} />
+              </div>
+              <div className="absolute inset-0">
+                <EquipmentHireCarousel isVisible={currentPhraseIndex === 4} />
               </div>
             </div>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
