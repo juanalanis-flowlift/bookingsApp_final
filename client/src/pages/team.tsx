@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import type { UploadResult } from "@uppy/core";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
@@ -7,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { ObjectUploader } from "@/components/ObjectUploader";
 import {
   Dialog,
   DialogContent,
@@ -41,7 +44,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, User, Mail, Phone, Clock, Briefcase, Calendar } from "lucide-react";
+import { Plus, Pencil, Trash2, User, Mail, Phone, Clock, Briefcase, Calendar, Camera, Image } from "lucide-react";
 import type { TeamMember, Service, Business, TeamMemberAvailability } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
@@ -227,6 +230,52 @@ export default function Team() {
     },
   });
 
+  const photoMutation = useMutation({
+    mutationFn: async ({ memberId, photoURL }: { memberId: string; photoURL: string }) => {
+      return await apiRequest("PUT", `/api/team/${memberId}/photo`, { photoURL });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/team"] });
+      toast({ title: t("team.photoUpdated") });
+    },
+    onError: () => {
+      toast({ title: t("team.photoError"), variant: "destructive" });
+    },
+  });
+
+  const toggleShowPhotosMutation = useMutation({
+    mutationFn: async (showTeamPicturesInBooking: boolean) => {
+      return await apiRequest("PATCH", "/api/business", { showTeamPicturesInBooking });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/business"] });
+      toast({ title: t("team.settingsUpdated") });
+    },
+    onError: () => {
+      toast({ title: t("team.settingsError"), variant: "destructive" });
+    },
+  });
+
+  const handleGetUploadParameters = useCallback(async () => {
+    const response = await apiRequest("POST", "/api/objects/upload", {});
+    const data = await response.json();
+    return {
+      method: "PUT" as const,
+      url: data.uploadURL,
+    };
+  }, []);
+
+  const handlePhotoUploadComplete = useCallback((memberId: string) => {
+    return (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+      if (result.successful && result.successful.length > 0) {
+        const uploadURL = result.successful[0].uploadURL;
+        if (uploadURL) {
+          photoMutation.mutate({ memberId, photoURL: uploadURL });
+        }
+      }
+    };
+  }, [photoMutation]);
+
   const openEditDialog = (member: TeamMember) => {
     setEditingMember(member);
     form.reset({
@@ -345,15 +394,29 @@ export default function Team() {
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-bold">{t("team.title")}</h1>
           <p className="text-muted-foreground">{t("team.subtitle")}</p>
         </div>
-        <Button onClick={openAddDialog} data-testid="button-add-team-member">
-          <Plus className="h-4 w-4 mr-2" />
-          {t("team.addMember")}
-        </Button>
+        <div className="flex items-center gap-4 flex-wrap">
+          {teamMembers && teamMembers.length > 0 && (
+            <div className="flex items-center gap-2 p-3 rounded-lg border bg-card">
+              <Image className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm">{t("team.showPhotosInBooking")}</span>
+              <Switch
+                checked={business?.showTeamPicturesInBooking ?? false}
+                onCheckedChange={(checked) => toggleShowPhotosMutation.mutate(checked)}
+                disabled={toggleShowPhotosMutation.isPending}
+                data-testid="switch-show-photos-booking"
+              />
+            </div>
+          )}
+          <Button onClick={openAddDialog} data-testid="button-add-team-member">
+            <Plus className="h-4 w-4 mr-2" />
+            {t("team.addMember")}
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -377,9 +440,18 @@ export default function Team() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <User className="h-5 w-5 text-primary" />
-                      </div>
+                      <Avatar className="h-10 w-10 flex-shrink-0">
+                        <AvatarImage 
+                          src={member.photoUrl?.startsWith('/objects/') 
+                            ? member.photoUrl 
+                            : member.photoUrl || undefined
+                          } 
+                          className="object-cover" 
+                        />
+                        <AvatarFallback className="bg-primary/10 text-primary">
+                          {member.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-medium truncate">{member.name}</p>
@@ -427,10 +499,48 @@ export default function Team() {
           {selectedMember ? (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  {selectedMember.name}
-                </CardTitle>
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <Avatar className="h-16 w-16">
+                        <AvatarImage 
+                          src={selectedMember.photoUrl?.startsWith('/objects/') 
+                            ? selectedMember.photoUrl 
+                            : selectedMember.photoUrl || undefined
+                          } 
+                          className="object-cover" 
+                        />
+                        <AvatarFallback className="text-xl bg-primary/10 text-primary">
+                          {selectedMember.name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        {selectedMember.name}
+                      </CardTitle>
+                      {selectedMember.role && (
+                        <CardDescription>{selectedMember.role}</CardDescription>
+                      )}
+                    </div>
+                  </div>
+                  <ObjectUploader
+                    maxNumberOfFiles={1}
+                    maxFileSize={5 * 1024 * 1024}
+                    allowedFileTypes={["image/*"]}
+                    onGetUploadParameters={handleGetUploadParameters}
+                    onComplete={handlePhotoUploadComplete(selectedMember.id)}
+                    buttonVariant="outline"
+                    buttonSize="sm"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Camera className="h-4 w-4" />
+                      <span className="hidden sm:inline">
+                        {photoMutation.isPending ? t("settings.uploading") : t("team.changePhoto")}
+                      </span>
+                    </div>
+                  </ObjectUploader>
+                </div>
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="services">
