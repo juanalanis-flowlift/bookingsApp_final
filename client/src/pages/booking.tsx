@@ -644,6 +644,22 @@ export default function BookingPage() {
                 </Card>
               )}
             </div>
+
+            {/* Terms and Conditions */}
+            {business.showTermsInBooking && business.termsAndConditions && (
+              <Card className="border-muted">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    {t("booking.termsAndConditions")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                    {business.termsAndConditions}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         )}
 
