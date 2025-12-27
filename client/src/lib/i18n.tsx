@@ -157,6 +157,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "settings.showTermsInEmail": "Include in Confirmation Email",
     "settings.showTermsInEmailDesc": "Include terms and conditions in the booking confirmation email",
     "booking.termsAndConditions": "Terms & Conditions",
+    "booking.agreeToTerms": "I have read and agree to the terms and conditions",
     
     "services.title": "Services",
     "services.subtitle": "Manage the services you offer to customers",
@@ -623,6 +624,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "settings.showTermsInEmail": "Incluir en Correo de Confirmación",
     "settings.showTermsInEmailDesc": "Incluir términos y condiciones en el correo de confirmación de reserva",
     "booking.termsAndConditions": "Términos y Condiciones",
+    "booking.agreeToTerms": "He leído y acepto los términos y condiciones",
     
     "services.title": "Servicios",
     "services.subtitle": "Administra los servicios que ofreces a los clientes",

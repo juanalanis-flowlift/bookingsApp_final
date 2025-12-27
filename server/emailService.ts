@@ -133,6 +133,7 @@ const emailTranslations: Record<Language, Record<string, string>> = {
     manageBooking: "MANAGE YOUR BOOKING",
     modifyBooking: "Modify Booking",
     cancelBooking: "Cancel Booking",
+    termsAndConditions: "Terms & Conditions",
   },
   es: {
     bookingConfirmed: "Reservacion Confirmada",
@@ -164,6 +165,7 @@ const emailTranslations: Record<Language, Record<string, string>> = {
     manageBooking: "GESTIONAR TU RESERVACION",
     modifyBooking: "Modificar Reservacion",
     cancelBooking: "Cancelar Reservacion",
+    termsAndConditions: "Términos y Condiciones",
   },
 };
 
@@ -276,6 +278,16 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
       </p>
     </div>
     
+    ${business.showTermsInEmail && business.termsAndConditions ? `
+    <!-- Terms and Conditions -->
+    <div style="margin-bottom: 24px;">
+      <h3 style="margin: 0 0 16px; font-size: 14px; font-weight: 700; color: #18181b; text-transform: uppercase; letter-spacing: 0.5px;">${t("termsAndConditions")}</h3>
+      <div style="background: #f4f4f5; border-radius: 8px; padding: 16px;">
+        <p style="margin: 0; color: #52525b; font-size: 13px; line-height: 1.6; white-space: pre-wrap;">${escapeHtml(business.termsAndConditions)}</p>
+      </div>
+    </div>
+    ` : ""}
+    
     ${cancelUrl ? `
     <!-- Manage Booking Section -->
     <div style="margin-bottom: 24px;">
@@ -341,7 +353,10 @@ ${business.email ? `Email: ${business.email}` : ""}
 ${business.phone ? `Phone: ${business.phone}` : ""}
 ${business.address ? `Address: ${business.address}` : ""}
 
-${t("needChanges", { businessName: business.name })}
+${business.showTermsInEmail && business.termsAndConditions ? `${t("termsAndConditions").toUpperCase()}:
+${business.termsAndConditions}
+
+` : ""}${t("needChanges", { businessName: business.name })}
 
 ---
 ${t("poweredBy")}

@@ -15,6 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
@@ -72,6 +74,7 @@ export default function BookingPage() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const { t, language } = useI18n();
 
   const getCategoryLabel = (cat: string): string => {
@@ -952,10 +955,34 @@ export default function BookingPage() {
                       )}
                     />
 
+                    {business?.showTermsInBooking && business?.termsAndConditions && (
+                      <div className="space-y-3 pt-2 border-t">
+                        <div className="bg-muted/50 rounded-md p-3 max-h-32 overflow-y-auto">
+                          <p className="text-xs text-muted-foreground whitespace-pre-wrap">
+                            {business.termsAndConditions}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="terms-checkbox"
+                            checked={termsAccepted}
+                            onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                            data-testid="checkbox-terms"
+                          />
+                          <Label
+                            htmlFor="terms-checkbox"
+                            className="text-sm font-normal cursor-pointer"
+                          >
+                            {t("booking.agreeToTerms")} *
+                          </Label>
+                        </div>
+                      </div>
+                    )}
+
                     <Button
                       type="submit"
                       className="w-full gap-2"
-                      disabled={createBookingMutation.isPending}
+                      disabled={createBookingMutation.isPending || (!!business?.showTermsInBooking && !!business?.termsAndConditions && !termsAccepted)}
                       data-testid="button-confirm-booking"
                     >
                       {createBookingMutation.isPending ? t("booking.processing") : t("booking.confirmBooking")}
