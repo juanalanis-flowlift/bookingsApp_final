@@ -28,7 +28,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2 } from "lucide-react";
+import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2, Plus, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { SiFacebook, SiInstagram, SiX, SiLinkedin, SiYoutube, SiTiktok, SiPinterest, SiSnapchat, SiWhatsapp, SiThreads } from "react-icons/si";
 import type { Business } from "@shared/schema";
 import { businessCategories } from "@shared/schema";
@@ -64,11 +70,33 @@ const businessFormSchema = z.object({
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
 
+type SocialPlatform = {
+  key: keyof BusinessFormValues;
+  name: string;
+  icon: typeof SiFacebook;
+  placeholder: string;
+};
+
+const socialPlatforms: SocialPlatform[] = [
+  { key: "socialFacebook", name: "Facebook", icon: SiFacebook, placeholder: "username" },
+  { key: "socialInstagram", name: "Instagram", icon: SiInstagram, placeholder: "username" },
+  { key: "socialTwitter", name: "X (Twitter)", icon: SiX, placeholder: "username" },
+  { key: "socialLinkedin", name: "LinkedIn", icon: SiLinkedin, placeholder: "username" },
+  { key: "socialYoutube", name: "YouTube", icon: SiYoutube, placeholder: "channel" },
+  { key: "socialTiktok", name: "TikTok", icon: SiTiktok, placeholder: "username" },
+  { key: "socialPinterest", name: "Pinterest", icon: SiPinterest, placeholder: "username" },
+  { key: "socialSnapchat", name: "Snapchat", icon: SiSnapchat, placeholder: "username" },
+  { key: "socialWhatsapp", name: "WhatsApp", icon: SiWhatsapp, placeholder: "+1234567890" },
+  { key: "socialThreads", name: "Threads", icon: SiThreads, placeholder: "username" },
+];
+
 export default function Settings() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [copied, setCopied] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [platformPickerOpen, setPlatformPickerOpen] = useState(false);
   const { t, language } = useI18n();
 
   const getCategoryLabel = (cat: string): string => {
@@ -140,6 +168,11 @@ export default function Settings() {
         socialWhatsapp: business.socialWhatsapp || "",
         socialThreads: business.socialThreads || "",
       });
+      
+      const activePlatforms = socialPlatforms
+        .filter(p => business[p.key as keyof Business])
+        .map(p => p.key);
+      setSelectedPlatforms(activePlatforms);
     }
   }, [business, form]);
 
@@ -552,213 +585,103 @@ export default function Settings() {
               </div>
 
               <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Share2 className="h-5 w-5" />
-                  {t("settings.socialMedia")}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">{t("settings.socialMediaDescription")}</p>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="socialFacebook"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <SiFacebook className="h-4 w-4 text-[#1877F2]" />
-                          Facebook
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="username"
-                            data-testid="input-social-facebook"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialInstagram"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <SiInstagram className="h-4 w-4 text-[#E4405F]" />
-                          Instagram
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="username"
-                            data-testid="input-social-instagram"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialTwitter"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <SiX className="h-4 w-4" />
-                          X (Twitter)
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="username"
-                            data-testid="input-social-twitter"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialLinkedin"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <SiLinkedin className="h-4 w-4 text-[#0A66C2]" />
-                          LinkedIn
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="username"
-                            data-testid="input-social-linkedin"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialYoutube"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <SiYoutube className="h-4 w-4 text-[#FF0000]" />
-                          YouTube
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="channel"
-                            data-testid="input-social-youtube"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialTiktok"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <SiTiktok className="h-4 w-4" />
-                          TikTok
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="username"
-                            data-testid="input-social-tiktok"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialPinterest"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <SiPinterest className="h-4 w-4 text-[#E60023]" />
-                          Pinterest
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="username"
-                            data-testid="input-social-pinterest"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialSnapchat"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <SiSnapchat className="h-4 w-4 text-[#FFFC00]" />
-                          Snapchat
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="username"
-                            data-testid="input-social-snapchat"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialWhatsapp"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <SiWhatsapp className="h-4 w-4 text-[#25D366]" />
-                          WhatsApp
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="+1234567890"
-                            data-testid="input-social-whatsapp"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="socialThreads"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <SiThreads className="h-4 w-4" />
-                          Threads
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="username"
-                            data-testid="input-social-threads"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
+                  <div>
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Share2 className="h-5 w-5" />
+                      {t("settings.socialMedia")}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">{t("settings.socialMediaDescription")}</p>
+                  </div>
+                  <Popover open={platformPickerOpen} onOpenChange={setPlatformPickerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm" data-testid="button-add-social-platform">
+                        <Plus className="h-4 w-4 mr-2" />
+                        {t("settings.addPlatform")}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-3" align="end">
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium mb-3">{t("settings.selectPlatforms")}</p>
+                        {socialPlatforms.map((platform) => {
+                          const Icon = platform.icon;
+                          const isSelected = selectedPlatforms.includes(platform.key);
+                          return (
+                            <div
+                              key={platform.key}
+                              className="flex items-center gap-3 p-2 rounded-md hover-elevate cursor-pointer"
+                              onClick={() => {
+                                if (isSelected) {
+                                  setSelectedPlatforms(prev => prev.filter(p => p !== platform.key));
+                                  form.setValue(platform.key, "");
+                                } else {
+                                  setSelectedPlatforms(prev => [...prev, platform.key]);
+                                }
+                              }}
+                              data-testid={`toggle-platform-${platform.key}`}
+                            >
+                              <Checkbox checked={isSelected} />
+                              <Icon className="h-4 w-4" />
+                              <span className="text-sm">{platform.name}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
+                
+                {selectedPlatforms.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
+                    <Share2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">{t("settings.noPlatformsSelected")}</p>
+                    <p className="text-xs">{t("settings.clickToAddPlatforms")}</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {socialPlatforms
+                      .filter(platform => selectedPlatforms.includes(platform.key))
+                      .map((platform) => {
+                        const Icon = platform.icon;
+                        return (
+                          <FormField
+                            key={platform.key}
+                            control={form.control}
+                            name={platform.key}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="flex items-center gap-2">
+                                  <Icon className="h-4 w-4" />
+                                  {platform.name}
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-5 w-5 ml-auto"
+                                    onClick={() => {
+                                      setSelectedPlatforms(prev => prev.filter(p => p !== platform.key));
+                                      form.setValue(platform.key, "");
+                                    }}
+                                    data-testid={`button-remove-${platform.key}`}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder={platform.placeholder}
+                                    data-testid={`input-${platform.key}`}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        );
+                      })}
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-4 pt-4">
