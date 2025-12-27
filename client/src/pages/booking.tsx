@@ -651,9 +651,9 @@ export default function BookingPage() {
         {step === "team" && selectedService && (
           <div className="max-w-4xl mx-auto space-y-6">
             <Button
-              variant="ghost"
+              variant="default"
               onClick={handleBack}
-              className="gap-2"
+              className="gap-2 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
               data-testid="button-back"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -752,9 +752,9 @@ export default function BookingPage() {
         {step === "datetime" && selectedService && (
           <div className="max-w-4xl mx-auto space-y-6">
             <Button
-              variant="ghost"
+              variant="default"
               onClick={handleBack}
-              className="gap-2"
+              className="gap-2 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
               data-testid="button-back"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -842,9 +842,9 @@ export default function BookingPage() {
         {step === "details" && selectedService && selectedDate && selectedTime && (
           <div className="max-w-lg mx-auto space-y-6">
             <Button
-              variant="ghost"
+              variant="default"
               onClick={handleBack}
-              className="gap-2"
+              className="gap-2 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
               data-testid="button-back"
             >
               <ArrowLeft className="h-4 w-4" />
