@@ -441,13 +441,9 @@ export default function Team() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <Avatar className="h-10 w-10 flex-shrink-0">
-                        <AvatarImage 
-                          src={member.photoUrl?.startsWith('/objects/') 
-                            ? member.photoUrl 
-                            : member.photoUrl || undefined
-                          } 
-                          className="object-cover" 
-                        />
+                        {member.photoUrl && (
+                          <AvatarImage src={member.photoUrl} className="object-cover" />
+                        )}
                         <AvatarFallback className="bg-primary/10 text-primary">
                           {member.name.charAt(0).toUpperCase()}
                         </AvatarFallback>
@@ -503,13 +499,9 @@ export default function Team() {
                   <div className="flex items-center gap-4">
                     <div className="relative">
                       <Avatar className="h-16 w-16">
-                        <AvatarImage 
-                          src={selectedMember.photoUrl?.startsWith('/objects/') 
-                            ? selectedMember.photoUrl 
-                            : selectedMember.photoUrl || undefined
-                          } 
-                          className="object-cover" 
-                        />
+                        {selectedMember.photoUrl && (
+                          <AvatarImage src={selectedMember.photoUrl} className="object-cover" />
+                        )}
                         <AvatarFallback className="text-xl bg-primary/10 text-primary">
                           {selectedMember.name.charAt(0).toUpperCase()}
                         </AvatarFallback>

@@ -718,9 +718,11 @@ export default function BookingPage() {
                       >
                         <CardContent className="pt-6 text-center space-y-3">
                           <Avatar className="h-20 w-20 mx-auto">
-                            <AvatarImage src={member.photoUrl || undefined} className="object-cover" />
-                            <AvatarFallback className="text-xl">
-                              {member.name.charAt(0)}
+                            {business?.showTeamPicturesInBooking && member.photoUrl && (
+                              <AvatarImage src={member.photoUrl} className="object-cover" />
+                            )}
+                            <AvatarFallback className="text-xl bg-primary/10 text-primary">
+                              {member.name.charAt(0).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div>
