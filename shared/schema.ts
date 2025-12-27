@@ -77,6 +77,9 @@ export const businesses = pgTable("businesses", {
   socialWhatsapp: varchar("social_whatsapp", { length: 255 }),
   socialThreads: varchar("social_threads", { length: 255 }),
   showTeamPicturesInBooking: boolean("show_team_pictures_in_booking").default(false),
+  termsAndConditions: text("terms_and_conditions"),
+  showTermsInBooking: boolean("show_terms_in_booking").default(false),
+  showTermsInEmail: boolean("show_terms_in_email").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -28,8 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2, Plus, X } from "lucide-react";
+import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2, Plus, X, FileText } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import {
   Popover,
   PopoverContent,
@@ -66,6 +67,9 @@ const businessFormSchema = z.object({
   socialSnapchat: z.string().optional(),
   socialWhatsapp: z.string().optional(),
   socialThreads: z.string().optional(),
+  termsAndConditions: z.string().optional(),
+  showTermsInBooking: z.boolean().optional(),
+  showTermsInEmail: z.boolean().optional(),
 });
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
@@ -142,6 +146,9 @@ export default function Settings() {
       socialSnapchat: "",
       socialWhatsapp: "",
       socialThreads: "",
+      termsAndConditions: "",
+      showTermsInBooking: false,
+      showTermsInEmail: false,
     },
   });
 
@@ -167,6 +174,9 @@ export default function Settings() {
         socialSnapchat: business.socialSnapchat || "",
         socialWhatsapp: business.socialWhatsapp || "",
         socialThreads: business.socialThreads || "",
+        termsAndConditions: business.termsAndConditions || "",
+        showTermsInBooking: business.showTermsInBooking || false,
+        showTermsInEmail: business.showTermsInEmail || false,
       });
       
       const activePlatforms = socialPlatforms
@@ -481,6 +491,81 @@ export default function Settings() {
 
               <div className="border-t pt-6">
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  {t("settings.termsAndConditions")}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("settings.termsDescription")}
+                </p>
+                
+                <FormField
+                  control={form.control}
+                  name="termsAndConditions"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("settings.termsLabel")}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder={t("settings.termsPlaceholder")}
+                          className="resize-none min-h-[150px]"
+                          data-testid="input-terms"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid gap-4 mt-4">
+                  <FormField
+                    control={form.control}
+                    name="showTermsInBooking"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel>{t("settings.showTermsInBooking")}</FormLabel>
+                          <FormDescription>
+                            {t("settings.showTermsInBookingDesc")}
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            data-testid="switch-terms-booking"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="showTermsInEmail"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel>{t("settings.showTermsInEmail")}</FormLabel>
+                          <FormDescription>
+                            {t("settings.showTermsInEmailDesc")}
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            data-testid="switch-terms-email"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                   <MapPin className="h-5 w-5" />
                   {t("settings.location")}
                 </h3>
@@ -670,6 +755,7 @@ export default function Settings() {
                                 <FormControl>
                                   <Input
                                     {...field}
+                                    value={String(field.value || "")}
                                     placeholder={platform.placeholder}
                                     data-testid={`input-${platform.key}`}
                                   />
