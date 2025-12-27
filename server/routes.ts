@@ -343,6 +343,48 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     }
   });
 
+  // Team member photo upload
+  app.put("/api/team/:id/photo", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      const member = await storage.getTeamMemberById(req.params.id);
+      if (!member || member.businessId !== business.id) {
+        return res.status(404).json({ message: "Team member not found" });
+      }
+
+      if (!req.body.photoURL) {
+        return res.status(400).json({ error: "photoURL is required" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        req.body.photoURL,
+        {
+          owner: userId,
+          visibility: "public",
+        },
+      );
+
+      const updated = await storage.updateTeamMember(req.params.id, {
+        photoUrl: objectPath,
+      });
+
+      res.status(200).json({
+        objectPath: objectPath,
+        teamMember: updated,
+      });
+    } catch (error) {
+      console.error("Error setting team member photo:", error);
+      res.status(500).json({ message: "Failed to set team member photo" });
+    }
+  });
+
   // Team member services
   app.get("/api/team/:id/services", isAuthenticated, async (req: any, res) => {
     try {
