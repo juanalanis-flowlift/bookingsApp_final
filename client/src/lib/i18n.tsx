@@ -45,6 +45,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.hero.rotating.venueHire": "venue hire",
     "landing.signIn": "Start for free",
     "landing.startFree": "Start for free",
+    "landing.signInWithGoogle": "Sign in with Google",
     
     "landing.features.title": "Everything You Need to Manage Bookings",
     "landing.features.subtitle": "Simple, powerful tools designed for small service businesses",
@@ -520,6 +521,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.hero.rotating.venueHire": "alquiler de espacios",
     "landing.signIn": "Empieza gratis",
     "landing.startFree": "Comienza gratis",
+    "landing.signInWithGoogle": "Iniciar sesión con Google",
     
     "landing.features.title": "Todo lo que Necesitas para Gestionar Reservas",
     "landing.features.subtitle": "Herramientas simples y poderosas diseñadas para pequeños negocios de servicios",

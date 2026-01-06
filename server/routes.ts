@@ -2,7 +2,7 @@ import type { Express } from "express";
 import type { Server } from "http";
 import { randomBytes } from "crypto";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupGoogleAuth, isAuthenticated } from "./googleAuth";
 import { insertBusinessSchema, insertServiceSchema, insertBookingSchema } from "@shared/schema";
 import { z } from "zod";
 import { startOfDay, endOfDay, addHours } from "date-fns";
@@ -12,21 +12,7 @@ import { sendBookingEmails, sendMagicLinkEmail, verifyEmailConnection, sendModif
 
 export async function registerRoutes(server: Server, app: Express): Promise<void> {
   // Auth middleware
-  await setupAuth(app);
-
-  // ============================================
-  // Auth Routes
-  // ============================================
-  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  await setupGoogleAuth(app);
 
   // Email diagnostic endpoint (protected)
   app.get("/api/admin/email-test", isAuthenticated, async (req: any, res) => {

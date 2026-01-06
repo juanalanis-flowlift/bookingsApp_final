@@ -38,60 +38,62 @@ export async function setupGoogleAuth(app: Express) {
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
   if (!clientID || !clientSecret) {
-    console.error("Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET environment variables");
-    return;
+    console.error("WARNING: Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET environment variables. Google authentication will not work until these are configured.");
   }
 
-  passport.use(
-    new GoogleStrategy(
-      {
-        clientID,
-        clientSecret,
-        callbackURL: "/auth/google/callback",
-        scope: ["profile", "email"],
-      },
-      async (accessToken, refreshToken, profile, done) => {
-        try {
-          const email = profile.emails?.[0]?.value;
-          const firstName = profile.name?.givenName;
-          const lastName = profile.name?.familyName;
-          const profileImageUrl = profile.photos?.[0]?.value;
+  if (clientID && clientSecret) {
+    passport.use(
+      new GoogleStrategy(
+        {
+          clientID,
+          clientSecret,
+          callbackURL: "/auth/google/callback",
+          scope: ["profile", "email"],
+        },
+        async (accessToken, refreshToken, profile, done) => {
+          try {
+            const email = profile.emails?.[0]?.value;
+            const firstName = profile.name?.givenName;
+            const lastName = profile.name?.familyName;
+            const profileImageUrl = profile.photos?.[0]?.value;
 
-          const user = await storage.upsertUser({
-            id: profile.id,
-            email: email || null,
-            firstName: firstName || null,
-            lastName: lastName || null,
-            profileImageUrl: profileImageUrl || null,
-          });
+            // Use google: prefix for the ID to avoid collisions with other auth providers
+            const googleUserId = `google:${profile.id}`;
 
-          return done(null, {
-            id: profile.id,
-            email,
-            firstName,
-            lastName,
-            profileImageUrl,
-            claims: {
-              sub: profile.id,
-              email,
-              first_name: firstName,
-              last_name: lastName,
-              profile_image_url: profileImageUrl,
-            },
-          });
-        } catch (error) {
-          return done(error as Error, undefined);
+            const user = await storage.upsertUser({
+              id: googleUserId,
+              email: email || null,
+              firstName: firstName || null,
+              lastName: lastName || null,
+              profileImageUrl: profileImageUrl || null,
+            });
+
+            // Store only the user ID in the session
+            return done(null, { id: googleUserId });
+          } catch (error) {
+            return done(error as Error, undefined);
+          }
         }
-      }
-    )
-  );
+      )
+    );
+  }
 
+  // Serialize only the user ID to the session
   passport.serializeUser((user: any, done) => {
-    done(null, user);
+    done(null, user.id);
   });
 
-  passport.deserializeUser((user: any, done) => {
-    done(null, user);
+  // Deserialize by fetching the full user from the database
+  passport.deserializeUser(async (id: string, done) => {
+    try {
+      const user = await storage.getUser(id);
+      if (!user) {
+        return done(null, false);
+      }
+      done(null, user);
+    } catch (error) {
+      done(error, null);
+    }
   });
 
   app.get(
@@ -128,14 +130,8 @@ export async function setupGoogleAuth(app: Express) {
     if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    const user = req.user as any;
-    return res.json({
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      profileImageUrl: user.profileImageUrl,
-    });
+    // User is already populated by deserializeUser from the database
+    return res.json(req.user);
   });
 }
 
