@@ -125,14 +125,11 @@ export class DatabaseStorage implements IStorage {
         .where(eq(users.email, userData.email));
       
       if (existingUser) {
-        const oldId = existingUser.id;
-        const newId = userData.id;
-        
-        // Update the existing user with the new data (including potentially new ID)
+        // Update the existing user profile info but keep their original ID
+        // to preserve foreign key references (businesses, etc.)
         const [updated] = await db
           .update(users)
           .set({
-            id: newId,
             firstName: userData.firstName,
             lastName: userData.lastName,
             profileImageUrl: userData.profileImageUrl,
@@ -140,14 +137,6 @@ export class DatabaseStorage implements IStorage {
           })
           .where(eq(users.email, userData.email))
           .returning();
-        
-        // Also update any businesses owned by the old user ID
-        if (oldId !== newId) {
-          await db
-            .update(businesses)
-            .set({ ownerId: newId, updatedAt: new Date() })
-            .where(eq(businesses.ownerId, oldId));
-        }
         
         return updated;
       }

@@ -57,7 +57,7 @@ export async function setupGoogleAuth(app: Express) {
             const lastName = profile.name?.familyName;
             const profileImageUrl = profile.photos?.[0]?.value;
 
-            // Use google: prefix for the ID to avoid collisions with other auth providers
+            // Use google: prefix for the ID for new users
             const googleUserId = `google:${profile.id}`;
 
             const user = await storage.upsertUser({
@@ -68,8 +68,9 @@ export async function setupGoogleAuth(app: Express) {
               profileImageUrl: profileImageUrl || null,
             });
 
-            // Store only the user ID in the session
-            return done(null, { id: googleUserId });
+            // Store the user's actual database ID in the session
+            // (may differ from googleUserId if user existed before with different ID)
+            return done(null, { id: user.id });
           } catch (error) {
             return done(error as Error, undefined);
           }
