@@ -101,7 +101,8 @@ export async function setupGoogleAuth(app: Express) {
     "/auth/google",
     passport.authenticate("google", {
       scope: ["profile", "email"],
-    })
+      prompt: "select_account",
+    } as any)
   );
 
   app.get(
