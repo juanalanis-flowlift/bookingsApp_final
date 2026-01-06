@@ -28,7 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2, Plus, X, FileText } from "lucide-react";
+import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2, Plus, X, FileText, QrCode, Download } from "lucide-react";
+import QRCode from "qrcode";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -101,6 +102,7 @@ export default function Settings() {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [platformPickerOpen, setPlatformPickerOpen] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
   const { t, language } = useI18n();
 
   const getCategoryLabel = (cat: string): string => {
@@ -185,6 +187,22 @@ export default function Settings() {
       setSelectedPlatforms(activePlatforms);
     }
   }, [business, form]);
+
+  useEffect(() => {
+    if (business?.slug) {
+      const bookingUrl = `${window.location.origin}/book/${business.slug}`;
+      QRCode.toDataURL(bookingUrl, {
+        width: 256,
+        margin: 2,
+        color: {
+          dark: "#000000",
+          light: "#ffffff",
+        },
+      })
+        .then((url) => setQrCodeDataUrl(url))
+        .catch((err) => console.error("QR code generation error:", err));
+    }
+  }, [business?.slug]);
 
   const saveMutation = useMutation({
     mutationFn: async (data: BusinessFormValues) => {
@@ -276,6 +294,36 @@ export default function Settings() {
     toast({ title: t("settings.urlCopied") });
   };
 
+  const downloadQrCode = (format: "png" | "jpg") => {
+    if (!qrCodeDataUrl || !business?.slug) return;
+    
+    const link = document.createElement("a");
+    link.download = `${business.slug}-qr-code.${format}`;
+    
+    if (format === "jpg") {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        if (ctx) {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0);
+          link.href = canvas.toDataURL("image/jpeg", 0.95);
+          link.click();
+          toast({ title: t("settings.qrCodeDownloaded") });
+        }
+      };
+      img.src = qrCodeDataUrl;
+    } else {
+      link.href = qrCodeDataUrl;
+      link.click();
+      toast({ title: t("settings.qrCodeDownloaded") });
+    }
+  };
+
   if (isLoading || authLoading) {
     return (
       <div className="p-6 space-y-6">
@@ -363,6 +411,60 @@ export default function Settings() {
               <LanguageSwitcher />
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* QR Code */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <QrCode className="h-5 w-5" />
+            {t("settings.qrCode")}
+          </CardTitle>
+          <CardDescription>
+            {t("settings.qrCodeDescription")}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {business && qrCodeDataUrl ? (
+            <div className="flex flex-col items-center space-y-4">
+              <div className="bg-white p-4 rounded-lg border" data-testid="qr-code-preview">
+                <img
+                  src={qrCodeDataUrl}
+                  alt="Booking page QR code"
+                  className="w-48 h-48"
+                />
+              </div>
+              <p className="text-sm text-muted-foreground text-center">
+                {`${window.location.origin}/book/${business.slug}`}
+              </p>
+              <div className="flex gap-2 flex-wrap justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => downloadQrCode("png")}
+                  className="gap-2"
+                  data-testid="button-download-png"
+                >
+                  <Download className="h-4 w-4" />
+                  {t("settings.downloadPng")}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => downloadQrCode("jpg")}
+                  className="gap-2"
+                  data-testid="button-download-jpg"
+                >
+                  <Download className="h-4 w-4" />
+                  {t("settings.downloadJpg")}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
+              <QrCode className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p className="text-sm">{t("settings.noBusinessYet")}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 

@@ -159,6 +159,14 @@ export const translations: Record<Language, Record<string, string>> = {
     "booking.termsAndConditions": "Terms & Conditions",
     "booking.agreeToTerms": "I have read and agree to the terms and conditions",
     
+    "settings.qrCode": "QR Code",
+    "settings.qrCodeDescription": "Generate a QR code that links to your booking page",
+    "settings.qrCodePreview": "QR Code Preview",
+    "settings.downloadPng": "Download PNG",
+    "settings.downloadJpg": "Download JPG",
+    "settings.qrCodeDownloaded": "QR code downloaded!",
+    "settings.noBusinessYet": "Create your business profile first to generate a QR code",
+    
     "services.title": "Services",
     "services.subtitle": "Manage the services you offer to customers",
     "services.addService": "Add Service",
@@ -625,6 +633,14 @@ export const translations: Record<Language, Record<string, string>> = {
     "settings.showTermsInEmailDesc": "Incluir términos y condiciones en el correo de confirmación de reserva",
     "booking.termsAndConditions": "Términos y Condiciones",
     "booking.agreeToTerms": "He leído y acepto los términos y condiciones",
+    
+    "settings.qrCode": "Código QR",
+    "settings.qrCodeDescription": "Genera un código QR que enlaza a tu página de reservas",
+    "settings.qrCodePreview": "Vista Previa del Código QR",
+    "settings.downloadPng": "Descargar PNG",
+    "settings.downloadJpg": "Descargar JPG",
+    "settings.qrCodeDownloaded": "¡Código QR descargado!",
+    "settings.noBusinessYet": "Crea tu perfil de negocio primero para generar un código QR",
     
     "services.title": "Servicios",
     "services.subtitle": "Administra los servicios que ofreces a los clientes",
