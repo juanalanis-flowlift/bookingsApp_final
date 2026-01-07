@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Clock, Users, BarChart3, CheckCircle, ArrowRight } from "lucide-react";
+import { SiGoogle } from "react-icons/si";
 import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 import flowliftLogo from "@assets/flowlift_logo_full_large_white_1766548850207.png";
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -428,9 +429,10 @@ export default function Landing() {
           />
           <div className="flex items-center gap-2">
             <LanguageSwitcher minimal />
-            <a href="/login">
+            <a href="/auth/google">
               <Button className="gap-2" data-testid="button-login">
-                {t("landing.signIn")}
+                <SiGoogle className="h-4 w-4" />
+                {t("landing.signInWithGoogle")}
               </Button>
             </a>
           </div>
@@ -476,9 +478,10 @@ export default function Landing() {
               {t("landing.hero.subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <a href="/login">
+              <a href="/auth/google">
                 <Button size="lg" className="gap-2" data-testid="button-get-started">
-                  {t("landing.startFree")}
+                  <SiGoogle className="h-4 w-4" />
+                  {t("landing.signInWithGoogle")}
                 </Button>
               </a>
               <a href="#features">
@@ -551,13 +554,15 @@ export default function Landing() {
           <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
             {t("landing.cta.subtitle")}
           </p>
-          <a href="/login">
+          <a href="/auth/google">
             <Button
               size="lg"
               variant="secondary"
+              className="gap-2"
               data-testid="button-cta-signup"
             >
-              {t("landing.cta.button")}
+              <SiGoogle className="h-4 w-4" />
+              {t("landing.signInWithGoogle")}
             </Button>
           </a>
         </div>

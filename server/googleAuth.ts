@@ -1,6 +1,5 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import { Strategy as MicrosoftStrategy } from "passport-microsoft";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
 import connectPg from "connect-pg-simple";
@@ -29,26 +28,25 @@ export function getSession() {
   });
 }
 
-export async function setupAuth(app: Express) {
+export async function setupGoogleAuth(app: Express) {
   app.set("trust proxy", 1);
   app.use(getSession());
   app.use(passport.initialize());
   app.use(passport.session());
 
-  // Google OAuth setup
-  const googleClientID = process.env.GOOGLE_CLIENT_ID;
-  const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const clientID = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-  if (!googleClientID || !googleClientSecret) {
-    console.error("WARNING: Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET. Google authentication will not work.");
+  if (!clientID || !clientSecret) {
+    console.error("WARNING: Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET environment variables. Google authentication will not work until these are configured.");
   }
 
-  if (googleClientID && googleClientSecret) {
+  if (clientID && clientSecret) {
     passport.use(
       new GoogleStrategy(
         {
-          clientID: googleClientID,
-          clientSecret: googleClientSecret,
+          clientID,
+          clientSecret,
           callbackURL: "/api/auth/google/callback",
           scope: ["profile", "email"],
         },
@@ -59,6 +57,7 @@ export async function setupAuth(app: Express) {
             const lastName = profile.name?.familyName;
             const profileImageUrl = profile.photos?.[0]?.value;
 
+            // Use google: prefix for the ID for new users
             const googleUserId = `google:${profile.id}`;
 
             const user = await storage.upsertUser({
@@ -69,49 +68,8 @@ export async function setupAuth(app: Express) {
               profileImageUrl: profileImageUrl || null,
             });
 
-            return done(null, { id: user.id });
-          } catch (error) {
-            return done(error as Error, undefined);
-          }
-        }
-      )
-    );
-  }
-
-  // Microsoft OAuth setup
-  const msClientID = process.env.MICROSOFT_CLIENT_ID;
-  const msClientSecret = process.env.MICROSOFT_CLIENT_SECRET;
-
-  if (!msClientID || !msClientSecret) {
-    console.error("WARNING: Missing MICROSOFT_CLIENT_ID or MICROSOFT_CLIENT_SECRET. Microsoft authentication will not work.");
-  }
-
-  if (msClientID && msClientSecret) {
-    passport.use(
-      new MicrosoftStrategy(
-        {
-          clientID: msClientID,
-          clientSecret: msClientSecret,
-          callbackURL: "/auth/microsoft/callback",
-          scope: ["user.read"],
-        },
-        async (accessToken: string, refreshToken: string, profile: any, done: any) => {
-          try {
-            const email = profile.emails?.[0]?.value || profile._json?.mail || profile._json?.userPrincipalName;
-            const firstName = profile.name?.givenName || profile._json?.givenName;
-            const lastName = profile.name?.familyName || profile._json?.surname;
-            const displayName = profile.displayName || profile._json?.displayName;
-
-            const microsoftUserId = `microsoft:${profile.id}`;
-
-            const user = await storage.upsertUser({
-              id: microsoftUserId,
-              email: email || null,
-              firstName: firstName || displayName?.split(' ')[0] || null,
-              lastName: lastName || displayName?.split(' ').slice(1).join(' ') || null,
-              profileImageUrl: null,
-            });
-
+            // Store the user's actual database ID in the session
+            // (may differ from googleUserId if user existed before with different ID)
             return done(null, { id: user.id });
           } catch (error) {
             return done(error as Error, undefined);
@@ -139,7 +97,6 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Google auth routes
   app.get(
     "/auth/google",
     passport.authenticate("google", {
@@ -151,34 +108,15 @@ export async function setupAuth(app: Express) {
   app.get(
     "/api/auth/google/callback",
     passport.authenticate("google", {
-      failureRedirect: "/login?error=auth_failed",
+      failureRedirect: "/?error=auth_failed",
     }),
     (req, res) => {
       res.redirect("/dashboard");
     }
   );
 
-  // Microsoft auth routes
-  app.get(
-    "/auth/microsoft",
-    passport.authenticate("microsoft", {
-      prompt: "select_account",
-    } as any)
-  );
-
-  app.get(
-    "/auth/microsoft/callback",
-    passport.authenticate("microsoft", {
-      failureRedirect: "/login?error=auth_failed",
-    }),
-    (req, res) => {
-      res.redirect("/dashboard");
-    }
-  );
-
-  // Legacy login redirect - now goes to login page
   app.get("/api/login", (req, res) => {
-    res.redirect("/login");
+    res.redirect("/auth/google");
   });
 
   app.get("/api/logout", (req, res) => {
@@ -194,12 +132,10 @@ export async function setupAuth(app: Express) {
     if (!req.isAuthenticated() || !req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+    // User is already populated by deserializeUser from the database
     return res.json(req.user);
   });
 }
-
-// Keep the old export name for backwards compatibility
-export const setupGoogleAuth = setupAuth;
 
 export const isAuthenticated: RequestHandler = (req, res, next) => {
   if (!req.isAuthenticated() || !req.user) {
