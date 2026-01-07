@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { I18nProvider } from "@/lib/i18n";
 
 import Landing from "@/pages/landing";
+import SignIn from "@/pages/signin";
 import Dashboard from "@/pages/dashboard";
 import Services from "@/pages/services";
 import Bookings from "@/pages/bookings";
@@ -65,6 +66,9 @@ function Router() {
       
       {/* Customer modify page - always accessible */}
       <Route path="/customer-modify" component={CustomerModify} />
+      
+      {/* Sign-in page - always accessible */}
+      <Route path="/signin" component={SignIn} />
 
       {/* Landing page for non-authenticated users */}
       {isLoading || !isAuthenticated ? (

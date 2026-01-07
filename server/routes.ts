@@ -2,7 +2,7 @@ import type { Express } from "express";
 import type { Server } from "http";
 import { randomBytes } from "crypto";
 import { storage } from "./storage";
-import { setupGoogleAuth, isAuthenticated } from "./googleAuth";
+import { setupAuth, isAuthenticated } from "./auth";
 import { insertBusinessSchema, insertServiceSchema, insertBookingSchema } from "@shared/schema";
 import { z } from "zod";
 import { startOfDay, endOfDay, addHours } from "date-fns";
@@ -11,8 +11,8 @@ import { ObjectPermission } from "./objectAcl";
 import { sendBookingEmails, sendMagicLinkEmail, verifyEmailConnection, sendModificationRequestEmail } from "./emailService";
 
 export async function registerRoutes(server: Server, app: Express): Promise<void> {
-  // Auth middleware
-  await setupGoogleAuth(app);
+  // Auth middleware (Google + Microsoft OAuth)
+  await setupAuth(app);
 
   // Email diagnostic endpoint (protected)
   app.get("/api/admin/email-test", isAuthenticated, async (req: any, res) => {

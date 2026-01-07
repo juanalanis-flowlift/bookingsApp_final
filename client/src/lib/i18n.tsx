@@ -47,6 +47,11 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.startFree": "Start for free",
     "landing.signInWithGoogle": "Sign in with Google",
     
+    "signin.title": "Sign In",
+    "signin.subtitle": "Choose how you want to sign in to your account",
+    "signin.google": "Continue with Google",
+    "signin.microsoft": "Continue with Outlook",
+    
     "landing.features.title": "Everything You Need to Manage Bookings",
     "landing.features.subtitle": "Simple, powerful tools designed for small service businesses",
     "landing.features.easyScheduling": "Easy Scheduling",
@@ -522,6 +527,11 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.signIn": "Empieza gratis",
     "landing.startFree": "Comienza gratis",
     "landing.signInWithGoogle": "Iniciar sesión con Google",
+    
+    "signin.title": "Iniciar Sesión",
+    "signin.subtitle": "Elige cómo quieres iniciar sesión en tu cuenta",
+    "signin.google": "Continuar con Google",
+    "signin.microsoft": "Continuar con Outlook",
     
     "landing.features.title": "Todo lo que Necesitas para Gestionar Reservas",
     "landing.features.subtitle": "Herramientas simples y poderosas diseñadas para pequeños negocios de servicios",

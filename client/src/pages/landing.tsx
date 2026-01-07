@@ -429,10 +429,9 @@ export default function Landing() {
           />
           <div className="flex items-center gap-2">
             <LanguageSwitcher minimal />
-            <a href="/auth/google">
+            <a href="/signin">
               <Button className="gap-2" data-testid="button-login">
-                <SiGoogle className="h-4 w-4" />
-                {t("landing.signInWithGoogle")}
+                {t("landing.signIn")}
               </Button>
             </a>
           </div>
@@ -478,10 +477,9 @@ export default function Landing() {
               {t("landing.hero.subtitle")}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <a href="/auth/google">
+              <a href="/signin">
                 <Button size="lg" className="gap-2" data-testid="button-get-started">
-                  <SiGoogle className="h-4 w-4" />
-                  {t("landing.signInWithGoogle")}
+                  {t("landing.startFree")}
                 </Button>
               </a>
               <a href="#features">
@@ -554,15 +552,14 @@ export default function Landing() {
           <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
             {t("landing.cta.subtitle")}
           </p>
-          <a href="/auth/google">
+          <a href="/signin">
             <Button
               size="lg"
               variant="secondary"
               className="gap-2"
               data-testid="button-cta-signup"
             >
-              <SiGoogle className="h-4 w-4" />
-              {t("landing.signInWithGoogle")}
+              {t("landing.cta.button")}
             </Button>
           </a>
         </div>
