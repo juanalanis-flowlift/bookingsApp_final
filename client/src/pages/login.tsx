@@ -3,10 +3,8 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { SiGoogle } from "react-icons/si";
-import { ArrowLeft, Code2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
-
-const isDev = import.meta.env.DEV;
 
 function MicrosoftIcon({ className }: { className?: string }) {
   return (
@@ -68,31 +66,6 @@ export default function Login() {
                   {t("login.continueWithOutlook")}
                 </Button>
               </a>
-
-              {isDev && (
-                <>
-                  <div className="relative my-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-card px-2 text-muted-foreground">
-                        Development Only
-                      </span>
-                    </div>
-                  </div>
-                  <a href="/auth/dev" className="block">
-                    <Button
-                      variant="secondary"
-                      className="w-full h-12 gap-3 text-base"
-                      data-testid="button-login-dev"
-                    >
-                      <Code2 className="h-5 w-5" />
-                      Dev Login (Skip OAuth)
-                    </Button>
-                  </a>
-                </>
-              )}
             </div>
 
             <p className="text-center text-sm text-muted-foreground mt-6">

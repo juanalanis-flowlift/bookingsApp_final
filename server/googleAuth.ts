@@ -176,32 +176,6 @@ export async function setupAuth(app: Express) {
     }
   );
 
-  // Development-only bypass login (creates a test user session)
-  if (process.env.NODE_ENV !== "production") {
-    app.get("/auth/dev", async (req, res) => {
-      try {
-        const devUser = await storage.upsertUser({
-          id: "dev:test-user",
-          email: "dev@flowlift.local",
-          firstName: "Dev",
-          lastName: "User",
-          profileImageUrl: null,
-        });
-
-        req.login({ id: devUser.id }, (err) => {
-          if (err) {
-            console.error("Dev login error:", err);
-            return res.redirect("/login?error=dev_auth_failed");
-          }
-          res.redirect("/dashboard");
-        });
-      } catch (error) {
-        console.error("Dev login error:", error);
-        res.redirect("/login?error=dev_auth_failed");
-      }
-    });
-  }
-
   // Legacy login redirect - now goes to login page
   app.get("/api/login", (req, res) => {
     res.redirect("/login");
