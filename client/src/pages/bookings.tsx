@@ -47,7 +47,9 @@ import {
   Edit,
   ChevronLeft,
   ChevronRight,
+  Plus,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
@@ -85,6 +87,17 @@ export default function Bookings() {
   const [proposedStartTime, setProposedStartTime] = useState<string>("");
   const [proposedEndTime, setProposedEndTime] = useState<string>("");
   const [modificationReason, setModificationReason] = useState<string>("");
+
+  // Add booking state
+  const [addBookingDialogOpen, setAddBookingDialogOpen] = useState(false);
+  const [newBookingServiceId, setNewBookingServiceId] = useState<string>("");
+  const [newBookingDate, setNewBookingDate] = useState<Date | undefined>(undefined);
+  const [newBookingStartTime, setNewBookingStartTime] = useState<string>("");
+  const [newBookingEndTime, setNewBookingEndTime] = useState<string>("");
+  const [newBookingCustomerName, setNewBookingCustomerName] = useState<string>("");
+  const [newBookingCustomerEmail, setNewBookingCustomerEmail] = useState<string>("");
+  const [newBookingCustomerPhone, setNewBookingCustomerPhone] = useState<string>("");
+  const [newBookingNotes, setNewBookingNotes] = useState<string>("");
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -200,6 +213,108 @@ export default function Bookings() {
       toast({ title: t("bookings.modificationRequestFailed"), variant: "destructive" });
     },
   });
+
+  const createBookingMutation = useMutation({
+    mutationFn: async (bookingData: {
+      serviceId: string;
+      bookingDate: Date;
+      startTime: string;
+      endTime: string;
+      customerName: string;
+      customerEmail: string;
+      customerPhone?: string;
+      customerNotes?: string;
+      preferredLanguage?: string;
+    }) => {
+      return await apiRequest("POST", "/api/bookings", bookingData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
+      setAddBookingDialogOpen(false);
+      resetAddBookingForm();
+      toast({ title: t("bookings.bookingCreated") });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({ title: t("bookings.bookingCreateFailed"), variant: "destructive" });
+    },
+  });
+
+  const resetAddBookingForm = () => {
+    setNewBookingServiceId("");
+    setNewBookingDate(undefined);
+    setNewBookingStartTime("");
+    setNewBookingEndTime("");
+    setNewBookingCustomerName("");
+    setNewBookingCustomerEmail("");
+    setNewBookingCustomerPhone("");
+    setNewBookingNotes("");
+  };
+
+  const handleOpenAddBookingDialog = () => {
+    resetAddBookingForm();
+    setAddBookingDialogOpen(true);
+  };
+
+  // Calculate end time from service duration
+  const calculateEndTime = (startTime: string, serviceId: string) => {
+    const service = services?.find(s => s.id === serviceId);
+    if (!service || !startTime) return "";
+    
+    const [hours, minutes] = startTime.split(":").map(Number);
+    const startMinutes = hours * 60 + minutes;
+    const endMinutes = startMinutes + service.duration;
+    const endHours = Math.floor(endMinutes / 60);
+    const endMins = endMinutes % 60;
+    return `${endHours.toString().padStart(2, "0")}:${endMins.toString().padStart(2, "0")}`;
+  };
+
+  // Auto-update end time when start time or service changes
+  const handleNewBookingStartTimeChange = (startTime: string) => {
+    setNewBookingStartTime(startTime);
+    if (newBookingServiceId && startTime) {
+      setNewBookingEndTime(calculateEndTime(startTime, newBookingServiceId));
+    }
+  };
+
+  const handleNewBookingServiceChange = (serviceId: string) => {
+    setNewBookingServiceId(serviceId);
+    if (newBookingStartTime && serviceId) {
+      setNewBookingEndTime(calculateEndTime(newBookingStartTime, serviceId));
+    }
+  };
+
+  const handleSubmitNewBooking = () => {
+    if (!newBookingServiceId || !newBookingDate || !newBookingStartTime || !newBookingCustomerName || !newBookingCustomerEmail) {
+      toast({ title: t("common.fillAllFields"), variant: "destructive" });
+      return;
+    }
+    
+    // End time is auto-calculated or manually entered
+    const endTime = newBookingEndTime || calculateEndTime(newBookingStartTime, newBookingServiceId);
+    
+    createBookingMutation.mutate({
+      serviceId: newBookingServiceId,
+      bookingDate: newBookingDate,
+      startTime: newBookingStartTime,
+      endTime: endTime,
+      customerName: newBookingCustomerName,
+      customerEmail: newBookingCustomerEmail,
+      customerPhone: newBookingCustomerPhone || undefined,
+      customerNotes: newBookingNotes || undefined,
+      preferredLanguage: language,
+    });
+  };
 
   const getServiceName = (serviceId: string) => {
     return services?.find((s) => s.id === serviceId)?.name || "Unknown Service";
@@ -413,6 +528,14 @@ export default function Bookings() {
               <SelectItem value="cancelled">{t("bookings.cancelled")}</SelectItem>
             </SelectContent>
           </Select>
+          <Button 
+            onClick={handleOpenAddBookingDialog} 
+            className="gap-2"
+            data-testid="button-add-booking"
+          >
+            <Plus className="h-4 w-4" />
+            {t("bookings.addBooking")}
+          </Button>
         </div>
       </div>
 
@@ -1027,6 +1150,148 @@ export default function Bookings() {
               data-testid="button-send-modification-request"
             >
               {modifyMutation.isPending ? t("common.sending") : t("bookings.sendModificationRequest")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Booking Dialog */}
+      <Dialog
+        open={addBookingDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setAddBookingDialogOpen(false);
+            resetAddBookingForm();
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("bookings.addBookingTitle")}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pr-4">
+            <div>
+              <Label className="mb-2 block">{t("bookings.selectService")}</Label>
+              <Select value={newBookingServiceId} onValueChange={handleNewBookingServiceChange}>
+                <SelectTrigger data-testid="select-new-booking-service">
+                  <SelectValue placeholder={t("bookings.selectService")} />
+                </SelectTrigger>
+                <SelectContent>
+                  {services?.filter(s => s.isActive).map((service) => (
+                    <SelectItem key={service.id} value={service.id}>
+                      {service.name} ({service.duration} min)
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="mb-2 block">{t("bookings.selectDate")}</Label>
+              <div className="border rounded-md">
+                <Calendar
+                  mode="single"
+                  selected={newBookingDate}
+                  onSelect={setNewBookingDate}
+                  locale={language === "es" ? es : undefined}
+                  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                  className="rounded-md"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="mb-2 block">{t("bookings.startTime")}</Label>
+                <Select value={newBookingStartTime} onValueChange={handleNewBookingStartTimeChange}>
+                  <SelectTrigger data-testid="select-new-booking-start-time">
+                    <SelectValue placeholder={t("bookings.selectTime")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeSlots.map((time) => (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="mb-2 block">{t("bookings.endTime")} ({t("common.optional")})</Label>
+                <Select value={newBookingEndTime} onValueChange={setNewBookingEndTime}>
+                  <SelectTrigger data-testid="select-new-booking-end-time">
+                    <SelectValue placeholder={newBookingEndTime || t("bookings.selectTime")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {timeSlots.map((time) => (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label className="mb-2 block">{t("bookings.customerName")}</Label>
+              <Input
+                value={newBookingCustomerName}
+                onChange={(e) => setNewBookingCustomerName(e.target.value)}
+                placeholder={t("bookings.customerName")}
+                data-testid="input-new-booking-customer-name"
+              />
+            </div>
+
+            <div>
+              <Label className="mb-2 block">{t("bookings.customerEmail")}</Label>
+              <Input
+                type="email"
+                value={newBookingCustomerEmail}
+                onChange={(e) => setNewBookingCustomerEmail(e.target.value)}
+                placeholder={t("bookings.customerEmail")}
+                data-testid="input-new-booking-customer-email"
+              />
+            </div>
+
+            <div>
+              <Label className="mb-2 block">{t("bookings.customerPhone")} ({t("common.optional")})</Label>
+              <Input
+                type="tel"
+                value={newBookingCustomerPhone}
+                onChange={(e) => setNewBookingCustomerPhone(e.target.value)}
+                placeholder={t("bookings.customerPhone")}
+                data-testid="input-new-booking-customer-phone"
+              />
+            </div>
+
+            <div>
+              <Label className="mb-2 block">{t("bookings.notes")} ({t("common.optional")})</Label>
+              <Textarea
+                value={newBookingNotes}
+                onChange={(e) => setNewBookingNotes(e.target.value)}
+                placeholder={t("bookings.notesPlaceholder")}
+                className="resize-none"
+                data-testid="input-new-booking-notes"
+              />
+            </div>
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAddBookingDialogOpen(false);
+                resetAddBookingForm();
+              }}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={handleSubmitNewBooking}
+              disabled={createBookingMutation.isPending || !newBookingServiceId || !newBookingDate || !newBookingStartTime || !newBookingCustomerName || !newBookingCustomerEmail}
+              data-testid="button-create-booking"
+            >
+              {createBookingMutation.isPending ? t("common.loading") : t("bookings.createBooking")}
             </Button>
           </DialogFooter>
         </DialogContent>

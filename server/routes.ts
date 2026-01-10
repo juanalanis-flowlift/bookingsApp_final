@@ -595,6 +595,141 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
   // ============================================
   // Booking Routes (Protected)
   // ============================================
+  
+  // Create a booking manually (business owner)
+  app.post("/api/bookings", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      // Validate required fields
+      const { serviceId, bookingDate, startTime, customerName, customerEmail } = req.body;
+      if (!serviceId || !bookingDate || !startTime || !customerName || !customerEmail) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Validate time format (HH:MM) with valid ranges
+      const timeRegex = /^\d{2}:\d{2}$/;
+      if (!timeRegex.test(startTime)) {
+        return res.status(400).json({ message: "startTime must be in HH:MM format" });
+      }
+      
+      // Validate time values are within valid ranges
+      const [startHour, startMin] = startTime.split(":").map(Number);
+      if (startHour < 0 || startHour > 23 || startMin < 0 || startMin > 59) {
+        return res.status(400).json({ message: "Invalid start time values" });
+      }
+
+      // Validate service exists and belongs to business
+      const service = await storage.getServiceById(serviceId);
+      if (!service || service.businessId !== business.id) {
+        return res.status(400).json({ message: "Invalid service" });
+      }
+
+      // Calculate end time from service duration if not provided
+      let endTime = req.body.endTime;
+      if (!endTime) {
+        const [hours, minutes] = startTime.split(":").map(Number);
+        const startMinutes = hours * 60 + minutes;
+        const endMinutes = startMinutes + service.duration;
+        const endHours = Math.floor(endMinutes / 60);
+        const endMins = endMinutes % 60;
+        endTime = `${endHours.toString().padStart(2, "0")}:${endMins.toString().padStart(2, "0")}`;
+      } else if (!timeRegex.test(endTime)) {
+        return res.status(400).json({ message: "endTime must be in HH:MM format" });
+      }
+
+      // Validate end time values are within valid ranges
+      const [endHour, endMin] = endTime.split(":").map(Number);
+      if (endHour < 0 || endHour > 23 || endMin < 0 || endMin > 59) {
+        return res.status(400).json({ message: "Invalid end time values" });
+      }
+
+      // Validate end time is after start time
+      if (endTime <= startTime) {
+        return res.status(400).json({ message: "End time must be after start time" });
+      }
+
+      // Validate customer name and email are strings
+      if (typeof customerName !== 'string' || customerName.trim().length === 0) {
+        return res.status(400).json({ message: "Customer name is required" });
+      }
+      if (typeof customerEmail !== 'string' || !customerEmail.includes('@')) {
+        return res.status(400).json({ message: "Valid customer email is required" });
+      }
+
+      // Parse and validate booking date
+      const parsedBookingDate = new Date(bookingDate);
+      if (isNaN(parsedBookingDate.getTime())) {
+        return res.status(400).json({ message: "Invalid booking date" });
+      }
+
+      // Check for double booking
+      const existingBookings = await storage.getBookingsByDateRange(
+        business.id,
+        startOfDay(parsedBookingDate),
+        endOfDay(parsedBookingDate)
+      );
+
+      const hasConflict = existingBookings.some((existing) => {
+        if (existing.status === "cancelled") return false;
+        return (
+          (startTime >= existing.startTime && startTime < existing.endTime) ||
+          (endTime > existing.startTime && endTime <= existing.endTime) ||
+          (startTime <= existing.startTime && endTime >= existing.endTime)
+        );
+      });
+
+      if (hasConflict) {
+        return res.status(400).json({ 
+          message: "Time slot not available",
+          error: "slot_conflict",
+          details: "This time slot has already been booked. Please select a different time."
+        });
+      }
+
+      // Manual bookings created by business owner are confirmed by default
+      const booking = await storage.createBooking({
+        businessId: business.id,
+        serviceId: serviceId,
+        teamMemberId: req.body.teamMemberId || null,
+        customerName: customerName,
+        customerEmail: customerEmail,
+        customerPhone: req.body.customerPhone || null,
+        customerNotes: req.body.customerNotes || null,
+        bookingDate: parsedBookingDate,
+        startTime: startTime,
+        endTime: endTime,
+        status: "confirmed",
+      });
+
+      // Send confirmation email to customer
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      sendBookingEmails({
+        booking: {
+          ...booking,
+          date: bookingDate,
+          notes: req.body.customerNotes || null,
+        },
+        service,
+        business,
+        language: req.body.preferredLanguage === "es" ? "es" : "en",
+        baseUrl,
+      }).catch((err) => {
+        console.error("Failed to send booking emails:", err);
+      });
+
+      res.json(booking);
+    } catch (error) {
+      console.error("Error creating manual booking:", error);
+      res.status(500).json({ message: "Failed to create booking" });
+    }
+  });
+
   app.get("/api/bookings", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
