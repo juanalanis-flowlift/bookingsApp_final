@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,10 +15,11 @@ import {
   CalendarClock,
   ArrowRight,
   Plus,
+  Ban,
 } from "lucide-react";
-import type { Business, Booking, Service, BlockedTime } from "@shared/schema";
+import type { Business, Booking, Service, BlockedTime, Availability } from "@shared/schema";
 import { format, isAfter, isBefore, startOfDay, endOfDay, subDays, addDays, isSameDay } from "date-fns";
-import { Ban } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -54,6 +55,11 @@ export default function Dashboard() {
 
   const { data: blockedTimes } = useQuery<BlockedTime[]>({
     queryKey: ["/api/blocked-times"],
+    enabled: !!business,
+  });
+
+  const { data: availability } = useQuery<Availability[]>({
+    queryKey: ["/api/availability"],
     enabled: !!business,
   });
 
@@ -125,6 +131,69 @@ export default function Dashboard() {
   const nextWeekBlocked = blockedTimes
     ?.filter((bt) => blockedTimeOverlaps(bt, endOfToday, weekFromNow))
     .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()) || [];
+
+  // Chart data for next 7 days availability
+  const chartData = useMemo(() => {
+    if (!availability || !bookings || !services) return [];
+
+    const data: { date: string; bookedHours: number; availableHours: number }[] = [];
+
+    // Helper to convert time string (HH:MM) to hours as decimal
+    const timeToHours = (time: string): number => {
+      const [hours, minutes] = time.split(":").map(Number);
+      return hours + minutes / 60;
+    };
+
+    // Helper to get availability for a day of week
+    const getDayAvailability = (dayOfWeek: number) => {
+      const dayAvail = availability.find((a) => a.dayOfWeek === dayOfWeek && a.isOpen);
+      if (!dayAvail) return 0;
+      const start = timeToHours(dayAvail.startTime);
+      const end = timeToHours(dayAvail.endTime);
+      return Math.max(0, end - start);
+    };
+
+    // Generate data for next 7 days (including today)
+    for (let i = 0; i < 7; i++) {
+      const date = addDays(startOfToday, i);
+      const dayOfWeek = date.getDay();
+      const totalHours = getDayAvailability(dayOfWeek);
+
+      // Skip days that are closed
+      if (totalHours === 0) continue;
+
+      // Calculate booked hours for this day
+      const dayBookings = bookings.filter(
+        (b) => b.status !== "cancelled" && isSameDay(new Date(b.bookingDate), date)
+      );
+
+      let bookedMinutes = 0;
+      dayBookings.forEach((booking) => {
+        const service = services.find((s) => s.id === booking.serviceId);
+        if (service) {
+          bookedMinutes += service.duration || 0;
+        }
+      });
+
+      const bookedHours = Math.round((bookedMinutes / 60) * 10) / 10;
+      const availableHours = Math.max(0, Math.round((totalHours - bookedHours) * 10) / 10);
+
+      data.push({
+        date: format(date, "dd/MM"),
+        bookedHours,
+        availableHours,
+      });
+    }
+
+    return data;
+  }, [availability, bookings, services, startOfToday]);
+
+  // Calculate max Y-axis value for the chart
+  const maxHours = useMemo(() => {
+    if (!chartData.length) return 8;
+    const maxTotal = Math.max(...chartData.map((d) => d.bookedHours + d.availableHours));
+    return Math.ceil(maxTotal);
+  }, [chartData]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -383,6 +452,76 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Weekly Availability Chart */}
+      {chartData.length > 0 && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.weeklyAvailability")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64" data-testid="chart-weekly-availability">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 12 }}
+                    axisLine={{ stroke: "hsl(var(--border))" }}
+                    tickLine={{ stroke: "hsl(var(--border))" }}
+                  />
+                  <YAxis 
+                    domain={[0, maxHours]}
+                    tick={{ fontSize: 12 }}
+                    axisLine={{ stroke: "hsl(var(--border))" }}
+                    tickLine={{ stroke: "hsl(var(--border))" }}
+                    label={{ 
+                      value: t("dashboard.hours"), 
+                      angle: -90, 
+                      position: "insideLeft",
+                      style: { fontSize: 12, fill: "hsl(var(--muted-foreground))" }
+                    }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
+                      fontSize: "12px",
+                    }}
+                    formatter={(value: number, name: string) => [
+                      `${value}h`,
+                      name === "bookedHours" ? t("dashboard.booked") : t("dashboard.available")
+                    ]}
+                    labelFormatter={(label) => `${t("dashboard.date")}: ${label}`}
+                  />
+                  <Legend 
+                    formatter={(value) => 
+                      value === "bookedHours" ? t("dashboard.booked") : t("dashboard.available")
+                    }
+                    wrapperStyle={{ fontSize: "12px" }}
+                  />
+                  <Bar 
+                    dataKey="bookedHours" 
+                    stackId="a" 
+                    fill="#33B658" 
+                    name="bookedHours"
+                    radius={[0, 0, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="availableHours" 
+                    stackId="a" 
+                    fill="#D26969" 
+                    name="availableHours"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
