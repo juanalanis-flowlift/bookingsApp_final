@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import type { Business, Booking, Service, BlockedTime, Availability } from "@shared/schema";
 import { format, isAfter, isBefore, startOfDay, endOfDay, subDays, addDays, isSameDay } from "date-fns";
-import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -243,6 +243,66 @@ export default function Dashboard() {
     const maxTotal = Math.max(...chartData.map((d) => d.bookedHours + d.availableHours));
     return Math.ceil(maxTotal);
   }, [chartData]);
+
+  // Pie chart data for booked services in last 7 working days
+  const pieChartData = useMemo(() => {
+    if (!availability || !bookings || !services) return [];
+
+    // Helper to get availability for a day of week
+    const isDayOpen = (dayOfWeek: number) => {
+      return availability.some((a) => a.dayOfWeek === dayOfWeek && a.isOpen);
+    };
+
+    // Find the last 7 working days (going backwards from today)
+    let workingDaysFound = 0;
+    let dayOffset = 1; // Start from yesterday
+    const workingDays: Date[] = [];
+
+    while (workingDaysFound < 7 && dayOffset < 30) {
+      const date = subDays(startOfToday, dayOffset);
+      const dayOfWeek = date.getDay();
+      dayOffset++;
+
+      // Skip days that are closed
+      if (!isDayOpen(dayOfWeek)) continue;
+      workingDaysFound++;
+      workingDays.push(date);
+    }
+
+    // Count bookings by service for these working days
+    const serviceCounts: Record<string, number> = {};
+
+    workingDays.forEach((date) => {
+      const dayBookings = bookings.filter(
+        (b) => b.status !== "cancelled" && isSameDay(new Date(b.bookingDate), date)
+      );
+
+      dayBookings.forEach((booking) => {
+        const service = services.find((s) => s.id === booking.serviceId);
+        if (service) {
+          serviceCounts[service.name] = (serviceCounts[service.name] || 0) + 1;
+        }
+      });
+    });
+
+    // Convert to pie chart format
+    return Object.entries(serviceCounts).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [availability, bookings, services, startOfToday]);
+
+  // Colors for pie chart segments
+  const PIE_COLORS = [
+    "hsl(139, 55%, 46%)", // Green (primary)
+    "hsl(217, 91%, 60%)", // Blue
+    "hsl(280, 65%, 60%)", // Purple
+    "hsl(45, 93%, 47%)",  // Yellow/Gold
+    "hsl(340, 75%, 55%)", // Pink
+    "hsl(190, 90%, 45%)", // Cyan
+    "hsl(25, 95%, 53%)",  // Orange
+    "hsl(160, 60%, 45%)", // Teal
+  ];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -557,8 +617,52 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Empty card placeholder for middle column */}
-        <div />
+        {/* Booked Services Pie Chart - aligned with Today card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.bookedServicesLastWeek")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-48" data-testid="chart-booked-services">
+              {pieChartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                    <Pie
+                      data={pieChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={65}
+                      paddingAngle={2}
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                      labelLine={false}
+                    >
+                      {pieChartData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                      }}
+                      formatter={(value: number, name: string) => [value, name]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">{t("dashboard.noDataAvailable")}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Daily Occupation Rate Chart - aligned with Next 7 Days card */}
         <Card>
