@@ -20,11 +20,11 @@ export const translations: Record<Language, Record<string, string>> = {
     "app.name": "FlowLift",
     "app.tagline": "Smart booking for service businesses",
     
-    "nav.dashboard": "Dashboard",
+    "nav.dashboard": "Overview",
     "nav.services": "Services",
     "nav.bookings": "Bookings",
     "nav.availability": "Availability",
-    "nav.settings": "Settings",
+    "nav.settings": "Business",
     "nav.team": "Team",
     "nav.logout": "Logout",
     
@@ -119,7 +119,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "booking.outlookCalendar": "Outlook",
     "booking.appleCalendar": "Apple Calendar",
     
-    "settings.title": "Business Settings",
+    "settings.title": "Business",
     "settings.subtitle": "Manage your business profile and public booking page",
     "settings.businessInfo": "Business Information",
     "settings.businessName": "Business Name",
@@ -369,7 +369,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "availability.setupFirst": "Please set up your business profile first.",
     "common.noBookingsOnDate": "No bookings on this date",
     
-    "dashboard.title": "Dashboard",
+    "dashboard.title": "Overview",
     "dashboard.welcome": "Welcome back",
     "dashboard.todayBookings": "Today's Bookings",
     "dashboard.upcomingBookings": "Upcoming Bookings",
@@ -501,11 +501,11 @@ export const translations: Record<Language, Record<string, string>> = {
     "app.name": "FlowLift",
     "app.tagline": "Reservas inteligentes para negocios de servicios",
     
-    "nav.dashboard": "Panel",
+    "nav.dashboard": "Resumen",
     "nav.services": "Servicios",
-    "nav.bookings": "Reservaciones",
+    "nav.bookings": "Reservas",
     "nav.availability": "Disponibilidad",
-    "nav.settings": "Configuración",
+    "nav.settings": "Negocio",
     "nav.team": "Equipo",
     "nav.logout": "Cerrar sesión",
     
@@ -600,7 +600,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "booking.outlookCalendar": "Outlook",
     "booking.appleCalendar": "Apple Calendar",
     
-    "settings.title": "Configuración del Negocio",
+    "settings.title": "Negocio",
     "settings.subtitle": "Administra tu perfil de negocio y página de reservas",
     "settings.businessInfo": "Información del Negocio",
     "settings.businessName": "Nombre del Negocio",
@@ -850,7 +850,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "availability.setupFirst": "Por favor, configura tu perfil de negocio primero.",
     "common.noBookingsOnDate": "No hay reservas en esta fecha",
     
-    "dashboard.title": "Panel",
+    "dashboard.title": "Resumen",
     "dashboard.welcome": "Bienvenido de nuevo",
     "dashboard.todayBookings": "Reservas de Hoy",
     "dashboard.upcomingBookings": "Próximas Reservas",

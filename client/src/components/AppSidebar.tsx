@@ -35,10 +35,10 @@ export function AppSidebar() {
 
   const menuItems = [
     { titleKey: "nav.dashboard", url: "/dashboard", icon: LayoutDashboard },
-    { titleKey: "nav.services", url: "/services", icon: Scissors },
-    { titleKey: "nav.team", url: "/team", icon: Users },
     { titleKey: "nav.bookings", url: "/bookings", icon: Calendar },
+    { titleKey: "nav.services", url: "/services", icon: Scissors },
     { titleKey: "nav.availability", url: "/availability", icon: Clock },
+    { titleKey: "nav.team", url: "/team", icon: Users },
     { titleKey: "nav.settings", url: "/settings", icon: Settings },
   ];
 
