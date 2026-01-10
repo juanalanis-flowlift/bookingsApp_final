@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import type { Business, Booking, Service, BlockedTime, Availability } from "@shared/schema";
 import { format, isAfter, isBefore, startOfDay, endOfDay, subDays, addDays, isSameDay } from "date-fns";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -132,7 +132,7 @@ export default function Dashboard() {
     ?.filter((bt) => blockedTimeOverlaps(bt, endOfToday, weekFromNow))
     .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()) || [];
 
-  // Chart data for next 7 days availability
+  // Chart data for next 7 working days availability (Daily Occupation Rate)
   const chartData = useMemo(() => {
     if (!availability || !bookings || !services) return [];
 
@@ -153,14 +153,18 @@ export default function Dashboard() {
       return Math.max(0, end - start);
     };
 
-    // Generate data for next 7 days (including today)
-    for (let i = 0; i < 7; i++) {
-      const date = addDays(startOfToday, i);
+    // Generate data for next 7 WORKING days (skip closed days)
+    let workingDaysFound = 0;
+    let dayOffset = 0;
+    while (workingDaysFound < 7 && dayOffset < 30) {
+      const date = addDays(startOfToday, dayOffset);
       const dayOfWeek = date.getDay();
       const totalHours = getDayAvailability(dayOfWeek);
+      dayOffset++;
 
       // Skip days that are closed
       if (totalHours === 0) continue;
+      workingDaysFound++;
 
       // Calculate booked hours for this day
       const dayBookings = bookings.filter(
@@ -179,7 +183,7 @@ export default function Dashboard() {
       const availableHours = Math.max(0, Math.round((totalHours - bookedHours) * 10) / 10);
 
       data.push({
-        date: format(date, "dd/MM"),
+        date: format(date, "dd-MMM"),
         bookedHours,
         availableHours,
       });
@@ -187,6 +191,51 @@ export default function Dashboard() {
 
     return data;
   }, [availability, bookings, services, startOfToday]);
+
+  // Line chart data for last 7 working days completed bookings
+  const lineChartData = useMemo(() => {
+    if (!availability || !bookings) return [];
+
+    const data: { date: string; completed: number }[] = [];
+
+    // Helper to get availability for a day of week
+    const isDayOpen = (dayOfWeek: number) => {
+      return availability.some((a) => a.dayOfWeek === dayOfWeek && a.isOpen);
+    };
+
+    // Find the last 7 working days (going backwards from today)
+    let workingDaysFound = 0;
+    let dayOffset = 1; // Start from yesterday
+    const workingDays: Date[] = [];
+
+    while (workingDaysFound < 7 && dayOffset < 30) {
+      const date = subDays(startOfToday, dayOffset);
+      const dayOfWeek = date.getDay();
+      dayOffset++;
+
+      // Skip days that are closed
+      if (!isDayOpen(dayOfWeek)) continue;
+      workingDaysFound++;
+      workingDays.push(date);
+    }
+
+    // Reverse to show oldest first
+    workingDays.reverse();
+
+    // Calculate completed bookings for each working day
+    workingDays.forEach((date) => {
+      const dayBookings = bookings.filter(
+        (b) => b.status === "confirmed" && isSameDay(new Date(b.bookingDate), date)
+      );
+
+      data.push({
+        date: format(date, "dd-MMM"),
+        completed: dayBookings.length,
+      });
+    });
+
+    return data;
+  }, [availability, bookings, startOfToday]);
 
   // Calculate max Y-axis value for the chart
   const maxHours = useMemo(() => {
@@ -453,75 +502,138 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Weekly Availability Chart */}
-      {chartData.length > 0 && (
-        <Card className="mt-6">
+      {/* Charts Grid - matches 3-column layout of cards above */}
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Completed Bookings Line Chart - aligned with Last Week card */}
+        <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">
-              {t("dashboard.weeklyAvailability")}
+              {t("dashboard.completedBookings")}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64" data-testid="chart-weekly-availability">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
-                  <XAxis 
-                    dataKey="date" 
-                    tick={{ fontSize: 12 }}
-                    axisLine={{ stroke: "hsl(var(--border))" }}
-                    tickLine={{ stroke: "hsl(var(--border))" }}
-                  />
-                  <YAxis 
-                    domain={[0, maxHours]}
-                    tick={{ fontSize: 12 }}
-                    axisLine={{ stroke: "hsl(var(--border))" }}
-                    tickLine={{ stroke: "hsl(var(--border))" }}
-                    label={{ 
-                      value: t("dashboard.hours"), 
-                      angle: -90, 
-                      position: "insideLeft",
-                      style: { fontSize: 12, fill: "hsl(var(--muted-foreground))" }
-                    }}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "8px",
-                      fontSize: "12px",
-                    }}
-                    formatter={(value: number, name: string) => [
-                      `${value}h`,
-                      name === "bookedHours" ? t("dashboard.booked") : t("dashboard.available")
-                    ]}
-                    labelFormatter={(label) => `${t("dashboard.date")}: ${label}`}
-                  />
-                  <Legend 
-                    formatter={(value) => 
-                      value === "bookedHours" ? t("dashboard.booked") : t("dashboard.available")
-                    }
-                    wrapperStyle={{ fontSize: "12px" }}
-                  />
-                  <Bar 
-                    dataKey="bookedHours" 
-                    stackId="a" 
-                    fill="#33B658" 
-                    name="bookedHours"
-                    radius={[0, 0, 0, 0]}
-                  />
-                  <Bar 
-                    dataKey="availableHours" 
-                    stackId="a" 
-                    fill="#D26969" 
-                    name="availableHours"
-                    radius={[4, 4, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+            <div className="h-48" data-testid="chart-completed-bookings">
+              {lineChartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={lineChartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 11 }}
+                      axisLine={{ stroke: "hsl(var(--border))" }}
+                      tickLine={{ stroke: "hsl(var(--border))" }}
+                    />
+                    <YAxis 
+                      allowDecimals={false}
+                      tick={{ fontSize: 11 }}
+                      axisLine={{ stroke: "hsl(var(--border))" }}
+                      tickLine={{ stroke: "hsl(var(--border))" }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                      }}
+                      formatter={(value: number) => [value, t("dashboard.completed")]}
+                      labelFormatter={(label) => `${t("dashboard.date")}: ${label}`}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="completed" 
+                      stroke="hsl(139, 55%, 46%)" 
+                      strokeWidth={2}
+                      dot={{ fill: "hsl(139, 55%, 46%)", strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: "hsl(139, 55%, 46%)" }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">{t("dashboard.noDataAvailable")}</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
-      )}
+
+        {/* Empty card placeholder for middle column */}
+        <div />
+
+        {/* Daily Occupation Rate Chart - aligned with Next 7 Days card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.dailyOccupationRate")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-48" data-testid="chart-daily-occupation">
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 11 }}
+                      axisLine={{ stroke: "hsl(var(--border))" }}
+                      tickLine={{ stroke: "hsl(var(--border))" }}
+                    />
+                    <YAxis 
+                      domain={[0, maxHours]}
+                      tick={{ fontSize: 11 }}
+                      axisLine={{ stroke: "hsl(var(--border))" }}
+                      tickLine={{ stroke: "hsl(var(--border))" }}
+                      label={{ 
+                        value: t("dashboard.hours"), 
+                        angle: -90, 
+                        position: "insideLeft",
+                        style: { fontSize: 11, fill: "hsl(var(--muted-foreground))" }
+                      }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                      }}
+                      formatter={(value: number, name: string) => [
+                        `${value}h`,
+                        name === "bookedHours" ? t("dashboard.booked") : t("dashboard.available")
+                      ]}
+                      labelFormatter={(label) => `${t("dashboard.date")}: ${label}`}
+                    />
+                    <Legend 
+                      formatter={(value) => 
+                        value === "bookedHours" ? t("dashboard.booked") : t("dashboard.available")
+                      }
+                      wrapperStyle={{ fontSize: "11px" }}
+                    />
+                    <Bar 
+                      dataKey="bookedHours" 
+                      stackId="a" 
+                      fill="#33B658" 
+                      name="bookedHours"
+                      radius={[0, 0, 0, 0]}
+                    />
+                    <Bar 
+                      dataKey="availableHours" 
+                      stackId="a" 
+                      fill="#D26969" 
+                      name="availableHours"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">{t("dashboard.noDataAvailable")}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
