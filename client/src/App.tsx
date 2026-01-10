@@ -38,7 +38,6 @@ function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
         <SidebarInset className="flex flex-col flex-1 overflow-hidden">
           <header className="flex items-center justify-between gap-4 p-2 border-b h-14 flex-shrink-0">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <ThemeToggle />
           </header>
           <main className="flex-1 overflow-auto">{children}</main>
         </SidebarInset>

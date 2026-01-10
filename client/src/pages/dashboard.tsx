@@ -147,16 +147,6 @@ export default function Dashboard() {
             {t("dashboard.welcome")}
           </p>
         </div>
-        <a
-          href={`/book/${business.slug}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Button variant="outline" className="gap-2" data-testid="button-view-booking-page">
-            <ExternalLink className="h-4 w-4" />
-            {t("dashboard.viewBookingPage")}
-          </Button>
-        </a>
       </div>
 
       {/* Stats Cards */}
@@ -208,67 +198,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Upcoming Bookings */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-2">
-          <CardTitle>{t("dashboard.upcomingBookings")}</CardTitle>
-          <Link href="/bookings">
-            <Button variant="ghost" size="sm" className="gap-1" data-testid="link-view-all-bookings">
-              {t("dashboard.viewAll")}
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </CardHeader>
-        <CardContent>
-          {bookingsLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-16" />
-              ))}
-            </div>
-          ) : upcomingBookings && upcomingBookings.length > 0 ? (
-            <div className="space-y-4">
-              {upcomingBookings.map((booking) => {
-                const service = services?.find((s) => s.id === booking.serviceId);
-                return (
-                  <div
-                    key={booking.id}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-lg border"
-                    data-testid={`booking-item-${booking.id}`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Clock className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <p className="font-medium">{booking.customerName}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {service?.name} - {booking.startTime}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 sm:justify-end">
-                      <span className="text-sm text-muted-foreground">
-                        {format(new Date(booking.bookingDate), "MMM d, yyyy")}
-                      </span>
-                      {getStatusBadge(booking.status)}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">{t("dashboard.noUpcomingBookings")}</p>
-              <p className="text-sm text-muted-foreground">
-                {t("dashboard.shareYourBookingPage")}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }
