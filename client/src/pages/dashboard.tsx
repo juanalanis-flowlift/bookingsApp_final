@@ -264,6 +264,9 @@ export default function Dashboard() {
             </div>
             <CalendarDays className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
+          <div className="px-6">
+            <hr className="border-t border-border mb-4" />
+          </div>
           <CardContent className="flex-1 pt-0">
             {bookingsLoading ? (
               <div className="space-y-2">
@@ -305,6 +308,9 @@ export default function Dashboard() {
             </div>
             <CalendarCheck className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
+          <div className="px-6">
+            <hr className="border-t border-border mb-4" />
+          </div>
           <CardContent className="flex-1 pt-0">
             {bookingsLoading ? (
               <div className="space-y-2">
@@ -346,6 +352,9 @@ export default function Dashboard() {
             </div>
             <CalendarClock className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
+          <div className="px-6">
+            <hr className="border-t border-border mb-4" />
+          </div>
           <CardContent className="flex-1 pt-0">
             {bookingsLoading ? (
               <div className="space-y-2">
