@@ -193,6 +193,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.cancel": "Cancel",
     "services.delete": "Delete",
     "services.deleteConfirm": "Are you sure you want to delete this service?",
+    "services.serviceVisible": "Service is now visible on booking page",
+    "services.serviceHidden": "Service is now hidden from booking page",
+    "services.hideFromBooking": "Hide from booking page",
+    "services.showOnBooking": "Show on booking page",
     
     "bookings.title": "Bookings",
     "bookings.subtitle": "View and manage your customer appointments",
@@ -691,6 +695,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.cancel": "Cancelar",
     "services.delete": "Eliminar",
     "services.deleteConfirm": "¿Estás seguro de que quieres eliminar este servicio?",
+    "services.serviceVisible": "El servicio ahora es visible en la página de reservas",
+    "services.serviceHidden": "El servicio ahora está oculto de la página de reservas",
+    "services.hideFromBooking": "Ocultar de la página de reservas",
+    "services.showOnBooking": "Mostrar en la página de reservas",
     
     "bookings.title": "Reservas",
     "bookings.subtitle": "Ve y gestiona las citas de tus clientes",

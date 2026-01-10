@@ -30,7 +30,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Plus, Pencil, Trash2, Clock, DollarSign, Tag } from "lucide-react";
+import { Plus, Pencil, Trash2, Clock, DollarSign, Eye, EyeOff } from "lucide-react";
 import type { Service, Business } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
@@ -39,7 +39,6 @@ const serviceFormSchema = z.object({
   description: z.string().optional(),
   duration: z.coerce.number().min(5, "Duration must be at least 5 minutes"),
   price: z.coerce.number().min(0, "Price must be positive"),
-  tags: z.string().optional(),
   isActive: z.boolean().default(true),
   requiresConfirmation: z.boolean().default(false),
 });
@@ -83,7 +82,6 @@ export default function Services() {
       description: "",
       duration: 30,
       price: 0,
-      tags: "",
       isActive: true,
       requiresConfirmation: false,
     },
@@ -94,7 +92,6 @@ export default function Services() {
       const payload = {
         ...data,
         price: String(data.price),
-        tags: data.tags ? data.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
       };
       return await apiRequest("POST", "/api/services", payload);
     },
@@ -125,7 +122,6 @@ export default function Services() {
       const payload = {
         ...data,
         price: String(data.price),
-        tags: data.tags ? data.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
       };
       return await apiRequest("PATCH", `/api/services/${data.id}`, payload);
     },
@@ -177,6 +173,34 @@ export default function Services() {
     },
   });
 
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      return await apiRequest("PATCH", `/api/services/${id}`, { isActive });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      toast({ 
+        title: variables.isActive 
+          ? t("services.serviceVisible") 
+          : t("services.serviceHidden") 
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({ title: "Failed to update service visibility", variant: "destructive" });
+    },
+  });
+
   const handleEdit = (service: Service) => {
     setEditingService(service);
     form.reset({
@@ -184,7 +208,6 @@ export default function Services() {
       description: service.description || "",
       duration: service.duration,
       price: parseFloat(service.price),
-      tags: service.tags?.join(", ") || "",
       isActive: service.isActive ?? true,
       requiresConfirmation: service.requiresConfirmation ?? false,
     });
@@ -349,24 +372,6 @@ export default function Services() {
 
                 <FormField
                   control={form.control}
-                  name="tags"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("services.tags")} ({t("common.commaSeparated")})</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., haircut, styling, men"
-                          {...field}
-                          data-testid="input-service-tags"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
                   name="isActive"
                   render={({ field }) => (
                     <FormItem className="flex items-center justify-between rounded-lg border p-3">
@@ -481,22 +486,6 @@ export default function Services() {
                   </div>
                 </div>
 
-                {service.tags && service.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {service.tags.slice(0, 3).map((tag, i) => (
-                      <Badge key={i} variant="outline" className="text-xs">
-                        <Tag className="h-3 w-3 mr-1" />
-                        {tag}
-                      </Badge>
-                    ))}
-                    {service.tags.length > 3 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{service.tags.length - 3}
-                      </Badge>
-                    )}
-                  </div>
-                )}
-
                 <div className="flex gap-2 pt-2">
                   <Button
                     variant="outline"
@@ -507,6 +496,24 @@ export default function Services() {
                   >
                     <Pencil className="h-3.5 w-3.5" />
                     {t("common.edit")}
+                  </Button>
+                  <Button
+                    variant={service.isActive ? "outline" : "secondary"}
+                    size="sm"
+                    className="gap-1"
+                    onClick={() => toggleVisibilityMutation.mutate({ 
+                      id: service.id, 
+                      isActive: !service.isActive 
+                    })}
+                    disabled={toggleVisibilityMutation.isPending}
+                    data-testid={`button-toggle-visibility-${service.id}`}
+                    title={service.isActive ? t("services.hideFromBooking") : t("services.showOnBooking")}
+                  >
+                    {service.isActive ? (
+                      <Eye className="h-3.5 w-3.5" />
+                    ) : (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    )}
                   </Button>
                   <Dialog
                     open={deleteConfirmId === service.id}

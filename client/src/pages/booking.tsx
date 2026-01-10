@@ -621,15 +621,6 @@ export default function BookingPage() {
                               {formatPrice(service.price)}
                             </span>
                           </div>
-                          {service.tags && service.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {service.tags.slice(0, 3).map((tag, i) => (
-                                <Badge key={i} variant="outline" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
                           <Button className="w-full" data-testid={`button-select-service-${service.id}`}>
                             {t("booking.select")}
                           </Button>
