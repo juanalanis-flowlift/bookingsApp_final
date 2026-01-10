@@ -145,17 +145,17 @@ export default function Dashboard() {
     const service = services?.find((s) => s.id === booking.serviceId);
     return (
       <div
-        className="flex items-center justify-between gap-2 py-2 border-b last:border-b-0"
+        className="flex items-start justify-between gap-3 py-2 border-b last:border-b-0"
         data-testid={`booking-item-${booking.id}`}
       >
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 overflow-hidden">
           <p className="text-sm font-medium truncate">{booking.customerName}</p>
           <p className="text-xs text-muted-foreground truncate">
             {service?.name} - {booking.startTime}
           </p>
         </div>
-        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-          <span className="text-xs text-muted-foreground">
+        <div className="flex flex-col items-end gap-1 flex-shrink-0 min-w-[70px]">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">
             {format(new Date(booking.bookingDate), "MMM d")}
           </span>
           {getStatusBadge(booking.status)}
@@ -171,11 +171,11 @@ export default function Dashboard() {
     
     return (
       <div
-        className="flex items-center justify-between gap-2 py-2 border-b last:border-b-0"
+        className="flex items-start justify-between gap-3 py-2 border-b last:border-b-0"
         data-testid={`blocked-item-${blockedTime.id}`}
       >
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1">
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <div className="flex items-center gap-1 min-w-0">
             <Ban className="h-3 w-3 text-orange-500 flex-shrink-0" />
             <p className="text-sm font-medium truncate">
               {blockedTime.reason || t("common.blockedTime")}
@@ -185,8 +185,8 @@ export default function Dashboard() {
             {format(startDate, "HH:mm")} - {format(endDate, "HH:mm")}
           </p>
         </div>
-        <div className="flex flex-col items-end gap-1 flex-shrink-0">
-          <span className="text-xs text-muted-foreground">
+        <div className="flex flex-col items-end gap-1 flex-shrink-0 min-w-[70px]">
+          <span className="text-xs text-muted-foreground whitespace-nowrap">
             {isSameDate 
               ? format(startDate, "MMM d")
               : `${format(startDate, "MMM d")} - ${format(endDate, "MMM d")}`
