@@ -55,10 +55,14 @@ export default function AvailabilityPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { t, language } = useI18n();
   const [blockedTimeDialog, setBlockedTimeDialog] = useState(false);
-  const [newBlockedTime, setNewBlockedTime] = useState({
-    startDate: new Date(),
+  const [newBlockedTime, setNewBlockedTime] = useState<{
+    dateRange: { from: Date; to: Date | undefined };
+    startTime: string;
+    endTime: string;
+    reason: string;
+  }>({
+    dateRange: { from: new Date(), to: undefined },
     startTime: "09:00",
-    endDate: new Date(),
     endTime: "17:00",
     reason: "",
   });
@@ -136,9 +140,8 @@ export default function AvailabilityPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/blocked-times"] });
       setBlockedTimeDialog(false);
       setNewBlockedTime({
-        startDate: new Date(),
+        dateRange: { from: new Date(), to: undefined },
         startTime: "09:00",
-        endDate: new Date(),
         endTime: "17:00",
         reason: "",
       });
@@ -234,11 +237,12 @@ export default function AvailabilityPage() {
   };
 
   const handleAddBlockedTime = () => {
-    const startDateTime = new Date(newBlockedTime.startDate);
+    const startDateTime = new Date(newBlockedTime.dateRange.from);
     const [startHour, startMin] = newBlockedTime.startTime.split(":");
     startDateTime.setHours(parseInt(startHour), parseInt(startMin), 0, 0);
 
-    const endDateTime = new Date(newBlockedTime.endDate);
+    const endDate = newBlockedTime.dateRange.to || newBlockedTime.dateRange.from;
+    const endDateTime = new Date(endDate);
     const [endHour, endMin] = newBlockedTime.endTime.split(":");
     endDateTime.setHours(parseInt(endHour), parseInt(endMin), 0, 0);
 
@@ -399,40 +403,29 @@ export default function AvailabilityPage() {
                 <DialogTitle>{t("common.blockTimeOff")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 pr-2">
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      {t("availability.startDate")}
-                    </label>
-                    <div className="flex justify-center">
-                      <Calendar
-                        mode="single"
-                        selected={newBlockedTime.startDate}
-                        onSelect={(date) =>
-                          date &&
-                          setNewBlockedTime((prev) => ({ ...prev, startDate: date }))
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    {t("availability.dateRange")}
+                  </label>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {t("availability.dateRangeHint")}
+                  </p>
+                  <div className="flex justify-center">
+                    <Calendar
+                      mode="range"
+                      selected={newBlockedTime.dateRange}
+                      onSelect={(range) => {
+                        if (range?.from) {
+                          setNewBlockedTime((prev) => ({
+                            ...prev,
+                            dateRange: { from: range.from!, to: range.to },
+                          }));
                         }
-                        locale={language === "es" ? es : undefined}
-                        className="rounded-md border"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">
-                      {t("availability.endDate")}
-                    </label>
-                    <div className="flex justify-center">
-                      <Calendar
-                        mode="single"
-                        selected={newBlockedTime.endDate}
-                        onSelect={(date) =>
-                          date &&
-                          setNewBlockedTime((prev) => ({ ...prev, endDate: date }))
-                        }
-                        locale={language === "es" ? es : undefined}
-                        className="rounded-md border"
-                      />
-                    </div>
+                      }}
+                      locale={language === "es" ? es : undefined}
+                      className="rounded-md border"
+                      numberOfMonths={1}
+                    />
                   </div>
                 </div>
 
