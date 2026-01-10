@@ -20,7 +20,7 @@ import {
   Scissors,
   Calendar,
   Clock,
-  Settings,
+  Briefcase,
   LogOut,
   ExternalLink,
   Users,
@@ -38,8 +38,8 @@ export function AppSidebar() {
     { titleKey: "nav.bookings", url: "/bookings", icon: Calendar },
     { titleKey: "nav.services", url: "/services", icon: Scissors },
     { titleKey: "nav.availability", url: "/availability", icon: Clock },
+    { titleKey: "nav.settings", url: "/settings", icon: Briefcase },
     { titleKey: "nav.team", url: "/team", icon: Users },
-    { titleKey: "nav.settings", url: "/settings", icon: Settings },
   ];
 
   const { data: business } = useQuery<Business>({
