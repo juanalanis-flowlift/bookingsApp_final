@@ -8,23 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Calendar,
-  Clock,
-  Users,
-  TrendingUp,
+  CalendarDays,
+  CalendarCheck,
+  CalendarClock,
   ArrowRight,
   Plus,
-  ExternalLink,
 } from "lucide-react";
 import type { Business, Booking, Service } from "@shared/schema";
-import { format, isAfter, startOfDay, subDays } from "date-fns";
-
-interface DashboardStats {
-  upcomingBookings: number;
-  last30DaysBookings: number;
-  totalServices: number;
-}
+import { format, isAfter, isBefore, startOfDay, endOfDay, subDays, addDays, isSameDay } from "date-fns";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -58,43 +51,87 @@ export default function Dashboard() {
     enabled: !!business,
   });
 
-  const stats: DashboardStats = {
-    upcomingBookings: bookings?.filter(
-      (b) =>
-        b.status !== "cancelled" &&
-        isAfter(new Date(b.bookingDate), startOfDay(new Date()))
-    ).length || 0,
-    last30DaysBookings: bookings?.filter(
-      (b) =>
-        isAfter(new Date(b.bookingDate), subDays(new Date(), 30)) &&
-        b.status !== "cancelled"
-    ).length || 0,
-    totalServices: services?.filter((s) => s.isActive).length || 0,
-  };
+  const today = new Date();
+  const startOfToday = startOfDay(today);
+  const endOfToday = endOfDay(today);
+  const weekAgo = subDays(startOfToday, 7);
+  const weekFromNow = addDays(endOfToday, 7);
 
-  const upcomingBookings = bookings
+  // Last week's bookings (past 7 days)
+  const lastWeekBookings = bookings
     ?.filter(
       (b) =>
         b.status !== "cancelled" &&
-        isAfter(new Date(b.bookingDate), startOfDay(new Date()))
+        isAfter(new Date(b.bookingDate), weekAgo) &&
+        isBefore(new Date(b.bookingDate), startOfToday)
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime()
+    ) || [];
+
+  // Today's bookings
+  const todayBookings = bookings
+    ?.filter(
+      (b) =>
+        b.status !== "cancelled" &&
+        isSameDay(new Date(b.bookingDate), today)
+    )
+    .sort(
+      (a, b) => {
+        const timeA = a.startTime || "00:00";
+        const timeB = b.startTime || "00:00";
+        return timeA.localeCompare(timeB);
+      }
+    ) || [];
+
+  // Next week's bookings (next 7 days, excluding today)
+  const nextWeekBookings = bookings
+    ?.filter(
+      (b) =>
+        b.status !== "cancelled" &&
+        isAfter(new Date(b.bookingDate), endOfToday) &&
+        isBefore(new Date(b.bookingDate), weekFromNow)
     )
     .sort(
       (a, b) =>
         new Date(a.bookingDate).getTime() - new Date(b.bookingDate).getTime()
-    )
-    .slice(0, 5);
+    ) || [];
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "confirmed":
-        return <Badge className="bg-green-500/10 text-green-600 dark:text-green-400">{t("common.confirmed")}</Badge>;
+        return <Badge className="bg-green-500/10 text-green-600 dark:text-green-400 text-xs">{t("common.confirmed")}</Badge>;
       case "pending":
-        return <Badge variant="secondary">{t("common.pending")}</Badge>;
+        return <Badge variant="secondary" className="text-xs">{t("common.pending")}</Badge>;
       case "cancelled":
-        return <Badge variant="destructive">{t("common.cancelled")}</Badge>;
+        return <Badge variant="destructive" className="text-xs">{t("common.cancelled")}</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline" className="text-xs">{status}</Badge>;
     }
+  };
+
+  const BookingItem = ({ booking }: { booking: Booking }) => {
+    const service = services?.find((s) => s.id === booking.serviceId);
+    return (
+      <div
+        className="flex items-center justify-between gap-2 py-2 border-b last:border-b-0"
+        data-testid={`booking-item-${booking.id}`}
+      >
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium truncate">{booking.customerName}</p>
+          <p className="text-xs text-muted-foreground truncate">
+            {service?.name} - {booking.startTime}
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+          <span className="text-xs text-muted-foreground">
+            {format(new Date(booking.bookingDate), "MMM d")}
+          </span>
+          {getStatusBadge(booking.status)}
+        </div>
+      </div>
+    );
   };
 
   if (businessLoading || authLoading) {
@@ -103,10 +140,9 @@ export default function Dashboard() {
         <Skeleton className="h-8 w-48" />
         <div className="grid gap-4 md:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-32" />
+            <Skeleton key={i} className="h-64" />
           ))}
         </div>
-        <Skeleton className="h-64" />
       </div>
     );
   }
@@ -149,52 +185,119 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Booking Cards */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
+        {/* Last Week's Bookings */}
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t("dashboard.upcomingBookings")}
-            </CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold" data-testid="text-upcoming-count">
-              {stats.upcomingBookings}
+            <div>
+              <CardTitle className="text-sm font-medium">
+                {t("dashboard.lastWeekBookings")}
+              </CardTitle>
+              <p className="text-2xl font-bold mt-1" data-testid="text-lastweek-count">
+                {lastWeekBookings.length}
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {t("dashboard.scheduledAppointments")}
-            </p>
+            <CalendarDays className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent className="flex-1 pt-0">
+            {bookingsLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-12" />
+                ))}
+              </div>
+            ) : lastWeekBookings.length > 0 ? (
+              <ScrollArea className="h-40">
+                <div className="pr-4">
+                  {lastWeekBookings.map((booking) => (
+                    <BookingItem key={booking.id} booking={booking} />
+                  ))}
+                </div>
+              </ScrollArea>
+            ) : (
+              <div className="h-40 flex items-center justify-center">
+                <p className="text-sm text-muted-foreground text-center">
+                  {t("dashboard.noBookingsLastWeek")}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Today's Bookings */}
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t("dashboard.last30Days")}</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold" data-testid="text-30day-count">
-              {stats.last30DaysBookings}
+            <div>
+              <CardTitle className="text-sm font-medium">
+                {t("dashboard.todaysBookings")}
+              </CardTitle>
+              <p className="text-2xl font-bold mt-1" data-testid="text-today-count">
+                {todayBookings.length}
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {t("dashboard.totalBookings")}
-            </p>
+            <CalendarCheck className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent className="flex-1 pt-0">
+            {bookingsLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-12" />
+                ))}
+              </div>
+            ) : todayBookings.length > 0 ? (
+              <ScrollArea className="h-40">
+                <div className="pr-4">
+                  {todayBookings.map((booking) => (
+                    <BookingItem key={booking.id} booking={booking} />
+                  ))}
+                </div>
+              </ScrollArea>
+            ) : (
+              <div className="h-40 flex items-center justify-center">
+                <p className="text-sm text-muted-foreground text-center">
+                  {t("dashboard.noBookingsToday")}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Next Week's Bookings */}
+        <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t("dashboard.activeServices")}</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold" data-testid="text-services-count">
-              {stats.totalServices}
+            <div>
+              <CardTitle className="text-sm font-medium">
+                {t("dashboard.nextWeekBookings")}
+              </CardTitle>
+              <p className="text-2xl font-bold mt-1" data-testid="text-nextweek-count">
+                {nextWeekBookings.length}
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {t("dashboard.availableForBooking")}
-            </p>
+            <CalendarClock className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent className="flex-1 pt-0">
+            {bookingsLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-12" />
+                ))}
+              </div>
+            ) : nextWeekBookings.length > 0 ? (
+              <ScrollArea className="h-40">
+                <div className="pr-4">
+                  {nextWeekBookings.map((booking) => (
+                    <BookingItem key={booking.id} booking={booking} />
+                  ))}
+                </div>
+              </ScrollArea>
+            ) : (
+              <div className="h-40 flex items-center justify-center">
+                <p className="text-sm text-muted-foreground text-center">
+                  {t("dashboard.noBookingsNextWeek")}
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
