@@ -28,7 +28,7 @@ interface DashboardStats {
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { t } = useI18n();
 
   useEffect(() => {
