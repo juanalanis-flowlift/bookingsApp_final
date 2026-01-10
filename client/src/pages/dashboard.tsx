@@ -16,10 +16,16 @@ import {
   ArrowRight,
   Plus,
   Ban,
+  Info,
 } from "lucide-react";
 import type { Business, Booking, Service, BlockedTime, Availability } from "@shared/schema";
 import { format, isAfter, isBefore, startOfDay, endOfDay, subDays, addDays, isSameDay } from "date-fns";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -432,10 +438,20 @@ export default function Dashboard() {
         {/* Last Week's Bookings */}
         <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <div>
-              <CardTitle className="text-sm font-medium">
-                {t("dashboard.lastWeekBookings")}
-              </CardTitle>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium">
+                  {t("dashboard.lastWeekBookings")}
+                </CardTitle>
+                <UITooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-xs">{t("dashboard.infoLastWeek")}</p>
+                  </TooltipContent>
+                </UITooltip>
+              </div>
               <p className="text-2xl font-bold mt-1" data-testid="text-lastweek-count">
                 {lastWeekBookings.length}
               </p>
@@ -476,10 +492,20 @@ export default function Dashboard() {
         {/* Today's Bookings */}
         <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <div>
-              <CardTitle className="text-sm font-medium">
-                {t("dashboard.todaysBookings")}
-              </CardTitle>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium">
+                  {t("dashboard.todaysBookings")}
+                </CardTitle>
+                <UITooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-xs">{t("dashboard.infoToday")}</p>
+                  </TooltipContent>
+                </UITooltip>
+              </div>
               <p className="text-2xl font-bold mt-1" data-testid="text-today-count">
                 {todayBookings.length}
               </p>
@@ -520,10 +546,20 @@ export default function Dashboard() {
         {/* Next Week's Bookings */}
         <Card className="flex flex-col">
           <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-            <div>
-              <CardTitle className="text-sm font-medium">
-                {t("dashboard.nextWeekBookings")}
-              </CardTitle>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium">
+                  {t("dashboard.nextWeekBookings")}
+                </CardTitle>
+                <UITooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-xs">{t("dashboard.infoNext7Days")}</p>
+                  </TooltipContent>
+                </UITooltip>
+              </div>
               <p className="text-2xl font-bold mt-1" data-testid="text-nextweek-count">
                 {nextWeekBookings.length}
               </p>
@@ -566,10 +602,18 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-3">
         {/* Completed Bookings Line Chart - aligned with Last Week card */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               {t("dashboard.completedBookings")}
             </CardTitle>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-xs">{t("dashboard.infoCompletedBookings")}</p>
+              </TooltipContent>
+            </UITooltip>
           </CardHeader>
           <CardContent>
             <div className="h-48" data-testid="chart-completed-bookings">
@@ -619,10 +663,18 @@ export default function Dashboard() {
 
         {/* Booked Services Pie Chart - aligned with Today card */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               {t("dashboard.bookedServicesLastWeek")}
             </CardTitle>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-xs">{t("dashboard.infoBookedServices")}</p>
+              </TooltipContent>
+            </UITooltip>
           </CardHeader>
           <CardContent>
             <div className="h-48" data-testid="chart-booked-services">
@@ -666,10 +718,18 @@ export default function Dashboard() {
 
         {/* Daily Occupation Rate Chart - aligned with Next 7 Days card */}
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               {t("dashboard.dailyOccupationRate")}
             </CardTitle>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-xs">{t("dashboard.infoOccupationRate")}</p>
+              </TooltipContent>
+            </UITooltip>
           </CardHeader>
           <CardContent>
             <div className="h-48" data-testid="chart-daily-occupation">
