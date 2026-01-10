@@ -16,8 +16,9 @@ import {
   ArrowRight,
   Plus,
 } from "lucide-react";
-import type { Business, Booking, Service } from "@shared/schema";
+import type { Business, Booking, Service, BlockedTime } from "@shared/schema";
 import { format, isAfter, isBefore, startOfDay, endOfDay, subDays, addDays, isSameDay } from "date-fns";
+import { Ban } from "lucide-react";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -48,6 +49,11 @@ export default function Dashboard() {
 
   const { data: services } = useQuery<Service[]>({
     queryKey: ["/api/services"],
+    enabled: !!business,
+  });
+
+  const { data: blockedTimes } = useQuery<BlockedTime[]>({
+    queryKey: ["/api/blocked-times"],
     enabled: !!business,
   });
 
@@ -98,6 +104,28 @@ export default function Dashboard() {
         new Date(a.bookingDate).getTime() - new Date(b.bookingDate).getTime()
     ) || [];
 
+  // Helper to check if a blocked time overlaps with a date range
+  const blockedTimeOverlaps = (bt: BlockedTime, rangeStart: Date, rangeEnd: Date) => {
+    const btStart = new Date(bt.startDateTime);
+    const btEnd = new Date(bt.endDateTime);
+    return btStart < rangeEnd && btEnd > rangeStart;
+  };
+
+  // Last week's blocked times
+  const lastWeekBlocked = blockedTimes
+    ?.filter((bt) => blockedTimeOverlaps(bt, weekAgo, startOfToday))
+    .sort((a, b) => new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime()) || [];
+
+  // Today's blocked times
+  const todayBlocked = blockedTimes
+    ?.filter((bt) => blockedTimeOverlaps(bt, startOfToday, endOfToday))
+    .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()) || [];
+
+  // Next week's blocked times
+  const nextWeekBlocked = blockedTimes
+    ?.filter((bt) => blockedTimeOverlaps(bt, endOfToday, weekFromNow))
+    .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime()) || [];
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "confirmed":
@@ -106,6 +134,8 @@ export default function Dashboard() {
         return <Badge variant="secondary" className="text-xs">{t("common.pending")}</Badge>;
       case "cancelled":
         return <Badge variant="destructive" className="text-xs">{t("common.cancelled")}</Badge>;
+      case "blocked":
+        return <Badge className="bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs">{t("common.blockedSlot")}</Badge>;
       default:
         return <Badge variant="outline" className="text-xs">{status}</Badge>;
     }
@@ -129,6 +159,40 @@ export default function Dashboard() {
             {format(new Date(booking.bookingDate), "MMM d")}
           </span>
           {getStatusBadge(booking.status)}
+        </div>
+      </div>
+    );
+  };
+
+  const BlockedTimeItem = ({ blockedTime }: { blockedTime: BlockedTime }) => {
+    const startDate = new Date(blockedTime.startDateTime);
+    const endDate = new Date(blockedTime.endDateTime);
+    const isSameDate = isSameDay(startDate, endDate);
+    
+    return (
+      <div
+        className="flex items-center justify-between gap-2 py-2 border-b last:border-b-0"
+        data-testid={`blocked-item-${blockedTime.id}`}
+      >
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1">
+            <Ban className="h-3 w-3 text-orange-500 flex-shrink-0" />
+            <p className="text-sm font-medium truncate">
+              {blockedTime.reason || t("common.blockedTime")}
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground truncate">
+            {format(startDate, "HH:mm")} - {format(endDate, "HH:mm")}
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-1 flex-shrink-0">
+          <span className="text-xs text-muted-foreground">
+            {isSameDate 
+              ? format(startDate, "MMM d")
+              : `${format(startDate, "MMM d")} - ${format(endDate, "MMM d")}`
+            }
+          </span>
+          {getStatusBadge("blocked")}
         </div>
       </div>
     );
@@ -207,11 +271,14 @@ export default function Dashboard() {
                   <Skeleton key={i} className="h-12" />
                 ))}
               </div>
-            ) : lastWeekBookings.length > 0 ? (
+            ) : (lastWeekBookings.length > 0 || lastWeekBlocked.length > 0) ? (
               <ScrollArea className="h-40">
                 <div className="pr-4">
                   {lastWeekBookings.map((booking) => (
                     <BookingItem key={booking.id} booking={booking} />
+                  ))}
+                  {lastWeekBlocked.map((bt) => (
+                    <BlockedTimeItem key={bt.id} blockedTime={bt} />
                   ))}
                 </div>
               </ScrollArea>
@@ -245,11 +312,14 @@ export default function Dashboard() {
                   <Skeleton key={i} className="h-12" />
                 ))}
               </div>
-            ) : todayBookings.length > 0 ? (
+            ) : (todayBookings.length > 0 || todayBlocked.length > 0) ? (
               <ScrollArea className="h-40">
                 <div className="pr-4">
                   {todayBookings.map((booking) => (
                     <BookingItem key={booking.id} booking={booking} />
+                  ))}
+                  {todayBlocked.map((bt) => (
+                    <BlockedTimeItem key={bt.id} blockedTime={bt} />
                   ))}
                 </div>
               </ScrollArea>
@@ -283,11 +353,14 @@ export default function Dashboard() {
                   <Skeleton key={i} className="h-12" />
                 ))}
               </div>
-            ) : nextWeekBookings.length > 0 ? (
+            ) : (nextWeekBookings.length > 0 || nextWeekBlocked.length > 0) ? (
               <ScrollArea className="h-40">
                 <div className="pr-4">
                   {nextWeekBookings.map((booking) => (
                     <BookingItem key={booking.id} booking={booking} />
+                  ))}
+                  {nextWeekBlocked.map((bt) => (
+                    <BlockedTimeItem key={bt.id} blockedTime={bt} />
                   ))}
                 </div>
               </ScrollArea>
