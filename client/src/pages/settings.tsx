@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Form,
   FormControl,
@@ -28,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2, Plus, X, FileText, QrCode, Download } from "lucide-react";
+import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2, Plus, X, FileText, QrCode, Download, Link2, Lock } from "lucide-react";
 import QRCode from "qrcode";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
@@ -71,6 +72,7 @@ const businessFormSchema = z.object({
   termsAndConditions: z.string().optional(),
   showTermsInBooking: z.boolean().optional(),
   showTermsInEmail: z.boolean().optional(),
+  showTeamPicturesInBooking: z.boolean().optional(),
 });
 
 type BusinessFormValues = z.infer<typeof businessFormSchema>;
@@ -103,6 +105,7 @@ export default function Settings() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [platformPickerOpen, setPlatformPickerOpen] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("profile");
   const { t, language } = useI18n();
 
   const getCategoryLabel = (cat: string): string => {
@@ -151,6 +154,7 @@ export default function Settings() {
       termsAndConditions: "",
       showTermsInBooking: false,
       showTermsInEmail: false,
+      showTeamPicturesInBooking: false,
     },
   });
 
@@ -179,6 +183,7 @@ export default function Settings() {
         termsAndConditions: business.termsAndConditions || "",
         showTermsInBooking: business.showTermsInBooking || false,
         showTermsInEmail: business.showTermsInEmail || false,
+        showTeamPicturesInBooking: business.showTeamPicturesInBooking || false,
       });
       
       const activePlatforms = socialPlatforms
@@ -345,54 +350,6 @@ export default function Settings() {
         </p>
       </div>
 
-      {/* Profile Card with Logo Upload */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage 
-                    src={business?.logoUrl?.startsWith('/objects/') 
-                      ? business.logoUrl 
-                      : business?.logoUrl || undefined
-                    } 
-                    className="object-cover" 
-                  />
-                  <AvatarFallback className="text-xl">
-                    {business?.name?.charAt(0) || user?.firstName?.charAt(0) || "B"}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <div>
-                <CardTitle>{business?.name || t("settings.yourBusiness")}</CardTitle>
-                <CardDescription>
-                  {business
-                    ? getCategoryLabel(business.category)
-                    : t("dashboard.setupButton")}
-                </CardDescription>
-              </div>
-            </div>
-            {business && (
-              <ObjectUploader
-                maxNumberOfFiles={1}
-                maxFileSize={5 * 1024 * 1024}
-                allowedFileTypes={["image/*"]}
-                onGetUploadParameters={handleGetUploadParameters}
-                onComplete={handleUploadComplete}
-                buttonVariant="outline"
-                buttonSize="default"
-              >
-                <div className="flex items-center gap-2">
-                  <Camera className="h-4 w-4" />
-                  <span>{isUploading || logoMutation.isPending ? t("settings.uploading") : t("settings.changeLogo")}</span>
-                </div>
-              </ObjectUploader>
-            )}
-          </div>
-        </CardHeader>
-      </Card>
-
       {/* Language Preferences */}
       <Card>
         <CardHeader>
@@ -414,489 +371,679 @@ export default function Settings() {
         </CardContent>
       </Card>
 
-      {/* QR Code */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <QrCode className="h-5 w-5" />
-            {t("settings.qrCode")}
-          </CardTitle>
-          <CardDescription>
-            {t("settings.qrCodeDescription")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {business && qrCodeDataUrl ? (
-            <div className="flex flex-col items-center space-y-4">
-              <div className="bg-white p-4 rounded-lg border" data-testid="qr-code-preview">
-                <img
-                  src={qrCodeDataUrl}
-                  alt="Booking page QR code"
-                  className="w-48 h-48"
-                />
-              </div>
-              <p className="text-sm text-muted-foreground text-center">
-                {`${window.location.origin}/book/${business.slug}`}
-              </p>
-              <div className="flex gap-2 flex-wrap justify-center">
-                <Button
-                  variant="outline"
-                  onClick={() => downloadQrCode("png")}
-                  className="gap-2"
-                  data-testid="button-download-png"
-                >
-                  <Download className="h-4 w-4" />
-                  {t("settings.downloadPng")}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => downloadQrCode("jpg")}
-                  className="gap-2"
-                  data-testid="button-download-jpg"
-                >
-                  <Download className="h-4 w-4" />
-                  {t("settings.downloadJpg")}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
-              <QrCode className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">{t("settings.noBusinessYet")}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Tabs for Business Settings */}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="profile" data-testid="tab-profile">
+                <Building2 className="h-4 w-4 mr-2" />
+                {t("settings.tabProfile")}
+              </TabsTrigger>
+              <TabsTrigger value="booking" data-testid="tab-booking">
+                <Link2 className="h-4 w-4 mr-2" />
+                {t("settings.tabBookingPage")}
+              </TabsTrigger>
+              <TabsTrigger value="policies" data-testid="tab-policies">
+                <FileText className="h-4 w-4 mr-2" />
+                {t("settings.tabPolicies")}
+              </TabsTrigger>
+            </TabsList>
 
-      {/* Business Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
-            {t("settings.businessInfo")}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("settings.businessName")} *</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          onChange={handleNameChange}
-                          placeholder={t("settings.businessNamePlaceholder")}
-                          data-testid="input-business-name"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("settings.category")} *</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
+            {/* Profile Tab */}
+            <TabsContent value="profile" className="space-y-6">
+              {/* Profile Card with Logo Upload */}
+              <Card>
+                <CardHeader>
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <Avatar className="h-16 w-16">
+                          <AvatarImage 
+                            src={business?.logoUrl?.startsWith('/objects/') 
+                              ? business.logoUrl 
+                              : business?.logoUrl || undefined
+                            } 
+                            className="object-cover" 
+                          />
+                          <AvatarFallback className="text-xl">
+                            {business?.name?.charAt(0) || user?.firstName?.charAt(0) || "B"}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                      <div>
+                        <CardTitle>{business?.name || t("settings.yourBusiness")}</CardTitle>
+                        <CardDescription>
+                          {business
+                            ? getCategoryLabel(business.category)
+                            : t("dashboard.setupButton")}
+                        </CardDescription>
+                      </div>
+                    </div>
+                    {business && (
+                      <ObjectUploader
+                        maxNumberOfFiles={1}
+                        maxFileSize={5 * 1024 * 1024}
+                        allowedFileTypes={["image/*"]}
+                        onGetUploadParameters={handleGetUploadParameters}
+                        onComplete={handleUploadComplete}
+                        buttonVariant="outline"
+                        buttonSize="default"
                       >
-                        <FormControl>
-                          <SelectTrigger data-testid="select-category">
-                            <SelectValue placeholder={t("settings.selectCategory")} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {businessCategories.map((cat) => (
-                            <SelectItem key={cat} value={cat}>
-                              {getCategoryLabel(cat)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                        <div className="flex items-center gap-2">
+                          <Camera className="h-4 w-4" />
+                          <span>{isUploading || logoMutation.isPending ? t("settings.uploading") : t("settings.changeLogo")}</span>
+                        </div>
+                      </ObjectUploader>
+                    )}
+                  </div>
+                </CardHeader>
+              </Card>
 
-              <FormField
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("settings.bookingPageUrl")} *</FormLabel>
-                    <div className="flex gap-2">
-                      <div className="flex-1 flex items-center">
-                        <span className="text-sm text-muted-foreground bg-muted px-3 py-2 rounded-l-md border border-r-0">
-                          {window.location.origin}/book/
-                        </span>
+              {/* Business Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Building2 className="h-5 w-5" />
+                    {t("settings.businessInfo")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("settings.businessName")} *</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              onChange={handleNameChange}
+                              placeholder={t("settings.businessNamePlaceholder")}
+                              data-testid="input-business-name"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t("settings.category")} *</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger data-testid="select-category">
+                                <SelectValue placeholder={t("settings.selectCategory")} />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {businessCategories.map((cat) => (
+                                <SelectItem key={cat} value={cat}>
+                                  {getCategoryLabel(cat)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("settings.description")}</FormLabel>
                         <FormControl>
-                          <Input
+                          <Textarea
                             {...field}
-                            className="rounded-l-none"
-                            placeholder="your-business"
-                            data-testid="input-slug"
+                            placeholder={t("settings.descriptionPlaceholder")}
+                            className="resize-none min-h-[100px]"
+                            data-testid="input-description"
                           />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Location */}
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <MapPin className="h-5 w-5" />
+                      {t("settings.location")}
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-3">
+                      <FormField
+                        control={form.control}
+                        name="address"
+                        render={({ field }) => (
+                          <FormItem className="md:col-span-3">
+                            <FormLabel>{t("settings.address")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="123 Main Street"
+                                data-testid="input-address"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t("settings.city")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="New York"
+                                data-testid="input-city"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="country"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t("settings.country")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="United States"
+                                data-testid="input-country"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Contact */}
+                  <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      <Phone className="h-5 w-5" />
+                      {t("settings.contact")}
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <FormField
+                        control={form.control}
+                        name="phone"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t("settings.phone")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="tel"
+                                placeholder="+1 (555) 123-4567"
+                                data-testid="input-phone"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{t("settings.email")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="email"
+                                placeholder="contact@business.com"
+                                data-testid="input-email"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Social Media */}
+                  <div className="border-t pt-6">
+                    <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
+                      <div>
+                        <h3 className="text-lg font-semibold flex items-center gap-2">
+                          <Share2 className="h-5 w-5" />
+                          {t("settings.socialMedia")}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">{t("settings.socialMediaDescription")}</p>
                       </div>
-                      {business && (
+                      <Popover open={platformPickerOpen} onOpenChange={setPlatformPickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" size="sm" data-testid="button-add-social-platform">
+                            <Plus className="h-4 w-4 mr-2" />
+                            {t("settings.addPlatform")}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 p-3" align="end">
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium mb-3">{t("settings.selectPlatforms")}</p>
+                            {socialPlatforms.map((platform) => {
+                              const Icon = platform.icon;
+                              const isSelected = selectedPlatforms.includes(platform.key);
+                              return (
+                                <div
+                                  key={platform.key}
+                                  className="flex items-center gap-3 p-2 rounded-md hover-elevate cursor-pointer"
+                                  onClick={() => {
+                                    if (isSelected) {
+                                      setSelectedPlatforms(prev => prev.filter(p => p !== platform.key));
+                                      form.setValue(platform.key, "");
+                                    } else {
+                                      setSelectedPlatforms(prev => [...prev, platform.key]);
+                                    }
+                                  }}
+                                  data-testid={`toggle-platform-${platform.key}`}
+                                >
+                                  <Checkbox checked={isSelected} />
+                                  <Icon className="h-4 w-4" />
+                                  <span className="text-sm">{platform.name}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    
+                    {selectedPlatforms.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
+                        <Share2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">{t("settings.noPlatformsSelected")}</p>
+                        <p className="text-xs">{t("settings.clickToAddPlatforms")}</p>
+                      </div>
+                    ) : (
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {socialPlatforms
+                          .filter(platform => selectedPlatforms.includes(platform.key))
+                          .map((platform) => {
+                            const Icon = platform.icon;
+                            return (
+                              <FormField
+                                key={platform.key}
+                                control={form.control}
+                                name={platform.key}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                      <Icon className="h-4 w-4" />
+                                      {platform.name}
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-5 w-5 ml-auto"
+                                        onClick={() => {
+                                          setSelectedPlatforms(prev => prev.filter(p => p !== platform.key));
+                                          form.setValue(platform.key, "");
+                                        }}
+                                        data-testid={`button-remove-${platform.key}`}
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </Button>
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        value={String(field.value || "")}
+                                        placeholder={platform.placeholder}
+                                        data-testid={`input-${platform.key}`}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            );
+                          })}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Booking Page Tab */}
+            <TabsContent value="booking" className="space-y-6">
+              {/* Booking URL */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Link2 className="h-5 w-5" />
+                    {t("settings.bookingPageUrl")}
+                  </CardTitle>
+                  <CardDescription>
+                    {t("settings.urlDescription")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <FormField
+                    control={form.control}
+                    name="slug"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex gap-2">
+                          <div className="flex-1 flex items-center">
+                            <span className="text-sm text-muted-foreground bg-muted px-3 py-2 rounded-l-md border border-r-0">
+                              {window.location.origin}/book/
+                            </span>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                className="rounded-l-none"
+                                placeholder="your-business"
+                                data-testid="input-slug"
+                              />
+                            </FormControl>
+                          </div>
+                          {business && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={copyBookingUrl}
+                              data-testid="button-copy-url"
+                            >
+                              {copied ? (
+                                <Check className="h-4 w-4" />
+                              ) : (
+                                <Copy className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {business && (
+                    <div className="mt-4">
+                      <a
+                        href={`/book/${business.slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button type="button" variant="outline" className="gap-2">
+                          <ExternalLink className="h-4 w-4" />
+                          {t("settings.previewBooking")}
+                        </Button>
+                      </a>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* QR Code */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <QrCode className="h-5 w-5" />
+                    {t("settings.qrCode")}
+                    <span className="ml-auto text-xs font-normal text-muted-foreground flex items-center gap-1">
+                      <Lock className="h-3 w-3" />
+                      Pro+
+                    </span>
+                  </CardTitle>
+                  <CardDescription>
+                    {t("settings.qrCodeDescription")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {business && qrCodeDataUrl ? (
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="bg-white p-4 rounded-lg border" data-testid="qr-code-preview">
+                        <img
+                          src={qrCodeDataUrl}
+                          alt="Booking page QR code"
+                          className="w-48 h-48"
+                        />
+                      </div>
+                      <p className="text-sm text-muted-foreground text-center">
+                        {`${window.location.origin}/book/${business.slug}`}
+                      </p>
+                      <div className="flex gap-2 flex-wrap justify-center">
                         <Button
                           type="button"
                           variant="outline"
-                          size="icon"
-                          onClick={copyBookingUrl}
-                          data-testid="button-copy-url"
+                          onClick={() => downloadQrCode("png")}
+                          className="gap-2"
+                          data-testid="button-download-png"
                         >
-                          {copied ? (
-                            <Check className="h-4 w-4" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
+                          <Download className="h-4 w-4" />
+                          {t("settings.downloadPng")}
                         </Button>
-                      )}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => downloadQrCode("jpg")}
+                          className="gap-2"
+                          data-testid="button-download-jpg"
+                        >
+                          <Download className="h-4 w-4" />
+                          {t("settings.downloadJpg")}
+                        </Button>
+                      </div>
                     </div>
-                    <FormDescription>
-                      {t("settings.urlDescription")}
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("settings.description")}</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        placeholder={t("settings.descriptionPlaceholder")}
-                        className="resize-none min-h-[100px]"
-                        data-testid="input-description"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  {t("settings.termsAndConditions")}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {t("settings.termsDescription")}
-                </p>
-                
-                <FormField
-                  control={form.control}
-                  name="termsAndConditions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("settings.termsLabel")}</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          placeholder={t("settings.termsPlaceholder")}
-                          className="resize-none min-h-[150px]"
-                          data-testid="input-terms"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
+                      <QrCode className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                      <p className="text-sm">{t("settings.noBusinessYet")}</p>
+                    </div>
                   )}
-                />
-                
-                <div className="grid gap-4 mt-4">
+                </CardContent>
+              </Card>
+
+              {/* Booking Page Options */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("settings.bookingPageOptions")}</CardTitle>
+                  <CardDescription>
+                    {t("settings.bookingPageOptionsDesc")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <FormField
                     control={form.control}
-                    name="showTermsInBooking"
+                    name="showTeamPicturesInBooking"
                     render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel>{t("settings.showTermsInBooking")}</FormLabel>
+                          <FormLabel>{t("settings.showTeamPhotos")}</FormLabel>
                           <FormDescription>
-                            {t("settings.showTermsInBookingDesc")}
+                            {t("settings.showTeamPhotosDesc")}
                           </FormDescription>
                         </div>
                         <FormControl>
                           <Switch
                             checked={field.value}
                             onCheckedChange={field.onChange}
-                            data-testid="switch-terms-booking"
+                            data-testid="switch-show-team-photos"
                           />
                         </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* Pro+ Features Placeholders */}
+                  <div className="space-y-4 opacity-60">
+                    <div className="flex items-center justify-between rounded-lg border p-4 bg-muted/30">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{t("settings.logoUpload")}</span>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Lock className="h-3 w-3" />
+                            Pro+
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {t("settings.logoUploadDesc")}
+                        </p>
+                      </div>
+                      <Button type="button" variant="outline" size="sm" disabled>
+                        {t("settings.upload")}
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-lg border p-4 bg-muted/30">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{t("settings.coverImage")}</span>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Lock className="h-3 w-3" />
+                            Pro+
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {t("settings.coverImageDesc")}
+                        </p>
+                      </div>
+                      <Button type="button" variant="outline" size="sm" disabled>
+                        {t("settings.upload")}
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded-lg border p-4 bg-muted/30">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{t("settings.brandColors")}</span>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Lock className="h-3 w-3" />
+                            Pro+
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {t("settings.brandColorsDesc")}
+                        </p>
+                      </div>
+                      <Button type="button" variant="outline" size="sm" disabled>
+                        {t("settings.customize")}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Policies Tab */}
+            <TabsContent value="policies" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    {t("settings.termsAndConditions")}
+                  </CardTitle>
+                  <CardDescription>
+                    {t("settings.termsDescription")}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="termsAndConditions"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("settings.termsLabel")}</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            placeholder={t("settings.termsPlaceholder")}
+                            className="resize-none min-h-[200px]"
+                            data-testid="input-terms"
+                          />
+                        </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                   
-                  <FormField
-                    control={form.control}
-                    name="showTermsInEmail"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel>{t("settings.showTermsInEmail")}</FormLabel>
-                          <FormDescription>
-                            {t("settings.showTermsInEmailDesc")}
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            data-testid="switch-terms-email"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  {t("settings.location")}
-                </h3>
-                <div className="grid gap-4 md:grid-cols-3">
-                  <FormField
-                    control={form.control}
-                    name="address"
-                    render={({ field }) => (
-                      <FormItem className="md:col-span-3">
-                        <FormLabel>{t("settings.address")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="123 Main Street"
-                            data-testid="input-address"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("settings.city")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="New York"
-                            data-testid="input-city"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="country"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("settings.country")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="United States"
-                            data-testid="input-country"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Phone className="h-5 w-5" />
-                  {t("settings.contact")}
-                </h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("settings.phone")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="tel"
-                            placeholder="+1 (555) 123-4567"
-                            data-testid="input-phone"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("settings.email")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            type="email"
-                            placeholder="contact@business.com"
-                            data-testid="input-email"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-              <div className="border-t pt-6">
-                <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
-                  <div>
-                    <h3 className="text-lg font-semibold flex items-center gap-2">
-                      <Share2 className="h-5 w-5" />
-                      {t("settings.socialMedia")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">{t("settings.socialMediaDescription")}</p>
+                  <div className="grid gap-4">
+                    <FormField
+                      control={form.control}
+                      name="showTermsInBooking"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel>{t("settings.showTermsInBooking")}</FormLabel>
+                            <FormDescription>
+                              {t("settings.showTermsInBookingDesc")}
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              data-testid="switch-terms-booking"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="showTermsInEmail"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel>{t("settings.showTermsInEmail")}</FormLabel>
+                            <FormDescription>
+                              {t("settings.showTermsInEmailDesc")}
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              data-testid="switch-terms-email"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                  <Popover open={platformPickerOpen} onOpenChange={setPlatformPickerOpen}>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm" data-testid="button-add-social-platform">
-                        <Plus className="h-4 w-4 mr-2" />
-                        {t("settings.addPlatform")}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 p-3" align="end">
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium mb-3">{t("settings.selectPlatforms")}</p>
-                        {socialPlatforms.map((platform) => {
-                          const Icon = platform.icon;
-                          const isSelected = selectedPlatforms.includes(platform.key);
-                          return (
-                            <div
-                              key={platform.key}
-                              className="flex items-center gap-3 p-2 rounded-md hover-elevate cursor-pointer"
-                              onClick={() => {
-                                if (isSelected) {
-                                  setSelectedPlatforms(prev => prev.filter(p => p !== platform.key));
-                                  form.setValue(platform.key, "");
-                                } else {
-                                  setSelectedPlatforms(prev => [...prev, platform.key]);
-                                }
-                              }}
-                              data-testid={`toggle-platform-${platform.key}`}
-                            >
-                              <Checkbox checked={isSelected} />
-                              <Icon className="h-4 w-4" />
-                              <span className="text-sm">{platform.name}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                
-                {selectedPlatforms.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
-                    <Share2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">{t("settings.noPlatformsSelected")}</p>
-                    <p className="text-xs">{t("settings.clickToAddPlatforms")}</p>
-                  </div>
-                ) : (
-                  <div className="grid gap-4 md:grid-cols-2">
-                    {socialPlatforms
-                      .filter(platform => selectedPlatforms.includes(platform.key))
-                      .map((platform) => {
-                        const Icon = platform.icon;
-                        return (
-                          <FormField
-                            key={platform.key}
-                            control={form.control}
-                            name={platform.key}
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="flex items-center gap-2">
-                                  <Icon className="h-4 w-4" />
-                                  {platform.name}
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-5 w-5 ml-auto"
-                                    onClick={() => {
-                                      setSelectedPlatforms(prev => prev.filter(p => p !== platform.key));
-                                      form.setValue(platform.key, "");
-                                    }}
-                                    data-testid={`button-remove-${platform.key}`}
-                                  >
-                                    <X className="h-3 w-3" />
-                                  </Button>
-                                </FormLabel>
-                                <FormControl>
-                                  <Input
-                                    {...field}
-                                    value={String(field.value || "")}
-                                    placeholder={platform.placeholder}
-                                    data-testid={`input-${platform.key}`}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        );
-                      })}
-                  </div>
-                )}
-              </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-              <div className="flex justify-end gap-4 pt-4">
-                {business && (
-                  <a
-                    href={`/book/${business.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button type="button" variant="outline" className="gap-2">
-                      <ExternalLink className="h-4 w-4" />
-                      {t("settings.previewBooking")}
-                    </Button>
-                  </a>
-                )}
-                <Button
-                  type="submit"
-                  disabled={saveMutation.isPending}
-                  data-testid="button-save-business"
-                >
-                  {saveMutation.isPending ? t("settings.saving") : business ? t("settings.save") : t("settings.create")}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+            {/* Save Button - visible on all tabs */}
+            <div className="flex justify-end gap-4 pt-4">
+              <Button
+                type="submit"
+                disabled={saveMutation.isPending}
+                data-testid="button-save-business"
+              >
+                {saveMutation.isPending ? t("settings.saving") : business ? t("settings.save") : t("settings.create")}
+              </Button>
+            </div>
+          </Tabs>
+        </form>
+      </Form>
     </div>
   );
 }
