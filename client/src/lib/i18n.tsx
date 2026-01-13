@@ -212,6 +212,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.serviceHidden": "Service is now hidden from booking page",
     "services.hideFromBooking": "Hide from booking page",
     "services.showOnBooking": "Show on booking page",
+    "services.addImage": "Add Image",
+    "services.changeImage": "Change Image",
+    "services.imageUpdated": "Service image updated successfully",
+    "services.imageUpdateFailed": "Failed to update service image",
     
     "bookings.title": "Bookings",
     "bookings.subtitle": "View and manage your customer appointments",
@@ -747,6 +751,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.serviceHidden": "El servicio ahora está oculto de la página de reservas",
     "services.hideFromBooking": "Ocultar de la página de reservas",
     "services.showOnBooking": "Mostrar en la página de reservas",
+    "services.addImage": "Agregar Imagen",
+    "services.changeImage": "Cambiar Imagen",
+    "services.imageUpdated": "Imagen del servicio actualizada exitosamente",
+    "services.imageUpdateFailed": "Error al actualizar la imagen del servicio",
     
     "bookings.title": "Reservas",
     "bookings.subtitle": "Ve y gestiona las citas de tus clientes",

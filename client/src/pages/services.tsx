@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,9 +30,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Plus, Pencil, Trash2, Clock, DollarSign, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Clock, DollarSign, Eye, EyeOff, ImagePlus, X } from "lucide-react";
 import type { Service, Business } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 
 const serviceFormSchema = z.object({
   name: z.string().min(1, "Service name is required"),
@@ -200,6 +202,48 @@ export default function Services() {
       toast({ title: "Failed to update service visibility", variant: "destructive" });
     },
   });
+
+  const updateImageMutation = useMutation({
+    mutationFn: async ({ id, imageUrl }: { id: string; imageUrl: string }) => {
+      return await apiRequest("PUT", `/api/services/${id}/image`, { imageUrl });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      toast({ title: t("services.imageUpdated") });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error as Error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({ title: t("services.imageUpdateFailed"), variant: "destructive" });
+    },
+  });
+
+  const handleGetUploadParameters = useCallback(async () => {
+    const response = await apiRequest("POST", "/api/objects/upload", {});
+    const data = await response.json();
+    return {
+      method: "PUT" as const,
+      url: data.uploadURL,
+    };
+  }, []);
+
+  const handleImageUploadComplete = useCallback((serviceId: string) => (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadURL = result.successful[0].uploadURL;
+      if (uploadURL) {
+        updateImageMutation.mutate({ id: serviceId, imageUrl: uploadURL });
+      }
+    }
+  }, [updateImageMutation]);
 
   const handleEdit = (service: Service) => {
     setEditingService(service);
@@ -447,60 +491,42 @@ export default function Services() {
           {services.map((service) => (
             <Card
               key={service.id}
-              className={`relative ${!service.isActive ? "opacity-60" : ""}`}
+              className={`relative overflow-hidden ${!service.isActive ? "opacity-60" : ""}`}
               data-testid={`service-card-${service.id}`}
             >
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-lg">{service.name}</CardTitle>
-                  <div className="flex gap-2">
-                    {service.requiresConfirmation && (
-                      <Badge variant="outline" className="text-xs gap-1" data-testid={`badge-requires-confirmation-${service.id}`}>
-                        <Clock className="h-3 w-3" />
-                        {t("services.confirmation")}
-                      </Badge>
-                    )}
-                    {!service.isActive && (
-                      <Badge variant="secondary" className="text-xs">
-                        {t("common.inactive")}
-                      </Badge>
-                    )}
+              {/* Image Section */}
+              <div className="relative aspect-[4/3] bg-muted">
+                {service.imageUrl ? (
+                  <img
+                    src={service.imageUrl}
+                    alt={service.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <ObjectUploader
+                      maxNumberOfFiles={1}
+                      maxFileSize={5 * 1024 * 1024}
+                      allowedFileTypes={["image/*"]}
+                      onGetUploadParameters={handleGetUploadParameters}
+                      onComplete={handleImageUploadComplete(service.id)}
+                      buttonVariant="ghost"
+                      buttonSize="default"
+                    >
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <ImagePlus className="h-10 w-10" />
+                        <span className="text-sm">{t("services.addImage")}</span>
+                      </div>
+                    </ObjectUploader>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {service.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {service.description}
-                  </p>
                 )}
 
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>{service.duration} min</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 font-semibold">
-                    <DollarSign className="h-4 w-4" />
-                    <span>{formatPrice(service.price)}</span>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-2">
+                {/* Overlaid Action Buttons - Top Left */}
+                <div className="absolute top-3 left-3 flex flex-col gap-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 gap-1"
-                    onClick={() => handleEdit(service)}
-                    data-testid={`button-edit-service-${service.id}`}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    {t("common.edit")}
-                  </Button>
-                  <Button
-                    variant={service.isActive ? "outline" : "secondary"}
-                    size="sm"
-                    className="gap-1"
+                    variant="secondary"
+                    size="icon"
+                    className="h-9 w-9 bg-foreground/80 hover:bg-foreground/90 text-background"
                     onClick={() => toggleVisibilityMutation.mutate({ 
                       id: service.id, 
                       isActive: !service.isActive 
@@ -510,9 +536,9 @@ export default function Services() {
                     title={service.isActive ? t("services.hideFromBooking") : t("services.showOnBooking")}
                   >
                     {service.isActive ? (
-                      <Eye className="h-3.5 w-3.5" />
+                      <Eye className="h-4 w-4" />
                     ) : (
-                      <EyeOff className="h-3.5 w-3.5" />
+                      <EyeOff className="h-4 w-4" />
                     )}
                   </Button>
                   <Dialog
@@ -523,12 +549,12 @@ export default function Services() {
                   >
                     <DialogTrigger asChild>
                       <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-1"
+                        variant="secondary"
+                        size="icon"
+                        className="h-9 w-9 bg-foreground/80 hover:bg-foreground/90 text-background"
                         data-testid={`button-delete-service-${service.id}`}
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
@@ -558,6 +584,61 @@ export default function Services() {
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
+                </div>
+
+                {/* Badges - Top Right */}
+                <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
+                  {service.requiresConfirmation && (
+                    <Badge className="bg-background text-foreground border" data-testid={`badge-requires-confirmation-${service.id}`}>
+                      {t("services.confirmation")}
+                    </Badge>
+                  )}
+                  {!service.isActive && (
+                    <Badge variant="secondary">
+                      {t("common.inactive")}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Change Image Button (shown when image exists) */}
+                {service.imageUrl && (
+                  <div className="absolute bottom-3 right-3">
+                    <ObjectUploader
+                      maxNumberOfFiles={1}
+                      maxFileSize={5 * 1024 * 1024}
+                      allowedFileTypes={["image/*"]}
+                      onGetUploadParameters={handleGetUploadParameters}
+                      onComplete={handleImageUploadComplete(service.id)}
+                      buttonVariant="secondary"
+                      buttonSize="sm"
+                    >
+                      <ImagePlus className="h-4 w-4" />
+                    </ObjectUploader>
+                  </div>
+                )}
+              </div>
+
+              {/* Content Section */}
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-lg truncate" data-testid={`text-service-name-${service.id}`}>
+                      {service.name}
+                    </h3>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                      <span>{service.duration} min</span>
+                      <span className="text-muted-foreground/50">|</span>
+                      <span className="font-medium text-foreground">{formatPrice(service.price)}</span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="default"
+                    onClick={() => handleEdit(service)}
+                    data-testid={`button-edit-service-${service.id}`}
+                  >
+                    {t("common.edit")}
+                  </Button>
                 </div>
               </CardContent>
             </Card>

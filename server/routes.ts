@@ -216,7 +216,10 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       const objectStorageService = new ObjectStorageService();
       const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
         req.body.imageUrl,
-        "public"
+        {
+          owner: userId,
+          visibility: "public",
+        },
       );
 
       const updated = await storage.updateService(req.params.id, { imageUrl: objectPath });
