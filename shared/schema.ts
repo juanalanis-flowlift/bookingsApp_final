@@ -93,6 +93,7 @@ export const services = pgTable("services", {
   duration: integer("duration").notNull(), // in minutes
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   tags: text("tags").array(),
+  imageUrl: varchar("image_url", { length: 500 }), // service image for card display
   isActive: boolean("is_active").default(true),
   requiresConfirmation: boolean("requires_confirmation").default(false), // if true, bookings require manual confirmation
   createdAt: timestamp("created_at").defaultNow(),

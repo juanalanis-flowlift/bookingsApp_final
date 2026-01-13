@@ -194,6 +194,39 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     }
   });
 
+  // Update service image after upload
+  app.put("/api/services/:id/image", isAuthenticated, async (req: any, res) => {
+    if (!req.body.imageUrl) {
+      return res.status(400).json({ error: "imageUrl is required" });
+    }
+
+    const userId = req.user?.claims?.sub;
+    const business = await storage.getBusinessByOwnerId(userId);
+    
+    if (!business) {
+      return res.status(404).json({ error: "Business not found" });
+    }
+
+    const service = await storage.getServiceById(req.params.id);
+    if (!service || service.businessId !== business.id) {
+      return res.status(404).json({ error: "Service not found" });
+    }
+
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        req.body.imageUrl,
+        "public"
+      );
+
+      const updated = await storage.updateService(req.params.id, { imageUrl: objectPath });
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating service image:", error);
+      res.status(500).json({ error: "Failed to update service image" });
+    }
+  });
+
   // ============================================
   // Team Member Routes (Protected)
   // ============================================
