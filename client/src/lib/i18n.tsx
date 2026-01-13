@@ -216,6 +216,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.changeImage": "Change Image",
     "services.imageUpdated": "Service image updated successfully",
     "services.imageUpdateFailed": "Failed to update service image",
+    "services.noImage": "No image",
+    "services.serviceImage": "Service Image",
+    "services.addImageDesc": "Add an image to display with this service",
+    "services.changeImageDesc": "Change the image displayed with this service",
     
     "bookings.title": "Bookings",
     "bookings.subtitle": "View and manage your customer appointments",
@@ -755,6 +759,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.changeImage": "Cambiar Imagen",
     "services.imageUpdated": "Imagen del servicio actualizada exitosamente",
     "services.imageUpdateFailed": "Error al actualizar la imagen del servicio",
+    "services.noImage": "Sin imagen",
+    "services.serviceImage": "Imagen del Servicio",
+    "services.addImageDesc": "Agregar una imagen para mostrar con este servicio",
+    "services.changeImageDesc": "Cambiar la imagen mostrada con este servicio",
     
     "bookings.title": "Reservas",
     "bookings.subtitle": "Ve y gestiona las citas de tus clientes",

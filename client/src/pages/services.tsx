@@ -458,6 +458,45 @@ export default function Services() {
                   )}
                 />
 
+                {/* Service Image - Only shown when editing */}
+                {editingService && (
+                  <div className="space-y-2">
+                    <FormLabel>{t("services.serviceImage")}</FormLabel>
+                    <div className="rounded-lg border p-3">
+                      <div className="flex items-center gap-4">
+                        <div className="w-20 h-20 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                          {editingService.imageUrl ? (
+                            <img
+                              src={editingService.imageUrl}
+                              alt={editingService.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <ImagePlus className="h-8 w-8 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {editingService.imageUrl ? t("services.changeImageDesc") : t("services.addImageDesc")}
+                          </p>
+                          <ObjectUploader
+                            maxNumberOfFiles={1}
+                            maxFileSize={5 * 1024 * 1024}
+                            allowedFileTypes={["image/*"]}
+                            onGetUploadParameters={handleGetUploadParameters}
+                            onComplete={handleImageUploadComplete(editingService.id)}
+                            buttonVariant="outline"
+                            buttonSize="sm"
+                          >
+                            <ImagePlus className="h-4 w-4 mr-2" />
+                            {editingService.imageUrl ? t("services.changeImage") : t("services.addImage")}
+                          </ObjectUploader>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <DialogFooter>
                   <Button
                     type="button"
@@ -504,20 +543,10 @@ export default function Services() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <ObjectUploader
-                      maxNumberOfFiles={1}
-                      maxFileSize={5 * 1024 * 1024}
-                      allowedFileTypes={["image/*"]}
-                      onGetUploadParameters={handleGetUploadParameters}
-                      onComplete={handleImageUploadComplete(service.id)}
-                      buttonVariant="ghost"
-                      buttonSize="default"
-                    >
-                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                        <ImagePlus className="h-10 w-10" />
-                        <span className="text-sm">{t("services.addImage")}</span>
-                      </div>
-                    </ObjectUploader>
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                      <ImagePlus className="h-10 w-10" />
+                      <span className="text-sm">{t("services.noImage")}</span>
+                    </div>
                   </div>
                 )}
 
@@ -526,7 +555,6 @@ export default function Services() {
                   <Button
                     variant="secondary"
                     size="icon"
-                    className="h-9 w-9 bg-foreground/80 hover:bg-foreground/90 text-background"
                     onClick={() => toggleVisibilityMutation.mutate({ 
                       id: service.id, 
                       isActive: !service.isActive 
@@ -551,7 +579,6 @@ export default function Services() {
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="h-9 w-9 bg-foreground/80 hover:bg-foreground/90 text-background"
                         data-testid={`button-delete-service-${service.id}`}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -589,7 +616,7 @@ export default function Services() {
                 {/* Badges - Top Right */}
                 <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
                   {service.requiresConfirmation && (
-                    <Badge className="bg-background text-foreground border" data-testid={`badge-requires-confirmation-${service.id}`}>
+                    <Badge variant="outline" className="bg-background/90" data-testid={`badge-requires-confirmation-${service.id}`}>
                       {t("services.confirmation")}
                     </Badge>
                   )}
@@ -599,23 +626,6 @@ export default function Services() {
                     </Badge>
                   )}
                 </div>
-
-                {/* Change Image Button (shown when image exists) */}
-                {service.imageUrl && (
-                  <div className="absolute bottom-3 right-3">
-                    <ObjectUploader
-                      maxNumberOfFiles={1}
-                      maxFileSize={5 * 1024 * 1024}
-                      allowedFileTypes={["image/*"]}
-                      onGetUploadParameters={handleGetUploadParameters}
-                      onComplete={handleImageUploadComplete(service.id)}
-                      buttonVariant="secondary"
-                      buttonSize="sm"
-                    >
-                      <ImagePlus className="h-4 w-4" />
-                    </ObjectUploader>
-                  </div>
-                )}
               </div>
 
               {/* Content Section */}
