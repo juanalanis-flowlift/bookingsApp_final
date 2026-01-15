@@ -897,12 +897,26 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
   // Public Routes (for customer booking page)
   // ============================================
   
-  // ICS Calendar Download for Apple Calendar
+  // ICS Calendar Download for Apple Calendar (secured via customer action token)
   app.get("/api/calendar/ics/:bookingId", async (req, res) => {
     try {
+      const { token } = req.query;
+      
+      // Require a customer action token for security
+      // Use uniform 404 response for all failures to prevent information disclosure
+      if (!token || typeof token !== "string") {
+        return res.status(404).json({ message: "Calendar event not found" });
+      }
+
       const booking = await storage.getBookingById(req.params.bookingId);
       if (!booking) {
-        return res.status(404).json({ message: "Booking not found" });
+        return res.status(404).json({ message: "Calendar event not found" });
+      }
+
+      // Validate the token matches the booking's customer action token
+      // Use same 404 response to prevent token enumeration
+      if (booking.customerActionToken !== token) {
+        return res.status(404).json({ message: "Calendar event not found" });
       }
 
       const service = await storage.getServiceById(booking.serviceId);
@@ -923,6 +937,9 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       endDateTime.setHours(endHour, endMin, 0, 0);
 
       const formatICS = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+      
+      // Escape special characters for ICS format
+      const escapeICS = (text: string) => text.replace(/[,;\\]/g, "\\$&").replace(/\n/g, "\\n");
 
       const icsContent = `BEGIN:VCALENDAR
 VERSION:2.0
@@ -931,9 +948,9 @@ BEGIN:VEVENT
 UID:${booking.id}@flowlift.co
 DTSTART:${formatICS(startDateTime)}
 DTEND:${formatICS(endDateTime)}
-SUMMARY:${service.name} at ${business.name}
-DESCRIPTION:Booking for ${service.name}\\nDuration: ${service.duration} minutes
-LOCATION:${business.address || ""}
+SUMMARY:${escapeICS(service.name)} at ${escapeICS(business.name)}
+DESCRIPTION:Booking for ${escapeICS(service.name)}. Duration: ${service.duration} minutes
+LOCATION:${escapeICS(business.address || "")}
 END:VEVENT
 END:VCALENDAR`;
 

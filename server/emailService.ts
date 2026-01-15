@@ -254,7 +254,7 @@ interface CalendarLinks {
 }
 
 function generateCalendarLinks(
-  booking: Booking,
+  booking: Booking & { customerActionToken?: string | null },
   service: Service,
   business: Business,
   baseUrl: string
@@ -284,7 +284,10 @@ function generateCalendarLinks(
   const outlookEnd = formatForOutlook(endDateTime);
   const outlookLink = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${title}&startdt=${outlookStart}&enddt=${outlookEnd}&location=${location}&body=${description}`;
 
-  const appleLink = `${baseUrl}/api/calendar/ics/${booking.id}`;
+  // Apple Calendar requires the customer action token for security
+  const appleLink = booking.customerActionToken 
+    ? `${baseUrl}/api/calendar/ics/${booking.id}?token=${booking.customerActionToken}`
+    : "";
 
   return {
     google: googleLink,
@@ -382,21 +385,23 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
       <p style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #18181b; text-align: center;">${t("addToCalendar")}</p>
       <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
         <tr>
-          <td style="width: 33.33%; text-align: center; padding: 0 4px;">
+          <td style="${calendarLinks.apple ? "width: 33.33%;" : "width: 50%;"} text-align: center; padding: 0 4px;">
             <a href="${calendarLinks.google}" target="_blank" style="display: inline-block; padding: 10px 16px; border: 1px solid #e4e4e7; border-radius: 8px; text-decoration: none; font-size: 12px; color: #18181b; font-weight: 500;">
               <span style="color: #4285f4;">G</span> Google Calendar
             </a>
           </td>
-          <td style="width: 33.33%; text-align: center; padding: 0 4px;">
+          <td style="${calendarLinks.apple ? "width: 33.33%;" : "width: 50%;"} text-align: center; padding: 0 4px;">
             <a href="${calendarLinks.outlook}" target="_blank" style="display: inline-block; padding: 10px 16px; border: 1px solid #e4e4e7; border-radius: 8px; text-decoration: none; font-size: 12px; color: #18181b; font-weight: 500;">
               <span style="color: #0078d4;">📧</span> Outlook
             </a>
           </td>
+          ${calendarLinks.apple ? `
           <td style="width: 33.33%; text-align: center; padding: 0 4px;">
             <a href="${calendarLinks.apple}" target="_blank" style="display: inline-block; padding: 10px 16px; border: 1px solid #e4e4e7; border-radius: 8px; text-decoration: none; font-size: 12px; color: #18181b; font-weight: 500;">
               <span style="color: #000;">🍎</span> Apple Calendar
             </a>
           </td>
+          ` : ""}
         </tr>
       </table>
     </div>
@@ -477,6 +482,18 @@ function generateCustomerConfirmationText(data: BookingEmailData): string {
   const customerActionToken = (booking as any).customerActionToken;
   const cancelUrl = customerActionToken ? `${baseUrl}/customer-cancel?token=${customerActionToken}` : "";
   const modifyUrl = customerActionToken ? `${baseUrl}/customer-modify?token=${customerActionToken}` : "";
+  
+  // Generate calendar links for text email
+  const calendarLinks = generateCalendarLinks(booking as any, service, business, baseUrl);
+  
+  // Build calendar section with only available options
+  const calendarOptions = [
+    `- Google Calendar: ${calendarLinks.google}`,
+    `- Outlook: ${calendarLinks.outlook}`,
+  ];
+  if (calendarLinks.apple) {
+    calendarOptions.push(`- Apple Calendar: ${calendarLinks.apple}`);
+  }
 
   return `
 FLOWLIFT
@@ -502,9 +519,7 @@ ${booking.customerEmail}
 ---
 
 ${t("addToCalendar")}:
-- Google Calendar
-- Outlook
-- Apple Calendar
+${calendarOptions.join("\n")}
 
 ${t("bookAnotherAppointment")}: ${baseUrl}/book/${business.slug}
 ${t("viewMyBookings")}: ${baseUrl}/my-bookings
