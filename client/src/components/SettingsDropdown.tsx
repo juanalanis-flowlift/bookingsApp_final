@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 export function SettingsDropdown() {
   const { t, language, setLanguage } = useI18n();
   const { theme, setTheme } = useDashboardTheme();
-  const { tier } = useTier();
+  const { tier, setTier, isUpdating } = useTier();
 
   const tierConfig: Record<SubscriptionTier, { icon: typeof Sparkles; label: string; color: string }> = {
     starter: { icon: Sparkles, label: t("settings.tier.starter"), color: "text-muted-foreground" },
@@ -63,8 +63,15 @@ export function SettingsDropdown() {
                       {t("settings.membership.current")}
                     </Badge>
                   ) : (
-                    <Button variant="outline" size="sm" className="h-7 text-xs" data-testid={`button-upgrade-${tierOption}`}>
-                      {t("settings.membership.upgrade")}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="h-7 text-xs" 
+                      data-testid={`button-upgrade-${tierOption}`}
+                      onClick={() => setTier(tierOption)}
+                      disabled={isUpdating}
+                    >
+                      {isUpdating ? "..." : t("settings.membership.upgrade")}
                     </Button>
                   )}
                 </div>

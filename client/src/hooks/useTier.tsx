@@ -1,6 +1,7 @@
-import { createContext, useContext, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { createContext, useContext, useMemo, useCallback } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import type { Business, SubscriptionTier } from "@shared/schema";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export type { SubscriptionTier };
 
@@ -11,6 +12,8 @@ interface TierContextValue {
   isTeams: boolean;
   canAccessFeature: (requiredTier: SubscriptionTier) => boolean;
   isLoading: boolean;
+  setTier: (newTier: SubscriptionTier) => void;
+  isUpdating: boolean;
 }
 
 const TierContext = createContext<TierContextValue | null>(null);
@@ -27,6 +30,19 @@ export function TierProvider({ children }: { children: React.ReactNode }) {
     retry: false,
   });
 
+  const updateTierMutation = useMutation({
+    mutationFn: async (newTier: SubscriptionTier) => {
+      return apiRequest("PATCH", "/api/business", { subscriptionTier: newTier });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/business"] });
+    },
+  });
+
+  const setTier = useCallback((newTier: SubscriptionTier) => {
+    updateTierMutation.mutate(newTier);
+  }, [updateTierMutation]);
+
   const value = useMemo<TierContextValue>(() => {
     const tier = (business?.subscriptionTier as SubscriptionTier) || "starter";
     
@@ -39,8 +55,10 @@ export function TierProvider({ children }: { children: React.ReactNode }) {
         return tierOrder[tier] >= tierOrder[requiredTier];
       },
       isLoading,
+      setTier,
+      isUpdating: updateTierMutation.isPending,
     };
-  }, [business?.subscriptionTier, isLoading]);
+  }, [business?.subscriptionTier, isLoading, setTier, updateTierMutation.isPending]);
 
   return <TierContext.Provider value={value}>{children}</TierContext.Provider>;
 }
@@ -55,6 +73,8 @@ export function useTier(): TierContextValue {
       isTeams: false,
       canAccessFeature: () => true,
       isLoading: false,
+      setTier: () => {},
+      isUpdating: false,
     };
   }
   return context;
