@@ -896,6 +896,56 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
   // ============================================
   // Public Routes (for customer booking page)
   // ============================================
+  
+  // ICS Calendar Download for Apple Calendar
+  app.get("/api/calendar/ics/:bookingId", async (req, res) => {
+    try {
+      const booking = await storage.getBookingById(req.params.bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+
+      const service = await storage.getServiceById(booking.serviceId);
+      const business = await storage.getBusinessById(booking.businessId);
+      
+      if (!service || !business) {
+        return res.status(404).json({ message: "Service or business not found" });
+      }
+
+      const bookingDate = new Date(booking.bookingDate);
+      const [startHour, startMin] = booking.startTime.split(":").map(Number);
+      const [endHour, endMin] = booking.endTime.split(":").map(Number);
+
+      const startDateTime = new Date(bookingDate);
+      startDateTime.setHours(startHour, startMin, 0, 0);
+      
+      const endDateTime = new Date(bookingDate);
+      endDateTime.setHours(endHour, endMin, 0, 0);
+
+      const formatICS = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+
+      const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//FlowLift//Booking//EN
+BEGIN:VEVENT
+UID:${booking.id}@flowlift.co
+DTSTART:${formatICS(startDateTime)}
+DTEND:${formatICS(endDateTime)}
+SUMMARY:${service.name} at ${business.name}
+DESCRIPTION:Booking for ${service.name}\\nDuration: ${service.duration} minutes
+LOCATION:${business.address || ""}
+END:VEVENT
+END:VCALENDAR`;
+
+      res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename="booking-${booking.id}.ics"`);
+      res.send(icsContent);
+    } catch (error) {
+      console.error("Error generating ICS file:", error);
+      res.status(500).json({ message: "Failed to generate calendar file" });
+    }
+  });
+  
   app.get("/api/public/business/:slug", async (req, res) => {
     try {
       const business = await storage.getBusinessBySlug(req.params.slug);
