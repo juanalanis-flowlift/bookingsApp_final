@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
 import { es, enUS } from "date-fns/locale";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Calendar, Clock, MapPin, Mail, Phone, X, LogOut, Loader2, CheckCircle } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
@@ -262,7 +261,6 @@ export default function MyBookings() {
         <header className="border-b">
           <div className="container mx-auto px-4 h-14 flex items-center justify-between">
             <h1 className="font-semibold">FlowLift</h1>
-            <ThemeToggle />
           </div>
         </header>
 
@@ -336,7 +334,6 @@ export default function MyBookings() {
         <header className="border-b">
           <div className="container mx-auto px-4 h-14 flex items-center justify-between">
             <h1 className="font-semibold">FlowLift</h1>
-            <ThemeToggle />
           </div>
         </header>
         <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -359,7 +356,6 @@ export default function MyBookings() {
             <span className="text-sm text-muted-foreground hidden sm:inline">
               {session?.customer?.email}
             </span>
-            <ThemeToggle />
             <Button
               variant="ghost"
               size="icon"

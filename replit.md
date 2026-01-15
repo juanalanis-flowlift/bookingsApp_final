@@ -16,8 +16,8 @@ FlowLift is a multi-tenant booking SaaS platform for small service businesses. I
 │   ├── components/       # Reusable UI components
 │   │   ├── ui/          # shadcn components
 │   │   ├── AppSidebar.tsx
-│   │   ├── ThemeProvider.tsx
-│   │   └── ThemeToggle.tsx
+│   │   ├── DashboardThemeProvider.tsx  # Dashboard-scoped theme
+│   │   └── ObjectUploader.tsx
 │   ├── hooks/           # Custom React hooks
 │   │   └── useAuth.ts
 │   ├── lib/             # Utilities
@@ -55,7 +55,7 @@ FlowLift is a multi-tenant booking SaaS platform for small service businesses. I
 2. **Business Dashboard**: Manage services, view bookings, set availability
 3. **Public Booking Page**: `/book/:slug` - customers can book appointments
 4. **Double-booking Prevention**: Server-side validation for time conflicts
-5. **Dark Mode Support**: Toggle between light/dark themes
+5. **Dark Mode Support**: Dashboard-scoped toggle between light/dark themes (only affects business owner pages, not public booking pages or landing page)
 6. **Requires Confirmation Feature**: Services can be configured to require manual confirmation before booking is finalized. When enabled:
    - Bookings are created with "pending" status
    - Customer sees "Booking Request Submitted" with yellow clock icon

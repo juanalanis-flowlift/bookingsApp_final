@@ -1,7 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { SiGoogle } from "react-icons/si";
 import { ArrowLeft, Mail } from "lucide-react";
 import { Link } from "wouter";
@@ -18,7 +17,6 @@ export default function SignIn() {
             {t("common.back")}
           </Button>
         </Link>
-        <ThemeToggle />
       </header>
 
       <main className="flex-1 flex items-center justify-center p-4">

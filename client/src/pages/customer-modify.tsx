@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar } from "@/components/ui/calendar";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Calendar as CalendarIcon, Clock, Briefcase, Building2, Globe, XCircle, ArrowLeft, ArrowRight } from "lucide-react";
 import {
   DropdownMenu,
@@ -241,10 +240,7 @@ export default function CustomerModify() {
       <div className="min-h-screen bg-background">
         <header className="flex items-center justify-between p-4 border-b">
           <h1 className="text-xl font-bold">{t("app.name")}</h1>
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <ThemeToggle />
-          </div>
+          <LanguageSelector />
         </header>
         <div className="max-w-lg mx-auto p-4 mt-8">
           <Skeleton className="h-8 w-48 mb-4" />
@@ -259,10 +255,7 @@ export default function CustomerModify() {
       <div className="min-h-screen bg-background">
         <header className="flex items-center justify-between p-4 border-b">
           <h1 className="text-xl font-bold">{t("app.name")}</h1>
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <ThemeToggle />
-          </div>
+          <LanguageSelector />
         </header>
         <div className="max-w-lg mx-auto p-4 mt-8">
           <Card>
@@ -284,10 +277,7 @@ export default function CustomerModify() {
       <div className="min-h-screen bg-background">
         <header className="flex items-center justify-between p-4 border-b">
           <h1 className="text-xl font-bold">{t("app.name")}</h1>
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <ThemeToggle />
-          </div>
+          <LanguageSelector />
         </header>
         <div className="max-w-lg mx-auto p-4 mt-8">
           <Card>
@@ -309,10 +299,7 @@ export default function CustomerModify() {
       <div className="min-h-screen bg-background">
         <header className="flex items-center justify-between p-4 border-b">
           <h1 className="text-xl font-bold">{t("app.name")}</h1>
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <ThemeToggle />
-          </div>
+          <LanguageSelector />
         </header>
         <div className="max-w-lg mx-auto p-4 mt-8">
           <Card>
@@ -350,10 +337,7 @@ export default function CustomerModify() {
     <div className="min-h-screen bg-background">
       <header className="flex items-center justify-between p-4 border-b">
         <h1 className="text-xl font-bold">{t("app.name")}</h1>
-        <div className="flex items-center gap-2">
-          <LanguageSelector />
-          <ThemeToggle />
-        </div>
+        <LanguageSelector />
       </header>
 
       <div className="max-w-2xl mx-auto p-4 mt-4">

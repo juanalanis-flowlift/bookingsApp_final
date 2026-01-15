@@ -29,7 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2, Plus, X, FileText, QrCode, Download, Link2, Lock } from "lucide-react";
+import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2, Plus, X, FileText, QrCode, Download, Link2, Lock, Sun, Moon } from "lucide-react";
 import QRCode from "qrcode";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
@@ -45,6 +45,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 import { useI18n, LanguageSwitcher } from "@/lib/i18n";
+import { useDashboardTheme } from "@/components/DashboardThemeProvider";
 
 const businessFormSchema = z.object({
   name: z.string().min(1, "Business name is required"),
@@ -107,6 +108,7 @@ export default function Settings() {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("profile");
   const { t, language } = useI18n();
+  const { theme, setTheme } = useDashboardTheme();
 
   const getCategoryLabel = (cat: string): string => {
     return t(`categories.${cat}`);
@@ -350,7 +352,7 @@ export default function Settings() {
         </p>
       </div>
 
-      {/* Language Preferences */}
+      {/* Preferences */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -359,13 +361,46 @@ export default function Settings() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-6">
+            {/* Language */}
             <div>
               <label className="text-sm font-medium mb-2 block">{t("settings.language")}</label>
               <p className="text-sm text-muted-foreground mb-3">
                 {t("settings.languageDescription")}
               </p>
               <LanguageSwitcher />
+            </div>
+            
+            {/* Theme Toggle */}
+            <div className="border-t pt-6">
+              <label className="text-sm font-medium mb-2 block">{t("settings.theme")}</label>
+              <p className="text-sm text-muted-foreground mb-3">
+                {t("settings.themeDescription")}
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={theme === "light" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTheme("light")}
+                  data-testid="button-theme-light"
+                  className="gap-2"
+                >
+                  <Sun className="h-4 w-4" />
+                  {t("settings.themeLight")}
+                </Button>
+                <Button
+                  type="button"
+                  variant={theme === "dark" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setTheme("dark")}
+                  data-testid="button-theme-dark"
+                  className="gap-2"
+                >
+                  <Moon className="h-4 w-4" />
+                  {t("settings.themeDark")}
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>

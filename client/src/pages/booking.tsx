@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -498,10 +497,7 @@ export default function BookingPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <LanguageSwitcher minimal />
-            <ThemeToggle />
-          </div>
+          <LanguageSwitcher minimal />
         </div>
       </header>
 

@@ -3,8 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { DashboardThemeProvider } from "@/components/DashboardThemeProvider";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useAuth } from "@/hooks/useAuth";
@@ -32,17 +31,19 @@ function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <SidebarProvider style={style as React.CSSProperties}>
-      <div className="flex h-screen w-full">
-        <AppSidebar />
-        <SidebarInset className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between gap-4 p-2 border-b h-14 flex-shrink-0">
-            <SidebarTrigger data-testid="button-sidebar-toggle" />
-          </header>
-          <main className="flex-1 overflow-auto">{children}</main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
+    <DashboardThemeProvider>
+      <SidebarProvider style={style as React.CSSProperties}>
+        <div className="flex h-screen w-full">
+          <AppSidebar />
+          <SidebarInset className="flex flex-col flex-1 overflow-hidden">
+            <header className="flex items-center justify-between gap-4 p-2 border-b h-14 flex-shrink-0">
+              <SidebarTrigger data-testid="button-sidebar-toggle" />
+            </header>
+            <main className="flex-1 overflow-auto">{children}</main>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+    </DashboardThemeProvider>
   );
 }
 
@@ -122,14 +123,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <I18nProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </I18nProvider>
-      </ThemeProvider>
+      <I18nProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

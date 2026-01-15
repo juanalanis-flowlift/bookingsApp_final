@@ -5,7 +5,6 @@ import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { CheckCircle, XCircle, Clock, Calendar, ArrowRight, Globe } from "lucide-react";
 import {
   DropdownMenu,
@@ -116,10 +115,7 @@ export default function ConfirmModification() {
       <div className="min-h-screen bg-background">
         <header className="flex items-center justify-between p-4 border-b">
           <h1 className="text-xl font-bold">{t("app.name")}</h1>
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <ThemeToggle />
-          </div>
+          <LanguageSelector />
         </header>
         <div className="max-w-lg mx-auto p-4 space-y-4 mt-8">
           <Skeleton className="h-8 w-64" />
@@ -136,10 +132,7 @@ export default function ConfirmModification() {
       <div className="min-h-screen bg-background">
         <header className="flex items-center justify-between p-4 border-b">
           <h1 className="text-xl font-bold">{t("app.name")}</h1>
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <ThemeToggle />
-          </div>
+          <LanguageSelector />
         </header>
         <div className="flex items-center justify-center p-4 mt-16">
           <Card className="max-w-md w-full">
@@ -163,10 +156,7 @@ export default function ConfirmModification() {
       <div className="min-h-screen bg-background">
         <header className="flex items-center justify-between p-4 border-b">
           <h1 className="text-xl font-bold">{t("app.name")}</h1>
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <ThemeToggle />
-          </div>
+          <LanguageSelector />
         </header>
         <div className="flex items-center justify-center p-4 mt-16">
           <Card className="max-w-md w-full">
@@ -198,10 +188,7 @@ export default function ConfirmModification() {
     <div className="min-h-screen bg-background">
       <header className="flex items-center justify-between p-4 border-b">
         <h1 className="text-xl font-bold">{t("app.name")}</h1>
-        <div className="flex items-center gap-2">
-          <LanguageSelector />
-          <ThemeToggle />
-        </div>
+        <LanguageSelector />
       </header>
 
       <div className="max-w-lg mx-auto p-4 mt-8">
