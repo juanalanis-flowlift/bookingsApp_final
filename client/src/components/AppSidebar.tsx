@@ -27,20 +27,25 @@ import {
 } from "lucide-react";
 import type { Business } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
+import { useTier } from "@/hooks/useTier";
 
 export function AppSidebar() {
   const [location] = useLocation();
   const { user } = useAuth();
   const { t } = useI18n();
+  const { isTeams } = useTier();
 
-  const menuItems = [
+  const baseMenuItems = [
     { titleKey: "nav.dashboard", url: "/dashboard", icon: LayoutDashboard },
     { titleKey: "nav.bookings", url: "/bookings", icon: Calendar },
     { titleKey: "nav.services", url: "/services", icon: Scissors },
     { titleKey: "nav.availability", url: "/availability", icon: Clock },
     { titleKey: "nav.settings", url: "/settings", icon: Briefcase },
-    { titleKey: "nav.team", url: "/team", icon: Users },
   ];
+  
+  const menuItems = isTeams 
+    ? [...baseMenuItems, { titleKey: "nav.team", url: "/team", icon: Users }]
+    : baseMenuItems;
 
   const { data: business } = useQuery<Business>({
     queryKey: ["/api/business"],

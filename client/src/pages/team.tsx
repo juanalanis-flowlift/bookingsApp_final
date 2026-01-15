@@ -4,6 +4,7 @@ import type { UploadResult } from "@uppy/core";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
+import { useTier } from "@/hooks/useTier";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,6 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ObjectUploader } from "@/components/ObjectUploader";
+import { UpgradeModal } from "@/components/UpgradeModal";
 import {
   Dialog,
   DialogContent,
@@ -44,7 +46,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Pencil, Trash2, User, Mail, Phone, Clock, Briefcase, Calendar, Camera, Image } from "lucide-react";
+import { Plus, Pencil, Trash2, User, Mail, Phone, Clock, Briefcase, Calendar, Camera, Image, Users, Sparkles } from "lucide-react";
 import type { TeamMember, Service, Business, TeamMemberAvailability } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
@@ -79,12 +81,14 @@ export default function Team() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { t } = useI18n();
+  const { isTeams } = useTier();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [memberServices, setMemberServices] = useState<string[]>([]);
   const [memberAvailability, setMemberAvailability] = useState<DayAvailability[]>([]);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -98,6 +102,63 @@ export default function Team() {
       }, 500);
     }
   }, [isAuthenticated, authLoading, toast]);
+
+  if (!isTeams) {
+    return (
+      <div className="flex-1 overflow-auto p-4 md:p-6">
+        <Card className="max-w-lg mx-auto">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+              <Users className="h-8 w-8 text-primary" />
+            </div>
+            <CardTitle className="text-xl">{t("upgrade.team.title")}</CardTitle>
+            <CardDescription>
+              {t("tier.availableInTeams")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ul className="space-y-3">
+              <li className="flex items-start gap-3">
+                <Sparkles className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">{t("upgrade.team.benefit1")}</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Sparkles className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">{t("upgrade.team.benefit2")}</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Sparkles className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">{t("upgrade.team.benefit3")}</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Sparkles className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm">{t("upgrade.team.benefit4")}</span>
+              </li>
+            </ul>
+            <Button 
+              className="w-full" 
+              onClick={() => setShowUpgradeModal(true)}
+              data-testid="button-upgrade-teams"
+            >
+              {t("upgrade.upgradeTo")} Teams
+            </Button>
+          </CardContent>
+        </Card>
+        <UpgradeModal
+          open={showUpgradeModal}
+          onOpenChange={setShowUpgradeModal}
+          targetTier="teams"
+          title={t("upgrade.team.title")}
+          benefits={[
+            t("upgrade.team.benefit1"),
+            t("upgrade.team.benefit2"),
+            t("upgrade.team.benefit3"),
+            t("upgrade.team.benefit4"),
+          ]}
+        />
+      </div>
+    );
+  }
 
   const { data: business } = useQuery<Business>({
     queryKey: ["/api/business"],
