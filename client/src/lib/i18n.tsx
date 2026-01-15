@@ -445,6 +445,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "dashboard.setupBusiness": "Set up your business",
     "dashboard.setupBusinessDesc": "Complete your business profile to start accepting bookings",
     "dashboard.goToSettings": "Go to Settings",
+    "dashboard.analytics": "Business Analytics",
+    "dashboard.analyticsLocked": "Unlock Business Analytics",
+    "dashboard.analyticsLockedDesc": "Upgrade to Pro+ to access detailed charts, trends, and insights about your business performance.",
+    "dashboard.welcomeNewBusiness": "Welcome to FlowLift",
+    "dashboard.setupNewBusiness": "Set up your business profile to start accepting online bookings.",
+    "dashboard.setupButton": "Set Up Business",
     
     "myBookings.title": "My Bookings",
     "myBookings.subtitle": "View and manage your appointments",
@@ -615,6 +621,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "upgrade.teamLoad.benefit2": "Balance workload across staff",
     "upgrade.teamLoad.benefit3": "Identify busy and free periods",
     "upgrade.teamLoad.benefit4": "Make smarter scheduling decisions",
+    
+    "upgrade.analytics.title": "Unlock Business Analytics",
+    "upgrade.analytics.benefit1": "Track completed bookings over time",
+    "upgrade.analytics.benefit2": "See which services are most popular",
+    "upgrade.analytics.benefit3": "View daily occupation rates",
+    "upgrade.analytics.benefit4": "Make data-driven business decisions",
     
     "services.starterLimit": "Starter plan allows 1 service",
     "services.upgradeForMore": "Upgrade to Pro+ for unlimited services",
@@ -1051,6 +1063,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "dashboard.setupBusiness": "Configura tu negocio",
     "dashboard.setupBusinessDesc": "Completa tu perfil de negocio para comenzar a aceptar reservas",
     "dashboard.goToSettings": "Ir a Configuración",
+    "dashboard.analytics": "Análisis de Negocio",
+    "dashboard.analyticsLocked": "Desbloquear Análisis de Negocio",
+    "dashboard.analyticsLockedDesc": "Actualiza a Pro+ para acceder a gráficos detallados, tendencias e información sobre el rendimiento de tu negocio.",
+    "dashboard.welcomeNewBusiness": "Bienvenido a FlowLift",
+    "dashboard.setupNewBusiness": "Configura tu perfil de negocio para comenzar a aceptar reservas en línea.",
+    "dashboard.setupButton": "Configurar Negocio",
     
     "myBookings.title": "Mis Reservas",
     "myBookings.subtitle": "Ve y gestiona tus citas",
@@ -1221,6 +1239,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "upgrade.teamLoad.benefit2": "Balancea la carga de trabajo entre el personal",
     "upgrade.teamLoad.benefit3": "Identifica períodos ocupados y libres",
     "upgrade.teamLoad.benefit4": "Toma decisiones de programación más inteligentes",
+    
+    "upgrade.analytics.title": "Desbloquear Análisis de Negocio",
+    "upgrade.analytics.benefit1": "Rastrea reservas completadas a lo largo del tiempo",
+    "upgrade.analytics.benefit2": "Ve qué servicios son más populares",
+    "upgrade.analytics.benefit3": "Visualiza tasas de ocupación diarias",
+    "upgrade.analytics.benefit4": "Toma decisiones de negocio basadas en datos",
     
     "services.starterLimit": "El plan Básico permite 1 servicio",
     "services.upgradeForMore": "Mejora a Pro+ para servicios ilimitados",

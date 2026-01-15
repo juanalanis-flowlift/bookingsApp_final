@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
+import { useTier } from "@/hooks/useTier";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -71,6 +72,7 @@ export default function Bookings() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { t, language } = useI18n();
+  const { isTeams } = useTier();
   
   const getLocale = () => language === "es" ? es : enUS;
   const [view, setView] = useState<"list" | "calendar" | "teamLoad">("list");
@@ -550,10 +552,12 @@ export default function Bookings() {
             <CalendarIcon className="h-4 w-4" />
             {t("bookings.calendar")}
           </TabsTrigger>
-          <TabsTrigger value="teamLoad" className="gap-2" data-testid="tab-team-load-view">
-            <Users className="h-4 w-4" />
-            {t("bookings.teamLoad")}
-          </TabsTrigger>
+          {isTeams && (
+            <TabsTrigger value="teamLoad" className="gap-2" data-testid="tab-team-load-view">
+              <Users className="h-4 w-4" />
+              {t("bookings.teamLoad")}
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* List View */}

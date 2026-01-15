@@ -1,14 +1,16 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
+import { useTier } from "@/hooks/useTier";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { UpgradeModal } from "@/components/UpgradeModal";
 import {
   CalendarDays,
   CalendarCheck,
@@ -17,6 +19,8 @@ import {
   Plus,
   Ban,
   Info,
+  Sparkles,
+  Lock,
 } from "lucide-react";
 import type { Business, Booking, Service, BlockedTime, Availability } from "@shared/schema";
 import { format, isAfter, isBefore, startOfDay, endOfDay, subDays, addDays, isSameDay } from "date-fns";
@@ -31,6 +35,11 @@ export default function Dashboard() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { t } = useI18n();
+  const { isStarter, canAccessFeature } = useTier();
+  const [showAnalyticsUpgradeModal, setShowAnalyticsUpgradeModal] = useState(false);
+  
+  // Analytics charts require Pro+ tier
+  const canAccessAnalytics = canAccessFeature("pro");
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -599,24 +608,25 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Grid - matches 3-column layout of cards above */}
-      <div className="grid gap-4 md:grid-cols-3">
-        {/* Completed Bookings Line Chart - aligned with Last Week card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t("dashboard.completedBookings")}
-            </CardTitle>
-            <UITooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="max-w-xs text-xs">{t("dashboard.infoCompletedBookings")}</p>
-              </TooltipContent>
-            </UITooltip>
-          </CardHeader>
-          <CardContent>
-            <div className="h-48" data-testid="chart-completed-bookings">
+      {canAccessAnalytics ? (
+        <div className="grid gap-4 md:grid-cols-3">
+          {/* Completed Bookings Line Chart - aligned with Last Week card */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                {t("dashboard.completedBookings")}
+              </CardTitle>
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs text-xs">{t("dashboard.infoCompletedBookings")}</p>
+                </TooltipContent>
+              </UITooltip>
+            </CardHeader>
+            <CardContent>
+              <div className="h-48" data-testid="chart-completed-bookings">
               {lineChartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={lineChartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
@@ -798,6 +808,63 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+      ) : (
+        /* Locked Analytics Card for Starter tier */
+        <Card className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background z-10" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium">
+              {t("dashboard.analytics")}
+              <Badge variant="secondary" className="text-xs">
+                <Sparkles className="h-3 w-3 mr-1" />
+                Pro+
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="relative">
+            {/* Blurred placeholder charts */}
+            <div className="grid gap-4 md:grid-cols-3 blur-sm opacity-50 pointer-events-none">
+              <div className="h-48 bg-muted rounded-lg" />
+              <div className="h-48 bg-muted rounded-lg" />
+              <div className="h-48 bg-muted rounded-lg" />
+            </div>
+            
+            {/* Upgrade overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+              <div className="text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                  <Lock className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="font-semibold">{t("dashboard.analyticsLocked")}</h3>
+                <p className="text-sm text-muted-foreground max-w-md">
+                  {t("dashboard.analyticsLockedDesc")}
+                </p>
+                <Button 
+                  onClick={() => setShowAnalyticsUpgradeModal(true)}
+                  className="gap-2"
+                  data-testid="button-upgrade-analytics"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {t("upgrade.unlockFeature")}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <UpgradeModal
+        open={showAnalyticsUpgradeModal}
+        onOpenChange={setShowAnalyticsUpgradeModal}
+        targetTier="pro"
+        title={t("upgrade.analytics.title")}
+        benefits={[
+          t("upgrade.analytics.benefit1"),
+          t("upgrade.analytics.benefit2"),
+          t("upgrade.analytics.benefit3"),
+          t("upgrade.analytics.benefit4"),
+        ]}
+      />
     </div>
   );
 }
