@@ -562,6 +562,65 @@ export const translations: Record<Language, Record<string, string>> = {
     "myBookings.pastCancelled": "Past & Cancelled",
     "myBookings.noBookingsYet": "No bookings yet",
     "myBookings.noBookingsEmailDesc": "You haven't made any bookings with this email address.",
+    
+    "tier.starter": "Starter",
+    "tier.pro": "Pro+",
+    "tier.teams": "Teams",
+    "tier.availableInPro": "Available in Pro+",
+    "tier.availableInTeams": "Available in Teams",
+    "tier.currentPlan": "Current Plan",
+    
+    "upgrade.notNow": "Not now",
+    "upgrade.upgradeTo": "Upgrade to",
+    "upgrade.unlockFeature": "Unlock this feature",
+    
+    "upgrade.multipleServices.title": "Add Unlimited Services",
+    "upgrade.multipleServices.benefit1": "Offer as many services as you need",
+    "upgrade.multipleServices.benefit2": "Add photos to your service listings",
+    "upgrade.multipleServices.benefit3": "Customize booking rules per service",
+    "upgrade.multipleServices.benefit4": "Stand out with a professional booking page",
+    
+    "upgrade.servicePhotos.title": "Add Photos to Your Services",
+    "upgrade.servicePhotos.benefit1": "Showcase your work with professional images",
+    "upgrade.servicePhotos.benefit2": "Help customers choose the right service",
+    "upgrade.servicePhotos.benefit3": "Build trust with visual examples",
+    "upgrade.servicePhotos.benefit4": "Make your booking page stand out",
+    
+    "upgrade.qrCode.title": "Get Your QR Code",
+    "upgrade.qrCode.benefit1": "Share your booking page instantly",
+    "upgrade.qrCode.benefit2": "Print for your storefront or cards",
+    "upgrade.qrCode.benefit3": "Easy scanning for customers",
+    "upgrade.qrCode.benefit4": "Professional marketing material",
+    
+    "upgrade.branding.title": "Customize Your Brand",
+    "upgrade.branding.benefit1": "Upload your business logo",
+    "upgrade.branding.benefit2": "Add a cover image to your booking page",
+    "upgrade.branding.benefit3": "Match colors to your brand",
+    "upgrade.branding.benefit4": "Create a professional impression",
+    
+    "upgrade.multiDayBlocking.title": "Block Multiple Days",
+    "upgrade.multiDayBlocking.benefit1": "Block off vacation periods easily",
+    "upgrade.multiDayBlocking.benefit2": "Set extended time off with one action",
+    "upgrade.multiDayBlocking.benefit3": "Better holiday planning",
+    "upgrade.multiDayBlocking.benefit4": "Streamlined availability management",
+    
+    "upgrade.team.title": "Manage Your Team",
+    "upgrade.team.benefit1": "Add unlimited team members",
+    "upgrade.team.benefit2": "Assign services to specific staff",
+    "upgrade.team.benefit3": "Individual schedules per team member",
+    "upgrade.team.benefit4": "View team workload at a glance",
+    
+    "upgrade.teamLoad.title": "Team Workload View",
+    "upgrade.teamLoad.benefit1": "See all team bookings at a glance",
+    "upgrade.teamLoad.benefit2": "Balance workload across staff",
+    "upgrade.teamLoad.benefit3": "Identify busy and free periods",
+    "upgrade.teamLoad.benefit4": "Make smarter scheduling decisions",
+    
+    "services.starterLimit": "Starter plan allows 1 service",
+    "services.upgradeForMore": "Upgrade to Pro+ for unlimited services",
+    
+    "dashboard.advancedMetrics": "Advanced Analytics",
+    "dashboard.advancedMetricsDesc": "Detailed insights available in Pro+",
   },
   es: {
     "app.name": "FlowLift",
@@ -1109,6 +1168,65 @@ export const translations: Record<Language, Record<string, string>> = {
     "myBookings.pastCancelled": "Pasadas y Canceladas",
     "myBookings.noBookingsYet": "Sin reservas aún",
     "myBookings.noBookingsEmailDesc": "No has hecho ninguna reserva con esta dirección de correo.",
+    
+    "tier.starter": "Básico",
+    "tier.pro": "Pro+",
+    "tier.teams": "Equipos",
+    "tier.availableInPro": "Disponible en Pro+",
+    "tier.availableInTeams": "Disponible en Equipos",
+    "tier.currentPlan": "Plan Actual",
+    
+    "upgrade.notNow": "Ahora no",
+    "upgrade.upgradeTo": "Mejorar a",
+    "upgrade.unlockFeature": "Desbloquear esta función",
+    
+    "upgrade.multipleServices.title": "Agregar Servicios Ilimitados",
+    "upgrade.multipleServices.benefit1": "Ofrece tantos servicios como necesites",
+    "upgrade.multipleServices.benefit2": "Agrega fotos a tus servicios",
+    "upgrade.multipleServices.benefit3": "Personaliza reglas de reserva por servicio",
+    "upgrade.multipleServices.benefit4": "Destaca con una página de reservas profesional",
+    
+    "upgrade.servicePhotos.title": "Agrega Fotos a tus Servicios",
+    "upgrade.servicePhotos.benefit1": "Muestra tu trabajo con imágenes profesionales",
+    "upgrade.servicePhotos.benefit2": "Ayuda a los clientes a elegir el servicio correcto",
+    "upgrade.servicePhotos.benefit3": "Genera confianza con ejemplos visuales",
+    "upgrade.servicePhotos.benefit4": "Haz que tu página de reservas destaque",
+    
+    "upgrade.qrCode.title": "Obtén tu Código QR",
+    "upgrade.qrCode.benefit1": "Comparte tu página de reservas al instante",
+    "upgrade.qrCode.benefit2": "Imprímelo para tu escaparate o tarjetas",
+    "upgrade.qrCode.benefit3": "Fácil escaneo para los clientes",
+    "upgrade.qrCode.benefit4": "Material de marketing profesional",
+    
+    "upgrade.branding.title": "Personaliza tu Marca",
+    "upgrade.branding.benefit1": "Sube el logo de tu negocio",
+    "upgrade.branding.benefit2": "Agrega una imagen de portada a tu página",
+    "upgrade.branding.benefit3": "Ajusta los colores a tu marca",
+    "upgrade.branding.benefit4": "Crea una impresión profesional",
+    
+    "upgrade.multiDayBlocking.title": "Bloquear Múltiples Días",
+    "upgrade.multiDayBlocking.benefit1": "Bloquea períodos de vacaciones fácilmente",
+    "upgrade.multiDayBlocking.benefit2": "Configura tiempo libre extendido con una acción",
+    "upgrade.multiDayBlocking.benefit3": "Mejor planificación de días festivos",
+    "upgrade.multiDayBlocking.benefit4": "Gestión de disponibilidad simplificada",
+    
+    "upgrade.team.title": "Gestiona tu Equipo",
+    "upgrade.team.benefit1": "Agrega miembros del equipo ilimitados",
+    "upgrade.team.benefit2": "Asigna servicios a personal específico",
+    "upgrade.team.benefit3": "Horarios individuales por miembro del equipo",
+    "upgrade.team.benefit4": "Ve la carga de trabajo del equipo de un vistazo",
+    
+    "upgrade.teamLoad.title": "Vista de Carga del Equipo",
+    "upgrade.teamLoad.benefit1": "Ve todas las reservas del equipo de un vistazo",
+    "upgrade.teamLoad.benefit2": "Balancea la carga de trabajo entre el personal",
+    "upgrade.teamLoad.benefit3": "Identifica períodos ocupados y libres",
+    "upgrade.teamLoad.benefit4": "Toma decisiones de programación más inteligentes",
+    
+    "services.starterLimit": "El plan Básico permite 1 servicio",
+    "services.upgradeForMore": "Mejora a Pro+ para servicios ilimitados",
+    
+    "dashboard.advancedMetrics": "Analíticas Avanzadas",
+    "dashboard.advancedMetricsDesc": "Estadísticas detalladas disponibles en Pro+",
   },
 };
 

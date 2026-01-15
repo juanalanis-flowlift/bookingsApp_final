@@ -51,6 +51,9 @@ export const businessCategories = [
   "other",
 ] as const;
 
+// Subscription tiers
+export const subscriptionTiers = ["starter", "pro", "teams"] as const;
+
 // Businesses table
 export const businesses = pgTable("businesses", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -80,6 +83,7 @@ export const businesses = pgTable("businesses", {
   termsAndConditions: text("terms_and_conditions"),
   showTermsInBooking: boolean("show_terms_in_booking").default(false),
   showTermsInEmail: boolean("show_terms_in_email").default(false),
+  subscriptionTier: varchar("subscription_tier", { length: 20 }).notNull().default("starter"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -398,3 +402,4 @@ export type TeamMemberAvailability = typeof teamMemberAvailability.$inferSelect;
 
 export type BookingStatus = typeof bookingStatuses[number];
 export type BusinessCategory = typeof businessCategories[number];
+export type SubscriptionTier = typeof subscriptionTiers[number];
