@@ -68,6 +68,7 @@ export const businesses = pgTable("businesses", {
   phone: varchar("phone", { length: 50 }),
   email: varchar("email", { length: 255 }),
   logoUrl: varchar("logo_url", { length: 500 }),
+  coverImageUrl: varchar("cover_image_url", { length: 500 }),
   // Social media usernames
   socialFacebook: varchar("social_facebook", { length: 255 }),
   socialInstagram: varchar("social_instagram", { length: 255 }),
