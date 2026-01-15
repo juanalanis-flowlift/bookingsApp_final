@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { DashboardThemeProvider } from "@/components/DashboardThemeProvider";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
+import { SettingsDropdown } from "@/components/SettingsDropdown";
 import { useAuth } from "@/hooks/useAuth";
 import { TierProvider } from "@/hooks/useTier";
 import { I18nProvider } from "@/lib/i18n";
@@ -40,6 +41,7 @@ function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
             <SidebarInset className="flex flex-col flex-1 overflow-hidden">
               <header className="flex items-center justify-between gap-4 p-2 border-b h-14 flex-shrink-0">
                 <SidebarTrigger data-testid="button-sidebar-toggle" />
+                <SettingsDropdown />
               </header>
               <main className="flex-1 overflow-auto">{children}</main>
             </SidebarInset>

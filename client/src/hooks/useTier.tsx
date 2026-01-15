@@ -2,6 +2,8 @@ import { createContext, useContext, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Business, SubscriptionTier } from "@shared/schema";
 
+export type { SubscriptionTier };
+
 interface TierContextValue {
   tier: SubscriptionTier;
   isStarter: boolean;
