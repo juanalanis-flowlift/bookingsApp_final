@@ -412,6 +412,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "availability.dateRangeHint": "Select a single day or click two dates for a range",
     "availability.reason": "Reason (optional)",
     "availability.setupFirst": "Please set up your business profile first.",
+    "availability.multiDayPro": "Multi-day blocking available with Pro+",
     "common.noBookingsOnDate": "No bookings on this date",
     
     "dashboard.title": "Overview",
@@ -1030,6 +1031,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "availability.dateRangeHint": "Selecciona un solo día o haz clic en dos fechas para un rango",
     "availability.reason": "Razón (opcional)",
     "availability.setupFirst": "Por favor, configura tu perfil de negocio primero.",
+    "availability.multiDayPro": "Bloqueo de múltiples días disponible con Pro+",
     "common.noBookingsOnDate": "No hay reservas en esta fecha",
     
     "dashboard.title": "Resumen",

@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
+import { useTier } from "@/hooks/useTier";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { UpgradeModal } from "@/components/UpgradeModal";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Plus, Trash2, Clock, Ban } from "lucide-react";
+import { Calendar as CalendarIcon, Plus, Trash2, Clock, Ban, Sparkles } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import type { Availability, BlockedTime, Business } from "@shared/schema";
 import { format } from "date-fns";
@@ -54,7 +56,12 @@ export default function AvailabilityPage() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { t, language } = useI18n();
+  const { isStarter, canAccessFeature } = useTier();
   const [blockedTimeDialog, setBlockedTimeDialog] = useState(false);
+  const [showMultiDayUpgradeModal, setShowMultiDayUpgradeModal] = useState(false);
+  
+  // Multi-day blocking requires Pro+ tier
+  const canAccessMultiDayBlocking = canAccessFeature("pro");
   const [newBlockedTime, setNewBlockedTime] = useState<{
     dateRange: { from: Date; to: Date | undefined };
     startTime: string;
@@ -416,6 +423,17 @@ export default function AvailabilityPage() {
                       selected={newBlockedTime.dateRange}
                       onSelect={(range) => {
                         if (range?.from) {
+                          // Starter tier: restrict to single-day selection
+                          if (!canAccessMultiDayBlocking && range.to && range.to.getTime() !== range.from.getTime()) {
+                            // Show upgrade modal for multi-day blocking
+                            setShowMultiDayUpgradeModal(true);
+                            // Reset to single-day selection
+                            setNewBlockedTime((prev) => ({
+                              ...prev,
+                              dateRange: { from: range.from!, to: undefined },
+                            }));
+                            return;
+                          }
                           setNewBlockedTime((prev) => ({
                             ...prev,
                             dateRange: { from: range.from!, to: range.to },
@@ -427,6 +445,17 @@ export default function AvailabilityPage() {
                       numberOfMonths={1}
                     />
                   </div>
+                  
+                  {/* Show hint for Starter users */}
+                  {!canAccessMultiDayBlocking && (
+                    <div className="flex items-center gap-2 mt-2 p-2 rounded-md bg-muted text-sm">
+                      <Badge variant="secondary" className="text-xs">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        Pro+
+                      </Badge>
+                      <span className="text-muted-foreground">{t("availability.multiDayPro")}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -562,6 +591,19 @@ export default function AvailabilityPage() {
           )}
         </CardContent>
       </Card>
+
+      <UpgradeModal
+        open={showMultiDayUpgradeModal}
+        onOpenChange={setShowMultiDayUpgradeModal}
+        targetTier="pro"
+        title={t("upgrade.multiDayBlocking.title")}
+        benefits={[
+          t("upgrade.multiDayBlocking.benefit1"),
+          t("upgrade.multiDayBlocking.benefit2"),
+          t("upgrade.multiDayBlocking.benefit3"),
+          t("upgrade.multiDayBlocking.benefit4"),
+        ]}
+      />
     </div>
   );
 }
