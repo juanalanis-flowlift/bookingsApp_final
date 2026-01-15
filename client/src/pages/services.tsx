@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
+import { useTier } from "@/hooks/useTier";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,10 +31,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Plus, Pencil, Trash2, Clock, DollarSign, Eye, EyeOff, ImagePlus, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Clock, DollarSign, Eye, EyeOff, ImagePlus, X, Sparkles } from "lucide-react";
 import type { Service, Business } from "@shared/schema";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { ObjectUploader } from "@/components/ObjectUploader";
+import { UpgradeModal } from "@/components/UpgradeModal";
 import type { UploadResult } from "@uppy/core";
 
 const serviceFormSchema = z.object({
@@ -51,9 +53,14 @@ export default function Services() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { t } = useI18n();
+  const { isStarter, isPro, isTeams } = useTier();
+  const canAccessMultipleServices = isPro || isTeams;
+  const canAccessServiceImages = isPro || isTeams;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [showServicesUpgradeModal, setShowServicesUpgradeModal] = useState(false);
+  const [showImagesUpgradeModal, setShowImagesUpgradeModal] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -318,16 +325,31 @@ export default function Services() {
             {t("services.subtitle")}
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          if (!open) handleDialogClose();
-          else setIsDialogOpen(true);
-        }}>
-          <DialogTrigger asChild>
-            <Button className="gap-2" data-testid="button-add-service">
-              <Plus className="h-4 w-4" />
-              {t("services.addService")}
-            </Button>
-          </DialogTrigger>
+        {/* Starter tier limit: 1 service */}
+        {isStarter && services && services.length >= 1 ? (
+          <Button 
+            className="gap-2" 
+            onClick={() => setShowServicesUpgradeModal(true)}
+            data-testid="button-upgrade-services"
+          >
+            <Plus className="h-4 w-4" />
+            {t("services.addService")}
+            <Badge variant="secondary" className="ml-1 text-xs">
+              <Sparkles className="h-3 w-3 mr-1" />
+              Pro+
+            </Badge>
+          </Button>
+        ) : (
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            if (!open) handleDialogClose();
+            else setIsDialogOpen(true);
+          }}>
+            <DialogTrigger asChild>
+              <Button className="gap-2" data-testid="button-add-service">
+                <Plus className="h-4 w-4" />
+                {t("services.addService")}
+              </Button>
+            </DialogTrigger>
           <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
@@ -461,7 +483,15 @@ export default function Services() {
                 {/* Service Image - Only shown when editing */}
                 {editingService && (
                   <div className="space-y-2">
-                    <FormLabel>{t("services.serviceImage")}</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      {t("services.serviceImage")}
+                      {!canAccessServiceImages && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          Pro+
+                        </Badge>
+                      )}
+                    </FormLabel>
                     <div className="rounded-lg border p-3">
                       <div className="flex items-center gap-4">
                         <div className="w-20 h-20 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
@@ -477,20 +507,36 @@ export default function Services() {
                         </div>
                         <div className="flex-1">
                           <p className="text-sm text-muted-foreground mb-2">
-                            {editingService.imageUrl ? t("services.changeImageDesc") : t("services.addImageDesc")}
+                            {canAccessServiceImages 
+                              ? (editingService.imageUrl ? t("services.changeImageDesc") : t("services.addImageDesc"))
+                              : t("tier.availableInPro")
+                            }
                           </p>
-                          <ObjectUploader
-                            maxNumberOfFiles={1}
-                            maxFileSize={5 * 1024 * 1024}
-                            allowedFileTypes={["image/*"]}
-                            onGetUploadParameters={handleGetUploadParameters}
-                            onComplete={handleImageUploadComplete(editingService.id)}
-                            buttonVariant="outline"
-                            buttonSize="sm"
-                          >
-                            <ImagePlus className="h-4 w-4 mr-2" />
-                            {editingService.imageUrl ? t("services.changeImage") : t("services.addImage")}
-                          </ObjectUploader>
+                          {canAccessServiceImages ? (
+                            <ObjectUploader
+                              maxNumberOfFiles={1}
+                              maxFileSize={5 * 1024 * 1024}
+                              allowedFileTypes={["image/*"]}
+                              onGetUploadParameters={handleGetUploadParameters}
+                              onComplete={handleImageUploadComplete(editingService.id)}
+                              buttonVariant="outline"
+                              buttonSize="sm"
+                            >
+                              <ImagePlus className="h-4 w-4 mr-2" />
+                              {editingService.imageUrl ? t("services.changeImage") : t("services.addImage")}
+                            </ObjectUploader>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowImagesUpgradeModal(true)}
+                              data-testid="button-upgrade-images"
+                            >
+                              <ImagePlus className="h-4 w-4 mr-2" />
+                              {t("upgrade.unlockFeature")}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -522,6 +568,7 @@ export default function Services() {
             </Form>
           </DialogContent>
         </Dialog>
+        )}
       </div>
 
       {/* Services Grid */}
@@ -670,6 +717,32 @@ export default function Services() {
           </CardContent>
         </Card>
       )}
+
+      <UpgradeModal
+        open={showServicesUpgradeModal}
+        onOpenChange={setShowServicesUpgradeModal}
+        targetTier="pro"
+        title={t("upgrade.multipleServices.title")}
+        benefits={[
+          t("upgrade.multipleServices.benefit1"),
+          t("upgrade.multipleServices.benefit2"),
+          t("upgrade.multipleServices.benefit3"),
+          t("upgrade.multipleServices.benefit4"),
+        ]}
+      />
+
+      <UpgradeModal
+        open={showImagesUpgradeModal}
+        onOpenChange={setShowImagesUpgradeModal}
+        targetTier="pro"
+        title={t("upgrade.servicePhotos.title")}
+        benefits={[
+          t("upgrade.servicePhotos.benefit1"),
+          t("upgrade.servicePhotos.benefit2"),
+          t("upgrade.servicePhotos.benefit3"),
+          t("upgrade.servicePhotos.benefit4"),
+        ]}
+      />
     </div>
   );
 }
