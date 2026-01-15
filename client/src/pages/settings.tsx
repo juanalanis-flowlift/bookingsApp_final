@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -29,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2, Plus, X, FileText, QrCode, Download, Link2, Lock, Sun, Moon } from "lucide-react";
+import { Building2, MapPin, Phone, Mail, ExternalLink, Copy, Check, Camera, Globe, Share2, Plus, X, FileText, QrCode, Download, Link2, Lock, Sun, Moon, Sparkles } from "lucide-react";
 import QRCode from "qrcode";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
@@ -46,6 +47,8 @@ import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 import { useDashboardTheme } from "@/components/DashboardThemeProvider";
+import { useTier } from "@/hooks/useTier";
+import { UpgradeModal } from "@/components/UpgradeModal";
 
 const businessFormSchema = z.object({
   name: z.string().min(1, "Business name is required"),
@@ -109,6 +112,10 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState("profile");
   const { t, language } = useI18n();
   const { theme, setTheme } = useDashboardTheme();
+  const { isStarter, isPro, isTeams } = useTier();
+  const canAccessBranding = isPro || isTeams;
+  const [showBrandingUpgradeModal, setShowBrandingUpgradeModal] = useState(false);
+  const [showQrUpgradeModal, setShowQrUpgradeModal] = useState(false);
 
   const getCategoryLabel = (cat: string): string => {
     return t(`categories.${cat}`);
@@ -456,20 +463,38 @@ export default function Settings() {
                       </div>
                     </div>
                     {business && (
-                      <ObjectUploader
-                        maxNumberOfFiles={1}
-                        maxFileSize={5 * 1024 * 1024}
-                        allowedFileTypes={["image/*"]}
-                        onGetUploadParameters={handleGetUploadParameters}
-                        onComplete={handleUploadComplete}
-                        buttonVariant="outline"
-                        buttonSize="default"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Camera className="h-4 w-4" />
-                          <span>{isUploading || logoMutation.isPending ? t("settings.uploading") : t("settings.changeLogo")}</span>
-                        </div>
-                      </ObjectUploader>
+                      canAccessBranding ? (
+                        <ObjectUploader
+                          maxNumberOfFiles={1}
+                          maxFileSize={5 * 1024 * 1024}
+                          allowedFileTypes={["image/*"]}
+                          onGetUploadParameters={handleGetUploadParameters}
+                          onComplete={handleUploadComplete}
+                          buttonVariant="outline"
+                          buttonSize="default"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Camera className="h-4 w-4" />
+                            <span>{isUploading || logoMutation.isPending ? t("settings.uploading") : t("settings.changeLogo")}</span>
+                          </div>
+                        </ObjectUploader>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowBrandingUpgradeModal(true)}
+                          data-testid="button-upgrade-logo"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Camera className="h-4 w-4" />
+                            <span>{t("settings.changeLogo")}</span>
+                            <Badge variant="secondary" className="ml-1 text-xs">
+                              <Sparkles className="h-3 w-3 mr-1" />
+                              Pro+
+                            </Badge>
+                          </div>
+                        </Button>
+                      )
                     )}
                   </div>
                 </CardHeader>
@@ -840,55 +865,72 @@ export default function Settings() {
                   <CardTitle className="flex items-center gap-2">
                     <QrCode className="h-5 w-5" />
                     {t("settings.qrCode")}
-                    <span className="ml-auto text-xs font-normal text-muted-foreground flex items-center gap-1">
-                      <Lock className="h-3 w-3" />
-                      Pro+
-                    </span>
+                    {!canAccessBranding && (
+                      <Badge variant="secondary" className="ml-auto text-xs">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        Pro+
+                      </Badge>
+                    )}
                   </CardTitle>
                   <CardDescription>
                     {t("settings.qrCodeDescription")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {business && qrCodeDataUrl ? (
-                    <div className="flex flex-col items-center space-y-4">
-                      <div className="bg-white p-4 rounded-lg border" data-testid="qr-code-preview">
-                        <img
-                          src={qrCodeDataUrl}
-                          alt="Booking page QR code"
-                          className="w-48 h-48"
-                        />
+                  {canAccessBranding ? (
+                    business && qrCodeDataUrl ? (
+                      <div className="flex flex-col items-center space-y-4">
+                        <div className="bg-white p-4 rounded-lg border" data-testid="qr-code-preview">
+                          <img
+                            src={qrCodeDataUrl}
+                            alt="Booking page QR code"
+                            className="w-48 h-48"
+                          />
+                        </div>
+                        <p className="text-sm text-muted-foreground text-center">
+                          {`${window.location.origin}/book/${business.slug}`}
+                        </p>
+                        <div className="flex gap-2 flex-wrap justify-center">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => downloadQrCode("png")}
+                            className="gap-2"
+                            data-testid="button-download-png"
+                          >
+                            <Download className="h-4 w-4" />
+                            {t("settings.downloadPng")}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => downloadQrCode("jpg")}
+                            className="gap-2"
+                            data-testid="button-download-jpg"
+                          >
+                            <Download className="h-4 w-4" />
+                            {t("settings.downloadJpg")}
+                          </Button>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground text-center">
-                        {`${window.location.origin}/book/${business.slug}`}
-                      </p>
-                      <div className="flex gap-2 flex-wrap justify-center">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => downloadQrCode("png")}
-                          className="gap-2"
-                          data-testid="button-download-png"
-                        >
-                          <Download className="h-4 w-4" />
-                          {t("settings.downloadPng")}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => downloadQrCode("jpg")}
-                          className="gap-2"
-                          data-testid="button-download-jpg"
-                        >
-                          <Download className="h-4 w-4" />
-                          {t("settings.downloadJpg")}
-                        </Button>
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
+                        <QrCode className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p className="text-sm">{t("settings.noBusinessYet")}</p>
                       </div>
-                    </div>
+                    )
                   ) : (
-                    <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
+                    <div className="text-center py-8 border rounded-lg border-dashed">
                       <QrCode className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                      <p className="text-sm">{t("settings.noBusinessYet")}</p>
+                      <p className="text-sm text-muted-foreground mb-4">{t("tier.availableInPro")}</p>
+                      <Button 
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowQrUpgradeModal(true)}
+                        data-testid="button-upgrade-qr"
+                      >
+                        {t("upgrade.unlockFeature")}
+                      </Button>
                     </div>
                   )}
                 </CardContent>
@@ -1079,6 +1121,32 @@ export default function Settings() {
           </Tabs>
         </form>
       </Form>
+
+      <UpgradeModal
+        open={showBrandingUpgradeModal}
+        onOpenChange={setShowBrandingUpgradeModal}
+        targetTier="pro"
+        title={t("upgrade.branding.title")}
+        benefits={[
+          t("upgrade.branding.benefit1"),
+          t("upgrade.branding.benefit2"),
+          t("upgrade.branding.benefit3"),
+          t("upgrade.branding.benefit4"),
+        ]}
+      />
+      
+      <UpgradeModal
+        open={showQrUpgradeModal}
+        onOpenChange={setShowQrUpgradeModal}
+        targetTier="pro"
+        title={t("upgrade.qrCode.title")}
+        benefits={[
+          t("upgrade.qrCode.benefit1"),
+          t("upgrade.qrCode.benefit2"),
+          t("upgrade.qrCode.benefit3"),
+          t("upgrade.qrCode.benefit4"),
+        ]}
+      />
     </div>
   );
 }
