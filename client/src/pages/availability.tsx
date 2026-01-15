@@ -56,7 +56,7 @@ export default function AvailabilityPage() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { t, language } = useI18n();
-  const { isStarter, canAccessFeature } = useTier();
+  const { canAccessFeature } = useTier();
   const [blockedTimeDialog, setBlockedTimeDialog] = useState(false);
   const [showMultiDayUpgradeModal, setShowMultiDayUpgradeModal] = useState(false);
   

@@ -629,6 +629,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "upgrade.analytics.benefit3": "View daily occupation rates",
     "upgrade.analytics.benefit4": "Make data-driven business decisions",
     
+    "upgrade.multiDayBlocking.title": "Unlock Multi-Day Blocking",
+    "upgrade.multiDayBlocking.benefit1": "Block multiple consecutive days at once",
+    "upgrade.multiDayBlocking.benefit2": "Schedule vacations and extended time off",
+    "upgrade.multiDayBlocking.benefit3": "Plan closures for holidays and events",
+    "upgrade.multiDayBlocking.benefit4": "Save time managing your availability",
+    
     "services.starterLimit": "Starter plan allows 1 service",
     "services.upgradeForMore": "Upgrade to Pro+ for unlimited services",
     
@@ -1247,6 +1253,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "upgrade.analytics.benefit2": "Ve qué servicios son más populares",
     "upgrade.analytics.benefit3": "Visualiza tasas de ocupación diarias",
     "upgrade.analytics.benefit4": "Toma decisiones de negocio basadas en datos",
+    
+    "upgrade.multiDayBlocking.title": "Desbloquear Bloqueo de Múltiples Días",
+    "upgrade.multiDayBlocking.benefit1": "Bloquea varios días consecutivos a la vez",
+    "upgrade.multiDayBlocking.benefit2": "Programa vacaciones y tiempo libre extendido",
+    "upgrade.multiDayBlocking.benefit3": "Planifica cierres para días festivos y eventos",
+    "upgrade.multiDayBlocking.benefit4": "Ahorra tiempo gestionando tu disponibilidad",
     
     "services.starterLimit": "El plan Básico permite 1 servicio",
     "services.upgradeForMore": "Mejora a Pro+ para servicios ilimitados",
