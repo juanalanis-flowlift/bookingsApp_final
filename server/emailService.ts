@@ -339,10 +339,7 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
     </div>
     
     <!-- Main Title -->
-    <h1 style="margin: 0 0 8px; font-size: 24px; font-weight: 700; color: #18181b;">${t("reservationConfirmed")}</h1>
-    <p style="margin: 0 0 24px; font-size: 14px; color: #71717a;">
-      ${t("youreGoingTo")} <strong style="color: #18181b;">${escapeHtml(service.name)}</strong>
-    </p>
+    <h1 style="margin: 0 0 24px; font-size: 24px; font-weight: 700; color: #18181b;">${t("reservationConfirmed")}</h1>
     
     ${business.coverImageUrl ? `
     <!-- Cover Image -->
@@ -361,9 +358,10 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
     
     <!-- Appointment Date/Time -->
     <div style="margin-bottom: 24px; border-bottom: 1px solid #e4e4e7; padding-bottom: 16px;">
+      <p style="margin: 0 0 12px; font-size: 16px; font-weight: 700; color: #18181b;">${escapeHtml(service.name)}</p>
       <p style="margin: 0 0 4px; font-size: 16px; font-weight: 600; color: #18181b;">${escapeHtml(dateInfo.day)},</p>
       <p style="margin: 0 0 4px; font-size: 16px; color: #18181b;">${escapeHtml(dateInfo.fullDate)}</p>
-      <p style="margin: 0; font-size: 14px; color: #71717a;">Check-in time is ${escapeHtml(timeRange)}</p>
+      <p style="margin: 0; font-size: 14px; color: #71717a;">Your appointment is at: ${escapeHtml(timeRange)}</p>
     </div>
     
     ${business.address ? `
@@ -501,14 +499,14 @@ function generateCustomerConfirmationText(data: BookingEmailData): string {
 FLOWLIFT
 
 ${t("reservationConfirmed").toUpperCase()}
-${t("youreGoingTo")} ${service.name}
 
 ---
 
 ${business.name}
 
+${service.name}
 ${dateInfo.day}, ${dateInfo.fullDate}
-Check-in time is ${timeRange}
+Your appointment is at: ${timeRange}
 
 ${business.address ? `${t("address")}:
 ${business.address}` : ""}
