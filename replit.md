@@ -94,6 +94,23 @@ Three demo businesses are seeded:
 - `SESSION_SECRET` - Session encryption key
 - `ISSUER_URL` - Replit Auth issuer (default: https://replit.com/oidc)
 
+## Email Service
+The application supports two email providers with automatic fallback:
+
+1. **Resend (Primary)** - Via Replit Connectors API
+   - Connected through Replit's integration system
+   - Credentials automatically fetched from `REPLIT_CONNECTORS_HOSTNAME`
+   - Uses API key authentication
+
+2. **SMTP (Fallback)** - Traditional SMTP
+   - `SMTP_HOST` - SMTP server host
+   - `SMTP_PORT` - SMTP server port
+   - `SMTP_USER` - SMTP username
+   - `SMTP_PASS` - SMTP password
+   - `SMTP_FROM` - From email address
+
+The system tries Resend first, then falls back to SMTP if unavailable.
+
 ## Design Decisions
 - Using blue primary color (217 91% 60%) for professional SaaS look
 - Inter font family for clean, modern typography

@@ -1,8 +1,77 @@
 import nodemailer from "nodemailer";
 import type { Transporter } from "nodemailer";
+import { Resend } from "resend";
 import type { Booking, Service, Business } from "@shared/schema";
 
 type Language = "en" | "es";
+
+// Resend integration via Replit Connectors API
+interface ResendConnectionSettings {
+  settings: {
+    api_key: string;
+    from_email?: string;
+  };
+}
+
+async function getResendCredentials(): Promise<{ apiKey: string; fromEmail: string } | null> {
+  try {
+    const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+    if (!hostname) {
+      return null;
+    }
+
+    const xReplitToken = process.env.REPL_IDENTITY 
+      ? 'repl ' + process.env.REPL_IDENTITY 
+      : process.env.WEB_REPL_RENEWAL 
+      ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+      : null;
+
+    if (!xReplitToken) {
+      return null;
+    }
+
+    const response = await fetch(
+      'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
+      {
+        headers: {
+          'Accept': 'application/json',
+          'X-Replit-Token': xReplitToken
+        }
+      }
+    );
+
+    if (!response.ok) {
+      console.log("Failed to fetch Resend credentials from Replit connector");
+      return null;
+    }
+
+    const data = await response.json();
+    const connectionSettings: ResendConnectionSettings = data.items?.[0];
+
+    if (!connectionSettings?.settings?.api_key) {
+      return null;
+    }
+
+    return {
+      apiKey: connectionSettings.settings.api_key,
+      fromEmail: connectionSettings.settings.from_email || "noreply@flowlift.app"
+    };
+  } catch (error) {
+    console.log("Resend connector not available:", error);
+    return null;
+  }
+}
+
+async function getResendClient(): Promise<{ client: Resend; fromEmail: string } | null> {
+  const credentials = await getResendCredentials();
+  if (!credentials) {
+    return null;
+  }
+  return {
+    client: new Resend(credentials.apiKey),
+    fromEmail: credentials.fromEmail
+  };
+}
 
 // FlowLift logo as base64 data URI for reliable email display
 const FLOWLIFT_LOGO_DATA_URI = "data:image/png;base64,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";
@@ -684,16 +753,40 @@ export async function sendBookingConfirmationToCustomer(
   data: BookingEmailData
 ): Promise<boolean> {
   const { booking, service, business, language = "en" } = data;
+  const t = (key: string) => getEmailText(key, language);
+
+  const subject = `${t("bookingConfirmed")}: ${service.name} - ${business.name}`;
+  const text = generateCustomerConfirmationText(data);
+  const html = generateCustomerConfirmationHtml(data);
+
+  // Try Resend first (via Replit connector)
+  const resend = await getResendClient();
+  if (resend) {
+    try {
+      await resend.client.emails.send({
+        from: resend.fromEmail,
+        to: booking.customerEmail,
+        subject,
+        text,
+        html,
+      });
+      console.log(`Email sent via Resend to customer: ${booking.customerEmail} (lang: ${language})`);
+      return true;
+    } catch (error) {
+      console.error("Resend failed, falling back to SMTP:", error);
+    }
+  }
+
+  // Fall back to SMTP
   const config = getEmailConfig();
   const transport = getTransporter();
-  const t = (key: string) => getEmailText(key, language);
 
   const emailContent = {
     from: config?.from || "noreply@flowlift.app",
     to: booking.customerEmail,
-    subject: `${t("bookingConfirmed")}: ${service.name} - ${business.name}`,
-    text: generateCustomerConfirmationText(data),
-    html: generateCustomerConfirmationHtml(data),
+    subject,
+    text,
+    html,
   };
 
   if (!transport) {
@@ -708,7 +801,7 @@ export async function sendBookingConfirmationToCustomer(
 
   try {
     await transport.sendMail(emailContent);
-    console.log(`Email sent to customer: ${booking.customerEmail} (lang: ${language})`);
+    console.log(`Email sent via SMTP to customer: ${booking.customerEmail} (lang: ${language})`);
     return true;
   } catch (error) {
     console.error("Failed to send customer confirmation email:", error);
@@ -720,20 +813,44 @@ export async function sendBookingNotificationToBusiness(
   data: BookingEmailData
 ): Promise<boolean> {
   const { booking, service, business } = data;
-  const config = getEmailConfig();
-  const transport = getTransporter();
 
   if (!business.email) {
     console.log("Business has no email configured, skipping notification");
     return true;
   }
 
+  const subject = `New Booking: ${service.name} from ${booking.customerName}`;
+  const text = generateBusinessNotificationText(data);
+  const html = generateBusinessNotificationHtml(data);
+
+  // Try Resend first (via Replit connector)
+  const resend = await getResendClient();
+  if (resend) {
+    try {
+      await resend.client.emails.send({
+        from: resend.fromEmail,
+        to: business.email,
+        subject,
+        text,
+        html,
+      });
+      console.log(`Email sent via Resend to business: ${business.email}`);
+      return true;
+    } catch (error) {
+      console.error("Resend failed, falling back to SMTP:", error);
+    }
+  }
+
+  // Fall back to SMTP
+  const config = getEmailConfig();
+  const transport = getTransporter();
+
   const emailContent = {
     from: config?.from || "noreply@flowlift.app",
     to: business.email,
-    subject: `New Booking: ${service.name} from ${booking.customerName}`,
-    text: generateBusinessNotificationText(data),
-    html: generateBusinessNotificationHtml(data),
+    subject,
+    text,
+    html,
   };
 
   if (!transport) {
@@ -747,7 +864,7 @@ export async function sendBookingNotificationToBusiness(
 
   try {
     await transport.sendMail(emailContent);
-    console.log(`Email sent to business: ${business.email}`);
+    console.log(`Email sent via SMTP to business: ${business.email}`);
     return true;
   } catch (error) {
     console.error("Failed to send business notification email:", error);
@@ -845,17 +962,41 @@ ${t("poweredBy")}
 }
 
 export async function sendMagicLinkEmail(data: MagicLinkData): Promise<boolean> {
-  const config = getEmailConfig();
-  const transport = getTransporter();
   const { language = "en" } = data;
   const t = (key: string) => getEmailText(key, language);
+
+  const subject = `${t("signInFlowLift")} - ${t("viewMyBookings")}`;
+  const text = generateMagicLinkText(data);
+  const html = generateMagicLinkHtml(data);
+
+  // Try Resend first (via Replit connector)
+  const resend = await getResendClient();
+  if (resend) {
+    try {
+      await resend.client.emails.send({
+        from: resend.fromEmail,
+        to: data.email,
+        subject,
+        text,
+        html,
+      });
+      console.log(`Magic link email sent via Resend to: ${data.email} (lang: ${language})`);
+      return true;
+    } catch (error) {
+      console.error("Resend failed, falling back to SMTP:", error);
+    }
+  }
+
+  // Fall back to SMTP
+  const config = getEmailConfig();
+  const transport = getTransporter();
 
   const emailContent = {
     from: config?.from || "noreply@flowlift.app",
     to: data.email,
-    subject: `${t("signInFlowLift")} - ${t("viewMyBookings")}`,
-    text: generateMagicLinkText(data),
-    html: generateMagicLinkHtml(data),
+    subject,
+    text,
+    html,
   };
 
   if (!transport) {
@@ -870,7 +1011,7 @@ export async function sendMagicLinkEmail(data: MagicLinkData): Promise<boolean> 
 
   try {
     await transport.sendMail(emailContent);
-    console.log(`Magic link email sent to: ${data.email} (lang: ${language})`);
+    console.log(`Magic link email sent via SMTP to: ${data.email} (lang: ${language})`);
     return true;
   } catch (error) {
     console.error("Failed to send magic link email:", error);
@@ -1039,16 +1180,40 @@ ${t("poweredBy")}
 
 export async function sendModificationRequestEmail(data: ModificationEmailData): Promise<boolean> {
   const { booking, service, business, language = "en" } = data;
+  const t = (key: string) => getEmailText(key, language);
+
+  const subject = `${t("modificationRequested")}: ${service.name} - ${business.name}`;
+  const text = generateModificationRequestText(data);
+  const html = generateModificationRequestHtml(data);
+
+  // Try Resend first (via Replit connector)
+  const resend = await getResendClient();
+  if (resend) {
+    try {
+      await resend.client.emails.send({
+        from: resend.fromEmail,
+        to: booking.customerEmail,
+        subject,
+        text,
+        html,
+      });
+      console.log(`Modification request email sent via Resend to: ${booking.customerEmail} (lang: ${language})`);
+      return true;
+    } catch (error) {
+      console.error("Resend failed, falling back to SMTP:", error);
+    }
+  }
+
+  // Fall back to SMTP
   const config = getEmailConfig();
   const transport = getTransporter();
-  const t = (key: string) => getEmailText(key, language);
 
   const emailContent = {
     from: config?.from || "noreply@flowlift.app",
     to: booking.customerEmail,
-    subject: `${t("modificationRequested")}: ${service.name} - ${business.name}`,
-    text: generateModificationRequestText(data),
-    html: generateModificationRequestHtml(data),
+    subject,
+    text,
+    html,
   };
 
   if (!transport) {
@@ -1063,7 +1228,7 @@ export async function sendModificationRequestEmail(data: ModificationEmailData):
 
   try {
     await transport.sendMail(emailContent);
-    console.log(`Modification request email sent to: ${booking.customerEmail} (lang: ${language})`);
+    console.log(`Modification request email sent via SMTP to: ${booking.customerEmail} (lang: ${language})`);
     return true;
   } catch (error) {
     console.error("Failed to send modification request email:", error);
