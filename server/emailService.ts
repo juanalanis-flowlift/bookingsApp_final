@@ -17,6 +17,7 @@ async function getResendCredentials(): Promise<{ apiKey: string; fromEmail: stri
   try {
     const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
     if (!hostname) {
+      console.log("[email] Resend: REPLIT_CONNECTORS_HOSTNAME not available");
       return null;
     }
 
@@ -27,21 +28,23 @@ async function getResendCredentials(): Promise<{ apiKey: string; fromEmail: stri
       : null;
 
     if (!xReplitToken) {
+      console.log("[email] Resend: No auth token available (REPL_IDENTITY or WEB_REPL_RENEWAL)");
       return null;
     }
 
+    console.log("[email] Resend: Fetching credentials from connector...");
     const response = await fetch(
       'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
       {
         headers: {
           'Accept': 'application/json',
-          'X-Replit-Token': xReplitToken
+          'X_REPLIT_TOKEN': xReplitToken
         }
       }
     );
 
     if (!response.ok) {
-      console.log("Failed to fetch Resend credentials from Replit connector");
+      console.log(`[email] Resend: Failed to fetch credentials, status: ${response.status}`);
       return null;
     }
 
@@ -49,15 +52,17 @@ async function getResendCredentials(): Promise<{ apiKey: string; fromEmail: stri
     const connectionSettings: ResendConnectionSettings = data.items?.[0];
 
     if (!connectionSettings?.settings?.api_key) {
+      console.log("[email] Resend: No API key found in connection settings");
       return null;
     }
 
+    console.log(`[email] Resend: Credentials loaded, fromEmail: ${connectionSettings.settings.from_email || "noreply@flowlift.app"}`);
     return {
       apiKey: connectionSettings.settings.api_key,
       fromEmail: connectionSettings.settings.from_email || "noreply@flowlift.app"
     };
   } catch (error) {
-    console.log("Resend connector not available:", error);
+    console.log("[email] Resend connector error:", error);
     return null;
   }
 }
