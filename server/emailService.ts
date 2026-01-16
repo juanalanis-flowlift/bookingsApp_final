@@ -332,8 +332,7 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
     
     <!-- FlowLift Logo -->
     <div style="margin-bottom: 24px;">
-      <span style="font-size: 20px; font-weight: 700; color: #22c55e;">🌿</span>
-      <span style="font-size: 18px; font-weight: 600; color: #18181b; margin-left: 4px;">flowlift</span>
+      <img src="${baseUrl}/attached_assets/flowlift_logo_Btext_noBG_1768526208479.png" alt="flowlift" style="height: 32px; width: auto; display: block;" />
     </div>
     
     <!-- Main Title -->
