@@ -353,7 +353,7 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
     
     <!-- Business Name & Logo -->
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; border-bottom: 1px solid #e4e4e7; padding-bottom: 16px;">
-      <p style="margin: 0; font-size: 16px; font-weight: 600; color: #18181b;">${escapeHtml(business.name)}</p>
+      <p style="margin: 0; font-size: 20px; font-weight: 700; color: #18181b;">${escapeHtml(business.name)}</p>
       ${business.logoUrl ? `
       <img src="${escapeHtml(business.logoUrl)}" alt="${escapeHtml(business.name)} logo" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" />
       ` : ""}
