@@ -46,6 +46,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.signIn": "Start for free",
     "landing.startFree": "Start for free",
     "landing.signInWithGoogle": "Sign in with Google",
+    "common.back": "Back",
     
     "signin.title": "Sign In",
     "signin.subtitle": "Choose how you want to sign in to your account",
@@ -723,6 +724,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.signIn": "Empieza gratis",
     "landing.startFree": "Comienza gratis",
     "landing.signInWithGoogle": "Iniciar sesión con Google",
+    "common.back": "Atrás",
     
     "signin.title": "Iniciar Sesión",
     "signin.subtitle": "Elige cómo quieres iniciar sesión en tu cuenta",
