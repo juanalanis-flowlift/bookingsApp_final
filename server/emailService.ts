@@ -774,9 +774,11 @@ export async function sendBookingConfirmationToCustomer(
   const html = generateCustomerConfirmationHtml(data);
 
   // Try Resend first (via Replit connector)
+  console.log("[email] Attempting to send customer confirmation email...");
   const resend = await getResendClient();
   if (resend) {
     try {
+      console.log(`[email] Sending via Resend to: ${booking.customerEmail}`);
       await resend.client.emails.send({
         from: resend.fromEmail,
         to: booking.customerEmail,
@@ -784,11 +786,13 @@ export async function sendBookingConfirmationToCustomer(
         text,
         html,
       });
-      console.log(`Email sent via Resend to customer: ${booking.customerEmail} (lang: ${language})`);
+      console.log(`[email] Email sent via Resend to customer: ${booking.customerEmail} (lang: ${language})`);
       return true;
     } catch (error) {
-      console.error("Resend failed, falling back to SMTP:", error);
+      console.error("[email] Resend failed, falling back to SMTP:", error);
     }
+  } else {
+    console.log("[email] Resend client not available, falling back to SMTP");
   }
 
   // Fall back to SMTP
