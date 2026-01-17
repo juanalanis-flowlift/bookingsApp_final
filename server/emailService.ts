@@ -398,7 +398,17 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
   const dateInfo = formatDateShort(booking.bookingDate, language);
   const timeRange = `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`;
   
-  const businessLocation = [business.city, business.country].filter(Boolean).join(", ");
+  // Convert relative URLs to absolute URLs for email compatibility
+  const getAbsoluteUrl = (url: string | null | undefined): string => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
+      return url;
+    }
+    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
+  };
+  
+  const businessLogoUrl = getAbsoluteUrl(business.logoUrl);
+  const businessCoverUrl = getAbsoluteUrl(business.coverImageUrl);
 
   return `
 <!DOCTYPE html>
@@ -419,18 +429,18 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
     <!-- Main Title -->
     <h1 style="margin: 0 0 24px; font-size: 24px; font-weight: 700; color: #18181b;">${t("reservationConfirmed")}</h1>
     
-    ${business.coverImageUrl ? `
+    ${businessCoverUrl ? `
     <!-- Cover Image -->
     <div style="margin-bottom: 16px; border-radius: 12px; overflow: hidden;">
-      <img src="${escapeHtml(business.coverImageUrl)}" alt="${escapeHtml(business.name)}" style="width: 100%; height: auto; display: block; max-height: 200px; object-fit: cover;" />
+      <img src="${escapeHtml(businessCoverUrl)}" alt="${escapeHtml(business.name)}" style="width: 100%; height: auto; display: block; max-height: 200px; object-fit: cover;" />
     </div>
     ` : ""}
     
     <!-- Business Name & Logo -->
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; border-bottom: 1px solid #e4e4e7; padding-bottom: 16px;">
       <p style="margin: 0; font-size: 20px; font-weight: 700; color: #18181b;">${escapeHtml(business.name)}</p>
-      ${business.logoUrl ? `
-      <img src="${escapeHtml(business.logoUrl)}" alt="${escapeHtml(business.name)} logo" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" />
+      ${businessLogoUrl ? `
+      <img src="${escapeHtml(businessLogoUrl)}" alt="${escapeHtml(business.name)} logo" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" />
       ` : ""}
     </div>
     
@@ -556,9 +566,9 @@ function generateCustomerConfirmationHtml(data: BookingEmailData): string {
     <!-- Footer -->
     <div style="padding-top: 24px; border-top: 1px solid #e4e4e7;">
       <p style="margin: 0 0 4px; font-size: 14px; color: #18181b;">
-        ${t("sentWithLove")} <span style="color: #ef4444;">❤️</span> ${t("withFlowlift")}
+        ${t("sentWithLove")} <span style="color: #ef4444;">&#10084;</span> ${t("withFlowlift")}
       </p>
-      ${businessLocation ? `<p style="margin: 0 0 4px; font-size: 14px; color: #71717a;">${escapeHtml(businessLocation)} 🇲🇽</p>` : ""}
+      <p style="margin: 0 0 4px; font-size: 14px; color: #71717a;">Saltillo, Mexico</p>
       <p style="margin: 0;">
         <a href="https://flowlift.co" style="font-size: 14px; color: #2563eb; text-decoration: none;">${t("signUpFree")}</a>
       </p>
@@ -576,7 +586,6 @@ function generateCustomerConfirmationText(data: BookingEmailData): string {
   
   const dateInfo = formatDateShort(booking.bookingDate, language);
   const timeRange = `${formatTime(booking.startTime)} - ${formatTime(booking.endTime)}`;
-  const businessLocation = [business.city, business.country].filter(Boolean).join(", ");
   const customerActionToken = (booking as any).customerActionToken;
   const cancelUrl = customerActionToken ? `${baseUrl}/customer-cancel?token=${customerActionToken}` : "";
   const modifyUrl = customerActionToken ? `${baseUrl}/customer-modify?token=${customerActionToken}` : "";
@@ -631,8 +640,8 @@ ${business.termsAndConditions}
 ${cancelUrl ? `${t("cancelReservation")}: ${cancelUrl}` : ""}
 
 ---
-${t("sentWithLove")} ❤️ ${t("withFlowlift")}
-${businessLocation}
+${t("sentWithLove")} with ${t("withFlowlift")}
+Saltillo, Mexico
 ${t("signUpFree")}: https://flowlift.co
   `.trim();
 }
