@@ -263,26 +263,28 @@ export default function Onboarding() {
     },
   });
 
-  // Only reset forms when non-logo business data changes (e.g., initial load)
-  // Use a ref to track if this is the initial load vs. a logo-only update
-  const [hasInitializedForms, setHasInitializedForms] = useState(false);
+  // Track the business ID to only reset forms when loading initial business data
+  const [loadedBusinessId, setLoadedBusinessId] = useState<string | null>(null);
   
   useEffect(() => {
-    // Only reset forms on initial data load, not on subsequent updates like logo changes
-    if (!hasInitializedForms && (formData.name || formData.category || formData.description)) {
-      step1Form.reset({ name: formData.name, category: formData.category });
-      step2Form.reset({ description: formData.description });
+    // Only reset forms when business data is first loaded (different business ID)
+    if (business && business.id !== loadedBusinessId) {
+      step1Form.reset({ name: business.name || "", category: business.category || "" });
+      step2Form.reset({ description: business.description || "" });
       step3Form.reset({
-        address: formData.address,
-        city: formData.city,
-        country: formData.country,
-        phone: formData.phone,
-        email: formData.email,
+        address: business.address || "",
+        city: business.city || "",
+        country: business.country || "",
+        phone: business.phone || "",
+        email: business.email || "",
       });
-      step4Form.reset({ preferredLanguage: formData.preferredLanguage, theme: formData.theme });
-      setHasInitializedForms(true);
+      step4Form.reset({ 
+        preferredLanguage: (business.preferredLanguage as "en" | "es") || language, 
+        theme: "light" 
+      });
+      setLoadedBusinessId(business.id);
     }
-  }, [formData.name, formData.category, formData.description, formData.address, formData.city, formData.country, formData.phone, formData.email, formData.preferredLanguage, hasInitializedForms]);
+  }, [business?.id]);
 
   const getCategoryLabel = (cat: string): string => {
     return t(`categories.${cat}`);
