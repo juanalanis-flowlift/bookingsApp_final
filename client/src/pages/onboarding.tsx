@@ -469,7 +469,7 @@ export default function Onboarding() {
             </div>
 
             <Form {...step1Form}>
-              <form className="space-y-4">
+              <form className="space-y-4" autoComplete="off">
                 <FormField
                   control={step1Form.control}
                   name="name"
@@ -479,6 +479,8 @@ export default function Onboarding() {
                       <FormControl>
                         <Input
                           {...field}
+                          id="onboarding-business-name"
+                          autoComplete="off"
                           placeholder={t("onboarding.step1.businessNamePlaceholder")}
                           data-testid="input-business-name"
                         />
@@ -563,7 +565,7 @@ export default function Onboarding() {
             </div>
 
             <Form {...step2Form}>
-              <form className="space-y-4">
+              <form className="space-y-4" autoComplete="off">
                 <FormField
                   control={step2Form.control}
                   name="description"
@@ -573,6 +575,8 @@ export default function Onboarding() {
                       <FormControl>
                         <Textarea
                           {...field}
+                          id="onboarding-description"
+                          autoComplete="off"
                           placeholder={t("onboarding.step2.descriptionPlaceholder")}
                           rows={5}
                           className="resize-none"
@@ -601,7 +605,7 @@ export default function Onboarding() {
             </div>
 
             <Form {...step3Form}>
-              <form className="space-y-4">
+              <form className="space-y-4" autoComplete="off">
                 <FormField
                   control={step3Form.control}
                   name="address"
@@ -611,6 +615,8 @@ export default function Onboarding() {
                       <FormControl>
                         <Input
                           {...field}
+                          id="onboarding-address"
+                          autoComplete="off"
                           placeholder={t("onboarding.step3.addressPlaceholder")}
                           data-testid="input-address"
                         />
@@ -630,6 +636,8 @@ export default function Onboarding() {
                         <FormControl>
                           <Input
                             {...field}
+                            id="onboarding-city"
+                            autoComplete="off"
                             placeholder={t("onboarding.step3.cityPlaceholder")}
                             data-testid="input-city"
                           />
@@ -677,6 +685,8 @@ export default function Onboarding() {
                       <FormControl>
                         <Input
                           {...field}
+                          id="onboarding-phone"
+                          autoComplete="off"
                           placeholder={t("onboarding.step3.phonePlaceholder")}
                           data-testid="input-phone"
                         />
@@ -695,7 +705,9 @@ export default function Onboarding() {
                       <FormControl>
                         <Input
                           {...field}
+                          id="onboarding-email"
                           type="email"
+                          autoComplete="off"
                           placeholder={t("onboarding.step3.emailPlaceholder")}
                           data-testid="input-email"
                         />
