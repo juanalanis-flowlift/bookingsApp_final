@@ -62,6 +62,14 @@ FlowLift is a multi-tenant booking SaaS platform for small service businesses. I
    - No confirmation email is sent immediately
    - Business owner confirms from the Bookings section
    - Confirmation email is sent only after approval
+7. **Guided Onboarding Wizard**: Multi-step setup flow for new businesses:
+   - Step 0: Welcome screen with getting started prompt
+   - Step 1: Business identity (name, category, logo upload)
+   - Step 2: Business description
+   - Step 3: Location & contact info (address, city, country, phone, email)
+   - Step 4: Preferences (language, theme)
+   - Progress is saved at each step and can be resumed
+   - Dashboard and Services pages redirect to onboarding if not complete
 
 ## API Routes
 ### Protected (requires auth)
