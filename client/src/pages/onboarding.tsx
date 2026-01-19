@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/form";
 import { ArrowLeft, ArrowRight, Check, Sun, Moon, Camera, Building2 } from "lucide-react";
 import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 import { businessCategories, type Business } from "@shared/schema";
 
 import step0Image from "@assets/flowlift_onboarding_step0_1768793034455.png";
@@ -297,7 +298,7 @@ export default function Onboarding() {
     };
   }, []);
 
-  const handleLogoUploadComplete = useCallback((result: { successful?: Array<{ uploadURL?: string }> }) => {
+  const handleLogoUploadComplete = useCallback((result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     if (result.successful && result.successful.length > 0) {
       const uploadURL = result.successful[0].uploadURL;
       if (uploadURL) {

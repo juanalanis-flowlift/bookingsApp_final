@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
@@ -61,6 +62,7 @@ export default function Services() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [showServicesUpgradeModal, setShowServicesUpgradeModal] = useState(false);
   const [showImagesUpgradeModal, setShowImagesUpgradeModal] = useState(false);
+  const [, navigate] = useLocation();
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -75,9 +77,17 @@ export default function Services() {
     }
   }, [isAuthenticated, authLoading, toast]);
 
-  const { data: business } = useQuery<Business>({
+  const { data: business, isLoading: businessLoading } = useQuery<Business>({
     queryKey: ["/api/business"],
   });
+
+  useEffect(() => {
+    if (!businessLoading && !authLoading && isAuthenticated) {
+      if (!business || !business.onboardingComplete) {
+        navigate("/onboarding");
+      }
+    }
+  }, [business, businessLoading, authLoading, isAuthenticated, navigate]);
 
   const { data: services, isLoading } = useQuery<Service[]>({
     queryKey: ["/api/services"],

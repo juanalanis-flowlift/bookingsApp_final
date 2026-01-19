@@ -60,10 +60,12 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    if (!businessLoading && business && !business.onboardingComplete) {
-      navigate("/onboarding");
+    if (!businessLoading && !authLoading && isAuthenticated) {
+      if (!business || !business.onboardingComplete) {
+        navigate("/onboarding");
+      }
     }
-  }, [business, businessLoading, navigate]);
+  }, [business, businessLoading, authLoading, isAuthenticated, navigate]);
 
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
     queryKey: ["/api/bookings"],
