@@ -214,7 +214,7 @@ export default function Onboarding() {
   });
 
   const updateBusinessMutation = useMutation({
-    mutationFn: async (data: Partial<OnboardingData> & { onboardingStep?: number; onboardingComplete?: boolean; slug?: string; logoUrl?: string }) => {
+    mutationFn: async (data: Partial<OnboardingData> & { onboardingStep?: number; onboardingComplete?: boolean; slug?: string; logoUrl?: string; subscriptionTier?: string }) => {
       return await apiRequest("PATCH", "/api/business", data);
     },
     onSuccess: () => {
@@ -395,6 +395,7 @@ export default function Onboarding() {
         preferredLanguage: values.preferredLanguage,
         onboardingStep: 5,
         onboardingComplete: true,
+        subscriptionTier: "teams",
       });
       navigate("/services");
       return;
