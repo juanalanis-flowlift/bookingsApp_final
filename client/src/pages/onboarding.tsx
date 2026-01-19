@@ -298,21 +298,31 @@ export default function Onboarding() {
     };
   }, []);
 
+  const logoMutation = useMutation({
+    mutationFn: async (logoURL: string) => {
+      return await apiRequest("PUT", "/api/business/logo", { logoURL });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/business"] });
+      toast({ title: t("settings.logoUpdated") });
+      setIsUploading(false);
+    },
+    onError: (error) => {
+      console.error("Error updating logo:", error);
+      toast({ title: t("common.failedToSave"), variant: "destructive" });
+      setIsUploading(false);
+    },
+  });
+
   const handleLogoUploadComplete = useCallback((result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     if (result.successful && result.successful.length > 0) {
       const uploadURL = result.successful[0].uploadURL;
       if (uploadURL) {
-        setFormData(prev => ({ ...prev, logoUrl: uploadURL }));
-        if (business) {
-          updateBusinessMutation.mutate({ logoUrl: uploadURL });
-        }
-        toast({
-          title: t("settings.logoUpdated"),
-        });
+        setIsUploading(true);
+        logoMutation.mutate(uploadURL);
       }
     }
-    setIsUploading(false);
-  }, [business, updateBusinessMutation, toast, t]);
+  }, [logoMutation]);
 
   const handleNext = async () => {
     if (currentStep === 0) {
