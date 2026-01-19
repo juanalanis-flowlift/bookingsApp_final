@@ -263,18 +263,26 @@ export default function Onboarding() {
     },
   });
 
+  // Only reset forms when non-logo business data changes (e.g., initial load)
+  // Use a ref to track if this is the initial load vs. a logo-only update
+  const [hasInitializedForms, setHasInitializedForms] = useState(false);
+  
   useEffect(() => {
-    step1Form.reset({ name: formData.name, category: formData.category });
-    step2Form.reset({ description: formData.description });
-    step3Form.reset({
-      address: formData.address,
-      city: formData.city,
-      country: formData.country,
-      phone: formData.phone,
-      email: formData.email,
-    });
-    step4Form.reset({ preferredLanguage: formData.preferredLanguage, theme: formData.theme });
-  }, [formData]);
+    // Only reset forms on initial data load, not on subsequent updates like logo changes
+    if (!hasInitializedForms && (formData.name || formData.category || formData.description)) {
+      step1Form.reset({ name: formData.name, category: formData.category });
+      step2Form.reset({ description: formData.description });
+      step3Form.reset({
+        address: formData.address,
+        city: formData.city,
+        country: formData.country,
+        phone: formData.phone,
+        email: formData.email,
+      });
+      step4Form.reset({ preferredLanguage: formData.preferredLanguage, theme: formData.theme });
+      setHasInitializedForms(true);
+    }
+  }, [formData.name, formData.category, formData.description, formData.address, formData.city, formData.country, formData.phone, formData.email, formData.preferredLanguage, hasInitializedForms]);
 
   const getCategoryLabel = (cat: string): string => {
     return t(`categories.${cat}`);
@@ -300,10 +308,12 @@ export default function Onboarding() {
 
   const logoMutation = useMutation({
     mutationFn: async (logoURL: string) => {
-      return await apiRequest("PUT", "/api/business/logo", { logoURL });
+      const response = await apiRequest("PUT", "/api/business/logo", { logoURL });
+      return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/business"] });
+    onSuccess: (data) => {
+      // Only update the logoUrl in formData, don't refetch and reset forms
+      setFormData(prev => ({ ...prev, logoUrl: data.logoUrl }));
       toast({ title: t("settings.logoUpdated") });
       setIsUploading(false);
     },
