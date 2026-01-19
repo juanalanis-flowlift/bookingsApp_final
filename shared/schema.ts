@@ -129,6 +129,10 @@ export const businesses = pgTable("businesses", {
   showTermsInBooking: boolean("show_terms_in_booking").default(false),
   showTermsInEmail: boolean("show_terms_in_email").default(false),
   subscriptionTier: varchar("subscription_tier", { length: 20 }).notNull().default("starter"),
+  // Onboarding tracking (0-4 = current step, 5 = completed)
+  onboardingStep: integer("onboarding_step").notNull().default(0),
+  onboardingComplete: boolean("onboarding_complete").notNull().default(false),
+  preferredLanguage: varchar("preferred_language", { length: 10 }).default("en"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
