@@ -24,6 +24,7 @@ import ConfirmModification from "@/pages/confirm-modification";
 import CustomerCancel from "@/pages/customer-cancel";
 import CustomerModify from "@/pages/customer-modify";
 import Team from "@/pages/team";
+import Onboarding from "@/pages/onboarding";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -74,6 +75,9 @@ function Router() {
       
       {/* Sign-in page - always accessible */}
       <Route path="/signin" component={SignIn} />
+      
+      {/* Onboarding page - for authenticated users setting up their business */}
+      <Route path="/onboarding" component={Onboarding} />
 
       {/* Landing page for non-authenticated users */}
       {isLoading || !isAuthenticated ? (

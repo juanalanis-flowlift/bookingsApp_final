@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
@@ -37,6 +37,7 @@ export default function Dashboard() {
   const { t } = useI18n();
   const { isStarter, canAccessFeature } = useTier();
   const [showAnalyticsUpgradeModal, setShowAnalyticsUpgradeModal] = useState(false);
+  const [, navigate] = useLocation();
   
   // Analytics charts require Pro+ tier
   const canAccessAnalytics = canAccessFeature("pro");
@@ -57,6 +58,12 @@ export default function Dashboard() {
   const { data: business, isLoading: businessLoading } = useQuery<Business>({
     queryKey: ["/api/business"],
   });
+
+  useEffect(() => {
+    if (!businessLoading && business && !business.onboardingComplete) {
+      navigate("/onboarding");
+    }
+  }, [business, businessLoading, navigate]);
 
   const { data: bookings, isLoading: bookingsLoading } = useQuery<Booking[]>({
     queryKey: ["/api/bookings"],
