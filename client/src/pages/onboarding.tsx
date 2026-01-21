@@ -817,68 +817,79 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="flex flex-col md:flex-row min-h-screen">
-        <header className="flex items-center justify-between p-4 md:hidden border-b">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">FL</span>
-            </div>
-            <span className="font-semibold text-lg">flowlift</span>
-          </div>
-          {currentStep > 0 && <ProgressIndicator currentStep={currentStep} totalSteps={TOTAL_STEPS} />}
-        </header>
-
-        <div className="flex-1 flex flex-col md:flex-row">
-          <div className="w-full md:w-1/2 bg-muted/30 flex items-center justify-center p-8 order-first md:order-first">
-            <div className="max-w-sm">
-              <img
-                src={stepImages[currentStep]}
-                alt={`Step ${currentStep} illustration`}
-                className="w-full h-auto max-h-64 md:max-h-96 object-contain"
-              />
-            </div>
-          </div>
-
-          <div className="w-full md:w-1/2 flex flex-col">
-            <div className="hidden md:flex items-center justify-between p-6 border-b">
+    <div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
+      {/* Main card container - max 80% width on desktop */}
+      <div className="w-full max-w-[80%] md:max-w-4xl lg:max-w-5xl bg-background rounded-xl shadow-lg overflow-hidden">
+        <div className="flex flex-col md:flex-row min-h-[500px] md:min-h-[600px]">
+          {/* Left column - Logo, progress indicator, and illustration */}
+          <div className="w-full md:w-1/2 bg-muted/20 flex flex-col relative">
+            {/* Header with logo and progress */}
+            <div className="flex items-center justify-between p-4 md:p-6">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                   <span className="text-primary-foreground font-bold text-sm">FL</span>
                 </div>
-                <span className="font-semibold text-lg">flowlift</span>
+                <span className="font-semibold text-lg text-foreground">flowlift</span>
+              </div>
+              {currentStep > 0 && <ProgressIndicator currentStep={currentStep} totalSteps={TOTAL_STEPS} />}
+            </div>
+            
+            {/* Illustration */}
+            <div className="flex-1 flex items-center justify-center p-6 md:p-8">
+              <div className="max-w-xs md:max-w-sm">
+                <img
+                  src={stepImages[currentStep]}
+                  alt={`Step ${currentStep} illustration`}
+                  className="w-full h-auto max-h-48 md:max-h-72 object-contain"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Vertical divider - green line */}
+          <div className="hidden md:block w-1 bg-primary/80" />
+
+          {/* Right column - Form content */}
+          <div className="w-full md:w-1/2 flex flex-col p-6 md:p-8">
+            {/* Mobile header */}
+            <div className="flex items-center justify-between mb-4 md:hidden">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-sm">FL</span>
+                </div>
+                <span className="font-semibold text-lg text-foreground">flowlift</span>
               </div>
               {currentStep > 0 && <ProgressIndicator currentStep={currentStep} totalSteps={TOTAL_STEPS} />}
             </div>
 
-            <div className="flex-1 flex flex-col p-6 md:p-10">
-              <div className="flex-1">
-                {renderStepContent()}
-              </div>
-
-              {currentStep > 0 && (
-                <div className="flex items-center justify-between pt-6 mt-6 border-t">
-                  <Button
-                    variant="ghost"
-                    onClick={handleBack}
-                    disabled={isSaving}
-                    data-testid="button-back"
-                  >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    {t("onboarding.back")}
-                  </Button>
-                  <Button
-                    onClick={handleNext}
-                    disabled={isSaving}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                    data-testid="button-continue"
-                  >
-                    {isSaving ? t("onboarding.saving") : currentStep === 4 ? t("onboarding.complete.cta") : t("onboarding.continue")}
-                    {currentStep < 4 && <ArrowRight className="ml-2 h-4 w-4" />}
-                  </Button>
-                </div>
-              )}
+            {/* Form content area */}
+            <div className="flex-1 flex flex-col justify-center">
+              {renderStepContent()}
             </div>
+
+            {/* Navigation buttons */}
+            {currentStep > 0 && (
+              <div className="flex items-center justify-between pt-6 mt-4">
+                <Button
+                  variant="ghost"
+                  onClick={handleBack}
+                  disabled={isSaving}
+                  data-testid="button-back"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  {t("onboarding.back")}
+                </Button>
+                <Button
+                  onClick={handleNext}
+                  disabled={isSaving}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8"
+                  data-testid="button-continue"
+                >
+                  {isSaving ? t("onboarding.saving") : currentStep === 4 ? t("onboarding.complete.cta") : t("onboarding.continue")}
+                  {currentStep < 4 && <ArrowRight className="ml-2 h-4 w-4" />}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
