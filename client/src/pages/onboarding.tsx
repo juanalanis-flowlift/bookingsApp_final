@@ -436,7 +436,7 @@ export default function Onboarding() {
     switch (currentStep) {
       case 0:
         return (
-          <div className="space-y-6 text-center md:text-left">
+          <div key="step-0" className="space-y-6 text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">
               {t("onboarding.step0.title")}
             </h1>
@@ -458,7 +458,7 @@ export default function Onboarding() {
 
       case 1:
         return (
-          <div className="space-y-6">
+          <div key="step-1" className="space-y-6">
             <div className="text-center md:text-left">
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                 {t("onboarding.step1.title")}
@@ -554,7 +554,7 @@ export default function Onboarding() {
 
       case 2:
         return (
-          <div className="space-y-6">
+          <div key="step-2" className="space-y-6">
             <div className="text-center md:text-left">
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                 {t("onboarding.step2.title")}
@@ -575,12 +575,14 @@ export default function Onboarding() {
                       <FormControl>
                         <Textarea
                           {...field}
+                          key="description-field"
                           id="onboarding-description"
                           autoComplete="off"
                           placeholder={t("onboarding.step2.descriptionPlaceholder")}
                           rows={5}
                           className="resize-none"
                           data-testid="textarea-description"
+                          value={field.value || ""}
                         />
                       </FormControl>
                       <FormMessage />
@@ -594,7 +596,7 @@ export default function Onboarding() {
 
       case 3:
         return (
-          <div className="space-y-6">
+          <div key="step-3" className="space-y-6">
             <div className="text-center md:text-left">
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                 {t("onboarding.step3.title")}
@@ -723,7 +725,7 @@ export default function Onboarding() {
 
       case 4:
         return (
-          <div className="space-y-6">
+          <div key="step-4" className="space-y-6">
             <div className="text-center md:text-left">
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                 {t("onboarding.step4.title")}
