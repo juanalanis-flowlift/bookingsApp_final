@@ -40,6 +40,7 @@ import step1Image from "@assets/flowlift_onboarding_step1_1768793034456.png";
 import step2Image from "@assets/flowlift_onboarding_step2_1768793034458.png";
 import step3Image from "@assets/flowlift_onboarding_step3_1768793034457.png";
 import step4Image from "@assets/flowlift_onboarding_step4_1768793034457.png";
+import flowliftLogo from "@assets/flowlift_logo_full_small_white_1769033094305.png";
 
 const TOTAL_STEPS = 5;
 
@@ -827,12 +828,7 @@ export default function Onboarding() {
           <div className="w-full md:w-1/2 bg-muted/20 flex flex-col relative">
             {/* Header with logo and progress */}
             <div className="flex items-center justify-between p-4 md:p-6">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">FL</span>
-                </div>
-                <span className="font-semibold text-lg text-foreground">flowlift</span>
-              </div>
+              <img src={flowliftLogo} alt="Flowlift" className="h-8 w-auto" />
               {currentStep > 0 && <ProgressIndicator currentStep={currentStep} totalSteps={TOTAL_STEPS} />}
             </div>
             
@@ -855,12 +851,7 @@ export default function Onboarding() {
           <div className="w-full md:w-1/2 flex flex-col p-6 md:p-8">
             {/* Mobile header */}
             <div className="flex items-center justify-between mb-4 md:hidden">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">FL</span>
-                </div>
-                <span className="font-semibold text-lg text-foreground">flowlift</span>
-              </div>
+              <img src={flowliftLogo} alt="Flowlift" className="h-7 w-auto" />
               {currentStep > 0 && <ProgressIndicator currentStep={currentStep} totalSteps={TOTAL_STEPS} />}
             </div>
 
