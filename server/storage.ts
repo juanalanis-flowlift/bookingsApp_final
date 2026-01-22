@@ -48,6 +48,7 @@ export interface IStorage {
   getBusinessById(id: string): Promise<Business | undefined>;
   createBusiness(business: InsertBusiness): Promise<Business>;
   updateBusiness(id: string, business: Partial<InsertBusiness>): Promise<Business | undefined>;
+  deleteBusiness(id: string): Promise<void>;
 
   // Service operations
   getServicesByBusinessId(businessId: string): Promise<Service[]>;
@@ -197,6 +198,10 @@ export class DatabaseStorage implements IStorage {
       .where(eq(businesses.id, id))
       .returning();
     return updated;
+  }
+
+  async deleteBusiness(id: string): Promise<void> {
+    await db.delete(businesses).where(eq(businesses.id, id));
   }
 
   // Service operations

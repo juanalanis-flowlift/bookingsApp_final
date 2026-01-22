@@ -99,6 +99,23 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     }
   });
 
+  app.delete("/api/business", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const business = await storage.getBusinessByOwnerId(userId);
+      
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+
+      await storage.deleteBusiness(business.id);
+      res.json({ message: "Business deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting business:", error);
+      res.status(500).json({ message: "Failed to delete business" });
+    }
+  });
+
   // ============================================
   // Service Routes (Protected)
   // ============================================
