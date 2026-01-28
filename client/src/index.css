@@ -2,13 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE - flowlift Theme */
+/* LIGHT MODE - FlowLift Theme */
 :root {
-  --button-outline: rgba(0, 0, 0, .10);
-  --badge-outline: rgba(0, 0, 0, .05);
+  --button-outline: rgba(0,0,0, .10);
+  --badge-outline: rgba(0,0,0, .05);
   --opaque-button-border-intensity: -8;
-  --elevate-1: rgba(0, 0, 0, .03);
-  --elevate-2: rgba(0, 0, 0, .08);
+  --elevate-1: rgba(0,0,0, .03);
+  --elevate-2: rgba(0,0,0, .08);
   --background: 0 0% 100%;
   --foreground: 206 29% 8%;
   --border: 201 33% 91%;
@@ -43,9 +43,9 @@
   --chart-3: 43 93% 56%;
   --chart-4: 22 80% 65%;
   --chart-5: 340 79% 51%;
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: Georgia, Constantia, "Lucida Bright", serif;
-  --font-mono: Menlo, Monaco, Consolas, "Courier New", monospace;
+  --font-sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: Menlo, monospace;
   --radius: .5rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(201 33% 91% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(201 33% 91% / 0.00);
@@ -58,7 +58,7 @@
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
-  /* Fallback for older browsers */
+/* Fallback for older browsers */
   --sidebar-primary-border: hsl(var(--sidebar-primary));
   --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 
@@ -87,13 +87,13 @@
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
-/* DARK MODE - flowlift Theme */
+/* DARK MODE - FlowLift Theme */
 .dark {
-  --button-outline: rgba(255, 255, 255, .10);
-  --badge-outline: rgba(255, 255, 255, .05);
+  --button-outline: rgba(255,255,255, .10);
+  --badge-outline: rgba(255,255,255, .05);
   --opaque-button-border-intensity: 9;
-  --elevate-1: rgba(255, 255, 255, .04);
-  --elevate-2: rgba(255, 255, 255, .09);
+  --elevate-1: rgba(255,255,255, .04);
+  --elevate-2: rgba(255,255,255, .09);
   --background: 206 29% 8%;
   --foreground: 0 0% 100%;
   --border: 206 20% 18%;
@@ -137,7 +137,7 @@
   --shadow-xl: 0px 2px 0px 0px hsl(206 20% 18% / 0.00), 0px 8px 10px -1px hsl(206 20% 18% / 0.00);
   --shadow-2xl: 0px 2px 0px 0px hsl(206 20% 18% / 0.00);
 
-  /* Fallback for older browsers */
+/* Fallback for older browsers */
   --sidebar-primary-border: hsl(var(--sidebar-primary));
   --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 

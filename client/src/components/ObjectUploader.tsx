@@ -7,9 +7,6 @@ import "@uppy/dashboard/css/style.min.css";
 import AwsS3 from "@uppy/aws-s3";
 import type { UploadResult } from "@uppy/core";
 import { Button } from "@/components/ui/button";
-import { useI18n } from "@/lib/i18n";
-import Spanish from "@uppy/locales/lib/es_ES";
-import English from "@uppy/locales/lib/en_US";
 
 interface ObjectUploaderProps {
   maxNumberOfFiles?: number;
@@ -39,7 +36,6 @@ export function ObjectUploader({
   buttonSize = "default",
   children,
 }: ObjectUploaderProps) {
-  const { language } = useI18n();
   const [showModal, setShowModal] = useState(false);
   const [uppy] = useState(() =>
     new Uppy({
@@ -48,7 +44,6 @@ export function ObjectUploader({
         maxFileSize,
         allowedFileTypes,
       },
-      locale: language === "es" ? Spanish : English,
       autoProceed: false,
     })
       .use(AwsS3, {
@@ -63,9 +58,9 @@ export function ObjectUploader({
 
   return (
     <div>
-      <Button
+      <Button 
         type="button"
-        onClick={() => setShowModal(true)}
+        onClick={() => setShowModal(true)} 
         className={buttonClassName}
         variant={buttonVariant}
         size={buttonSize}

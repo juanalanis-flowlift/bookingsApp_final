@@ -63,7 +63,7 @@ export function generateICSFile(event: CalendarEvent): string {
   const icsContent = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//flowlift//Booking//EN",
+    "PRODID:-//FlowLift//Booking//EN",
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
@@ -87,7 +87,7 @@ export function downloadICSFile(event: CalendarEvent, filename: string = "appoin
   const icsContent = generateICSFile(event);
   const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
   const url = URL.createObjectURL(blob);
-
+  
   const link = document.createElement("a");
   link.href = url;
   link.download = filename;
@@ -106,16 +106,16 @@ export function createBookingEvent(
   location?: string
 ): CalendarEvent {
   const [hours, minutes] = startTime.split(":").map(Number);
-
+  
   const startDate = new Date(date);
   startDate.setHours(hours, minutes, 0, 0);
-
+  
   const endDate = new Date(startDate);
   endDate.setMinutes(endDate.getMinutes() + durationMinutes);
 
   return {
     title: `${serviceName} at ${businessName}`,
-    description: `Your appointment for ${serviceName} at ${businessName}.\n\nBooked via flowlift.`,
+    description: `Your appointment for ${serviceName} at ${businessName}.\n\nBooked via FlowLift.`,
     location,
     startDate,
     endDate,

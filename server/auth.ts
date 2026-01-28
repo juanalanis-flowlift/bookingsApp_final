@@ -139,36 +139,6 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Dev Login for Local Development
-  app.get("/api/auth/dev", async (req, res) => {
-    if (process.env.NODE_ENV === "production") {
-      return res.status(404).send("Not found");
-    }
-
-    try {
-      // Create or get a test user
-      const user = await storage.upsertUser({
-        id: "dev-user",
-        email: "dev@flowlift.co",
-        firstName: "Dev",
-        lastName: "User",
-        profileImageUrl: null,
-      });
-
-      // Manually log them in
-      req.login(user, (err) => {
-        if (err) {
-          console.error("Dev login error:", err);
-          return res.redirect("/signin?error=login_failed");
-        }
-        return res.redirect("/dashboard");
-      });
-    } catch (error) {
-      console.error("Dev auth error:", error);
-      res.redirect("/signin?error=dev_auth_failed");
-    }
-  });
-
   // Google Auth Routes
   app.get(
     "/auth/google",

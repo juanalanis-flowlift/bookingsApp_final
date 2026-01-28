@@ -59,7 +59,7 @@ export default function AvailabilityPage() {
   const { canAccessFeature } = useTier();
   const [blockedTimeDialog, setBlockedTimeDialog] = useState(false);
   const [showMultiDayUpgradeModal, setShowMultiDayUpgradeModal] = useState(false);
-
+  
   // Multi-day blocking requires Pro+ tier
   const canAccessMultiDayBlocking = canAccessFeature("pro");
   const [newBlockedTime, setNewBlockedTime] = useState<{
@@ -113,7 +113,7 @@ export default function AvailabilityPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/availability"] });
-      toast({ title: t("availability.updated") });
+      toast({ title: "Availability updated" });
     },
     onError: (error) => {
       if (isUnauthorizedError(error as Error)) {
@@ -127,7 +127,7 @@ export default function AvailabilityPage() {
         }, 500);
         return;
       }
-      toast({ title: t("availability.availabilityError"), variant: "destructive" });
+      toast({ title: "Failed to update availability", variant: "destructive" });
     },
   });
 
@@ -152,7 +152,7 @@ export default function AvailabilityPage() {
         endTime: "17:00",
         reason: "",
       });
-      toast({ title: t("availability.blockedTimeAdded") });
+      toast({ title: "Blocked time added" });
     },
     onError: (error) => {
       if (isUnauthorizedError(error as Error)) {
@@ -166,7 +166,7 @@ export default function AvailabilityPage() {
         }, 500);
         return;
       }
-      toast({ title: t("availability.addBlockedError"), variant: "destructive" });
+      toast({ title: "Failed to add blocked time", variant: "destructive" });
     },
   });
 
@@ -176,7 +176,7 @@ export default function AvailabilityPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/blocked-times"] });
-      toast({ title: t("availability.blockedTimeRemoved") });
+      toast({ title: "Blocked time removed" });
     },
     onError: (error) => {
       if (isUnauthorizedError(error as Error)) {
@@ -190,7 +190,7 @@ export default function AvailabilityPage() {
         }, 500);
         return;
       }
-      toast({ title: t("availability.removeBlockedError"), variant: "destructive" });
+      toast({ title: "Failed to remove blocked time", variant: "destructive" });
     },
   });
 
@@ -445,7 +445,7 @@ export default function AvailabilityPage() {
                       numberOfMonths={1}
                     />
                   </div>
-
+                  
                   {/* Show hint for Starter users */}
                   {!canAccessMultiDayBlocking && (
                     <div className="flex items-center gap-2 mt-2 p-2 rounded-md bg-muted text-sm">
@@ -517,7 +517,7 @@ export default function AvailabilityPage() {
                         reason: e.target.value,
                       }))
                     }
-                    placeholder={t("availability.reasonPlaceholder")}
+                    placeholder="e.g., Vacation, Holiday, Personal"
                     data-testid="input-blocked-reason"
                   />
                 </div>

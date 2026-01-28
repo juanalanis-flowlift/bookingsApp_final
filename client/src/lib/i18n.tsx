@@ -17,22 +17,20 @@ const SPANISH_SPEAKING_COUNTRIES = [
 
 export const translations: Record<Language, Record<string, string>> = {
   en: {
-    "app.name": "flowlift",
+    "app.name": "FlowLift",
     "app.tagline": "Smart booking for service businesses",
-
+    
     "nav.dashboard": "Overview",
     "nav.services": "Services",
     "nav.bookings": "Bookings",
     "nav.availability": "Availability",
     "nav.settings": "Business",
     "nav.team": "Team",
-    "nav.about": "About",
-    "nav.products": "Products",
     "nav.logout": "Logout",
-
+    
     "sidebar.menu": "Menu",
     "sidebar.quickActions": "Quick Actions",
-
+    
     "landing.hero.title": "Smart Booking for",
     "landing.hero.titleHighlight": "Service Businesses",
     "landing.hero.subtitle": "Stop juggling calls and messages. Let your customers book appointments online while you focus on what you do best.",
@@ -46,27 +44,15 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.hero.rotating.equipmentHire": "equipment hire",
     "landing.hero.rotating.venueHire": "venue hire",
     "landing.signIn": "Start for free",
-    "landing.logIn": "Log in",
     "landing.startFree": "Start for free",
     "landing.signInWithGoogle": "Sign in with Google",
     "common.back": "Back",
-
+    
     "signin.title": "Sign In",
     "signin.subtitle": "Choose how you want to sign in to your account",
     "signin.google": "Continue with Google",
     "signin.microsoft": "Continue with Outlook",
-    "signin.rightPlace.title": "You're in the right place",
-    "signin.rightPlace.subtitle": "flowlift simplifies bookings for you and your customers. Clear schedules. Fewer messages. More control.",
-    "signin.hello.title": "Hello!",
-    "signin.hello.subtitle": "Sign up to start taking bookings and manage your schedule with confidence.",
-    "signin.signUpGoogle": "Sign up with Google",
-    "signin.signUpMicrosoft": "Sign up with Microsoft",
-    "signin.termsAgreement": "By continuing, you agree to our Terms of Service and our Privacy Policy.",
-    "signin.alreadyHaveAccount": "Already have an account?",
-    "signin.dontHaveAccount": "Don't have an account?",
-    "signin.signUp": "Sign up",
-    "signin.logIn": "Log in",
-
+    
     "landing.features.title": "Everything You Need to Manage Bookings",
     "landing.features.subtitle": "Simple, powerful tools designed for small service businesses",
     "landing.features.easyScheduling": "Easy Scheduling",
@@ -77,49 +63,20 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.features.customerManagementDesc": "Track bookings, customer details, and notes all in one place",
     "landing.features.simpleAnalytics": "Simple Analytics",
     "landing.features.simpleAnalyticsDesc": "See your upcoming bookings and track your business growth",
-
+    
     "landing.benefits.title": "Built for Service Professionals",
     "landing.benefits.subtitle": "Whether you're a barber, hairdresser, massage therapist, or rental business",
-    "landing.explore.title": "Explore what's possible",
     "landing.benefits.noDoubleBookings": "No double bookings",
     "landing.benefits.mobileFriendly": "Mobile-friendly booking page",
     "landing.benefits.instantConfirmations": "Instant booking confirmations",
     "landing.benefits.multipleServices": "Manage multiple services",
     "landing.benefits.customProfile": "Custom business profile",
     "landing.benefits.multiTenant": "Multi-tenant ready",
-
+    
     "landing.cta.title": "Ready to Streamline Your Bookings?",
     "landing.cta.subtitle": "Join businesses that save hours every week with automated scheduling",
     "landing.cta.button": "Start Free Today",
-
-    "about.title": "About flowlift",
-    "about.subtitle": "We're on a mission to make booking simple for service businesses everywhere.",
-    "about.mission.title": "Our Mission",
-    "about.mission.description": "flowlift was created to help service businesses streamline their booking process. We believe that managing appointments should be simple, efficient, and accessible to everyone—from solo practitioners to growing teams.",
-    "about.story.title": "Our Story",
-    "about.story.description": "Founded by entrepreneurs who experienced the challenges of managing bookings firsthand, flowlift combines powerful features with an intuitive interface. We're committed to providing tools that help businesses focus on what they do best: serving their customers.",
-
-    "products.title": "Choose your plan",
-    "products.subtitle": "Start free and upgrade as you grow. All plans include core booking features.",
-
-    "tier.starter.price": "Free",
-    "tier.pro.price": "$19",
-    "tier.teams.price": "$49",
-    "tier.perMonth": "month",
-    "tier.popular": "Most Popular",
-    "tier.starter.feature1": "Unlimited bookings",
-    "tier.starter.feature2": "Custom booking page",
-    "tier.starter.feature3": "Email notifications",
-    "tier.starter.feature4": "Basic analytics",
-    "tier.pro.feature1": "Everything in Starter",
-    "tier.pro.feature2": "Remove flowlift branding",
-    "tier.pro.feature3": "Advanced analytics",
-    "tier.pro.feature4": "Priority support",
-    "tier.teams.feature1": "Everything in Pro+",
-    "tier.teams.feature2": "Team member management",
-    "tier.teams.feature3": "Team scheduling",
-    "tier.teams.feature4": "Team analytics",
-
+    
     "booking.selectService": "Select a Service",
     "booking.noServices": "No services available at this time.",
     "booking.select": "Select",
@@ -162,7 +119,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "booking.googleCalendar": "Google Calendar",
     "booking.outlookCalendar": "Outlook",
     "booking.appleCalendar": "Apple Calendar",
-
+    
     "categories.hair_salon": "Hair Salon",
     "categories.barber_shop": "Barber Shop",
     "categories.nail_salon": "Nail Salon (Manicure & Pedicure)",
@@ -219,7 +176,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "categories.chiropractic_clinic": "Chiropractic Clinic",
     "categories.mental_health": "Mental Health Practice",
     "categories.other": "Other",
-
+    
     "settings.title": "Business",
     "settings.membership.title": "Membership",
     "settings.membership.current": "Current",
@@ -256,16 +213,11 @@ export const translations: Record<Language, Record<string, string>> = {
     "settings.descriptionPlaceholder": "Tell customers about your business...",
     "settings.location": "Location",
     "settings.address": "Address",
-    "settings.addressPlaceholder": "123 Main Street",
     "settings.city": "City",
-    "settings.cityPlaceholder": "New York",
     "settings.country": "Country",
-    "settings.countryPlaceholder": "United States",
     "settings.contact": "Contact",
     "settings.phone": "Phone",
-    "settings.phonePlaceholder": "+1 (555) 123-4567",
     "settings.email": "Email",
-    "settings.emailPlaceholder": "contact@yourbusiness.com",
     "settings.socialMedia": "Social Media",
     "settings.socialMediaDescription": "Add your social media usernames to display on your booking page",
     "settings.addPlatform": "Add Platform",
@@ -276,13 +228,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "settings.save": "Update",
     "settings.create": "Create Business",
     "settings.saving": "Saving...",
-    "settings.saved": "Settings saved successfully",
-    "settings.saveError": "Failed to save settings",
     "settings.changeLogo": "Change Logo",
     "settings.uploading": "Uploading...",
     "settings.urlCopied": "Booking URL copied!",
-    "social.username": "username",
-    "social.channel": "channel",
     "settings.profileSaved": "Business profile saved",
     "settings.logoUpdated": "Logo updated successfully",
     "settings.language": "Language",
@@ -317,7 +265,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "settings.showTermsInEmailDesc": "Include terms and conditions in the booking confirmation email",
     "booking.termsAndConditions": "Terms & Conditions",
     "booking.agreeToTerms": "I have read and agree to the terms and conditions",
-
+    
     "settings.qrCode": "QR Code",
     "settings.qrCodeDescription": "Generate a QR code that links to your booking page",
     "settings.qrCodePreview": "QR Code Preview",
@@ -325,7 +273,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "settings.downloadJpg": "Download JPG",
     "settings.qrCodeDownloaded": "QR code downloaded!",
     "settings.noBusinessYet": "Create your business profile first to generate a QR code",
-
+    
     "services.title": "Services",
     "services.subtitle": "Manage the services you offer to customers",
     "services.addService": "Add Service",
@@ -333,15 +281,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.noServices": "No services yet",
     "services.noServicesDesc": "Add your first service to start accepting bookings",
     "services.name": "Service Name",
-    "services.namePlaceholder": "e.g., Haircut, Massage",
     "services.description": "Description",
-    "services.descriptionPlaceholder": "Describe your service...",
     "services.duration": "Duration (minutes)",
     "services.price": "Price",
     "services.tags": "Tags",
     "services.tagsPlaceholder": "Add tags (comma separated)",
     "services.active": "Active",
-    "services.activeDesc": "Show this service on your booking page",
     "services.requiresConfirmation": "Requires Confirmation",
     "services.requiresConfirmationDesc": "Bookings require your approval before being confirmed",
     "services.confirmation": "Confirmation",
@@ -361,7 +306,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.serviceImage": "Service Image",
     "services.addImageDesc": "Add an image to display with this service",
     "services.changeImageDesc": "Change the image displayed with this service",
-
+    
     "bookings.title": "Bookings",
     "bookings.subtitle": "View and manage your customer appointments",
     "bookings.noBookings": "No bookings yet",
@@ -413,15 +358,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "bookings.createBooking": "Create Booking",
     "bookings.bookingCreated": "Booking created successfully",
     "bookings.bookingCreateFailed": "Failed to create booking",
-    "bookings.updated": "Booking updated successfully",
-    "bookings.updateError": "Failed to update booking",
-    "bookings.noBookingsFilter": "No bookings match your filter",
-    "bookings.noBookingsEmpty": "No bookings found",
-    "bookings.sharePage": "Share your booking page to start receiving appointments",
-    "bookings.filterByStatus": "Filter by status",
-    "bookings.devLogin": "Dev Login (Bypass)",
-    "bookings.status": "Status",
-
+    
     "confirmModification.title": "Confirm Appointment Change",
     "confirmModification.subtitle": "Please review the proposed changes to your appointment",
     "confirmModification.currentTime": "Current Time",
@@ -534,10 +471,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "team.photoError": "Failed to update photo",
     "team.settingsUpdated": "Settings updated successfully",
     "team.settingsError": "Failed to update settings",
-
+    
     "common.sending": "Sending...",
     "common.fillAllFields": "Please fill all required fields",
-
+    
     "availability.title": "Availability",
     "availability.subtitle": "Set your working hours and manage time slots",
     "availability.workingHours": "Working Hours",
@@ -549,13 +486,6 @@ export const translations: Record<Language, Record<string, string>> = {
     "availability.maxPerSlot": "Max Bookings Per Slot",
     "availability.save": "Save Availability",
     "availability.saved": "Availability saved successfully",
-    "availability.updated": "Availability updated",
-    "availability.availabilityError": "Failed to update availability",
-    "availability.blockedTimeAdded": "Blocked time added",
-    "availability.addBlockedError": "Failed to add blocked time",
-    "availability.blockedTimeRemoved": "Blocked time removed",
-    "availability.removeBlockedError": "Failed to remove blocked time",
-    "availability.reasonPlaceholder": "e.g., Vacation, Holiday, Personal",
     "availability.to": "to",
     "availability.slotLabel": "Slot:",
     "availability.startDate": "Start Date",
@@ -566,7 +496,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "availability.setupFirst": "Please set up your business profile first.",
     "availability.multiDayPro": "Multi-day blocking available with Pro+",
     "common.noBookingsOnDate": "No bookings on this date",
-
+    
     "dashboard.title": "Overview",
     "dashboard.welcome": "Welcome back",
     "dashboard.todayBookings": "Today's Bookings",
@@ -601,10 +531,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "dashboard.analytics": "Business Analytics",
     "dashboard.analyticsLocked": "Unlock Business Analytics",
     "dashboard.analyticsLockedDesc": "Upgrade to Pro+ to access detailed charts, trends, and insights about your business performance.",
-    "dashboard.welcomeNewBusiness": "Welcome to flowlift",
+    "dashboard.welcomeNewBusiness": "Welcome to FlowLift",
     "dashboard.setupNewBusiness": "Set up your business profile to start accepting online bookings.",
     "dashboard.setupButton": "Set Up Business",
-
+    
     "myBookings.title": "My Bookings",
     "myBookings.subtitle": "View and manage your appointments",
     "myBookings.enterEmail": "Enter your email to view bookings",
@@ -613,7 +543,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "myBookings.linkSent": "Check your email for the login link",
     "myBookings.noBookings": "No bookings found",
     "myBookings.noBookingsDesc": "Book an appointment with a business to see it here",
-
+    
     "days.sunday": "Sunday",
     "days.monday": "Monday",
     "days.tuesday": "Tuesday",
@@ -621,7 +551,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "days.thursday": "Thursday",
     "days.friday": "Friday",
     "days.saturday": "Saturday",
-
+    
     "categories.barber": "Barber Shop",
     "categories.hairdresser": "Hair Salon",
     "categories.beauty_salon": "Beauty Salon",
@@ -630,7 +560,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "categories.inflatable_rentals": "Inflatable Rentals",
     "categories.party_services": "Party Services",
     "categories.fitness": "Fitness & Training",
-
+    
     "common.loading": "Loading...",
     "common.error": "An error occurred",
     "common.save": "Save",
@@ -659,13 +589,13 @@ export const translations: Record<Language, Record<string, string>> = {
     "common.noBlockedTimeScheduled": "No blocked time scheduled",
     "common.addTimeOffDescription": "Add time off for holidays, vacations, or breaks",
     "common.commaSeparated": "comma-separated",
-
+    
     "booking.selectDateTime": "Date & Time",
-
+    
     "settings.yourBusiness": "Your Business",
     "settings.businessNamePlaceholder": "Your Business Name",
     "settings.setupFirst": "Please set up your business profile first.",
-
+    
     "email.bookingConfirmed": "Booking Confirmed",
     "email.appointmentScheduled": "Your appointment has been scheduled",
     "email.date": "Date",
@@ -675,12 +605,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "email.minutes": "minutes",
     "email.businessDetails": "Business Details",
     "email.needChanges": "Need to make changes? Contact {businessName} directly.",
-    "email.poweredBy": "Powered by flowlift",
-
+    "email.poweredBy": "Powered by FlowLift",
+    
     "auth.signedIn": "Signed in",
     "auth.viewManageBookings": "You can now view and manage your bookings.",
     "auth.errorVerifyToken": "Failed to verify token",
-
+    
     "myBookings.viewTitle": "View Your Bookings",
     "myBookings.enterEmailDesc": "Enter your email to access your booking history",
     "myBookings.checkEmail": "Check your email",
@@ -705,72 +635,72 @@ export const translations: Record<Language, Record<string, string>> = {
     "myBookings.pastCancelled": "Past & Cancelled",
     "myBookings.noBookingsYet": "No bookings yet",
     "myBookings.noBookingsEmailDesc": "You haven't made any bookings with this email address.",
-
+    
     "tier.starter": "Starter",
     "tier.pro": "Pro+",
     "tier.teams": "Teams",
     "tier.availableInPro": "Available in Pro+",
     "tier.availableInTeams": "Available in Teams",
     "tier.currentPlan": "Current Plan",
-
+    
     "upgrade.notNow": "Not now",
     "upgrade.upgradeTo": "Upgrade to",
     "upgrade.unlockFeature": "Unlock this feature",
-
+    
     "upgrade.multipleServices.title": "Add Unlimited Services",
     "upgrade.multipleServices.benefit1": "Offer as many services as you need",
     "upgrade.multipleServices.benefit2": "Add photos to your service listings",
     "upgrade.multipleServices.benefit3": "Customize booking rules per service",
     "upgrade.multipleServices.benefit4": "Stand out with a professional booking page",
-
+    
     "upgrade.servicePhotos.title": "Add Photos to Your Services",
     "upgrade.servicePhotos.benefit1": "Showcase your work with professional images",
     "upgrade.servicePhotos.benefit2": "Help customers choose the right service",
     "upgrade.servicePhotos.benefit3": "Build trust with visual examples",
     "upgrade.servicePhotos.benefit4": "Make your booking page stand out",
-
+    
     "upgrade.qrCode.title": "Get Your QR Code",
     "upgrade.qrCode.benefit1": "Share your booking page instantly",
     "upgrade.qrCode.benefit2": "Print for your storefront or cards",
     "upgrade.qrCode.benefit3": "Easy scanning for customers",
     "upgrade.qrCode.benefit4": "Professional marketing material",
-
+    
     "upgrade.branding.title": "Customize Your Brand",
     "upgrade.branding.benefit1": "Upload your business logo",
     "upgrade.branding.benefit2": "Add a cover image to your booking page",
     "upgrade.branding.benefit3": "Match colors to your brand",
     "upgrade.branding.benefit4": "Create a professional impression",
-
+    
     "upgrade.multiDayBlocking.title": "Block Multiple Days",
     "upgrade.multiDayBlocking.benefit1": "Block off vacation periods easily",
     "upgrade.multiDayBlocking.benefit2": "Set extended time off with one action",
     "upgrade.multiDayBlocking.benefit3": "Better holiday planning",
     "upgrade.multiDayBlocking.benefit4": "Streamlined availability management",
-
+    
     "upgrade.team.title": "Manage Your Team",
     "upgrade.team.benefit1": "Add unlimited team members",
     "upgrade.team.benefit2": "Assign services to specific staff",
     "upgrade.team.benefit3": "Individual schedules per team member",
     "upgrade.team.benefit4": "View team workload at a glance",
-
+    
     "upgrade.teamLoad.title": "Team Workload View",
     "upgrade.teamLoad.benefit1": "See all team bookings at a glance",
     "upgrade.teamLoad.benefit2": "Balance workload across staff",
     "upgrade.teamLoad.benefit3": "Identify busy and free periods",
     "upgrade.teamLoad.benefit4": "Make smarter scheduling decisions",
-
+    
     "upgrade.analytics.title": "Unlock Business Analytics",
     "upgrade.analytics.benefit1": "Track completed bookings over time",
     "upgrade.analytics.benefit2": "See which services are most popular",
     "upgrade.analytics.benefit3": "View daily occupation rates",
     "upgrade.analytics.benefit4": "Make data-driven business decisions",
-
+    
     "services.starterLimit": "Starter plan allows 1 service",
     "services.upgradeForMore": "Upgrade to Pro+ for unlimited services",
-
+    
     "dashboard.advancedMetrics": "Advanced Analytics",
     "dashboard.advancedMetricsDesc": "Detailed insights available in Pro+",
-
+    
     "onboarding.stepOf": "Step {current} of {total}",
     "onboarding.step0.title": "Let's set up your business profile",
     "onboarding.step0.subtitle": "This will only take 2-3 minutes. We'll help you create a professional booking page for your customers.",
@@ -818,95 +748,22 @@ export const translations: Record<Language, Record<string, string>> = {
     "onboarding.required": "This field is required",
     "onboarding.invalidEmail": "Please enter a valid email address",
     "onboarding.completeProfileFirst": "Complete your business profile to activate bookings.",
-    "onboarding.setupBusiness": "Setup Business",
-    "onboarding.logoutMessage": "You are logged out. Logging in again...",
-    "onboarding.sidePanel.step0.title": "You’re almost ready to take bookings",
-    "onboarding.sidePanel.step0.subtitle": "Set your preferred language so your dashboard and customer notifications feel natural and professional.\nThis only takes a moment and helps us tailor flowlift to how you work.",
-    "onboarding.sidePanel.step1.title": "Let customers recognize your business",
-    "onboarding.sidePanel.step1.subtitle": "Your business name and category help customers quickly understand who you are and what you offer.\nThis information appears on your booking page and makes your business easier to find and trust.",
-    "onboarding.sidePanel.step2.title": "Help customers understand what you do",
-    "onboarding.sidePanel.step2.subtitle": "A short description helps customers quickly see how your business can help them.\nKeep it simple—just explain what you offer and what makes you different. You can always update this later as your business evolves.",
-    "onboarding.sidePanel.step3.title": "Make it easy for customers to reach you",
-    "onboarding.sidePanel.step3.subtitle": "Your location and contact details help customers know where you’re based and how to get in touch.\nThis information appears on your booking page and builds confidence before they book.",
-    "onboarding.sidePanel.title": "Start searching for homes or posting ads now.",
-    "onboarding.sidePanel.subtitle": "Interfaces are well designed for all ages and target audiences are extremely simple and work with social media integrations.",
-    "countries.United States": "United States",
-    "countries.Canada": "Canada",
-    "countries.Mexico": "Mexico",
-    "countries.United Kingdom": "United Kingdom",
-    "countries.Spain": "Spain",
-    "countries.Argentina": "Argentina",
-    "countries.Colombia": "Colombia",
-    "countries.Peru": "Peru",
-    "countries.Chile": "Chile",
-    "countries.Australia": "Australia",
-    "countries.Germany": "Germany",
-    "countries.France": "France",
-    "countries.Italy": "Italy",
-    "countries.Brazil": "Brazil",
-    "countries.Portugal": "Portugal",
-    "countries.Netherlands": "Netherlands",
-    "countries.Belgium": "Belgium",
-    "countries.Switzerland": "Switzerland",
-    "countries.Austria": "Austria",
-    "countries.Sweden": "Sweden",
-    "countries.Norway": "Norway",
-    "countries.Denmark": "Denmark",
-    "countries.Finland": "Finland",
-    "countries.Ireland": "Ireland",
-    "countries.New Zealand": "New Zealand",
-    "countries.Japan": "Japan",
-    "countries.South Korea": "South Korea",
-    "countries.Singapore": "Singapore",
-    "countries.Hong Kong": "Hong Kong",
-    "countries.India": "India",
-    "countries.South Africa": "South Africa",
-    "countries.United Arab Emirates": "United Arab Emirates",
-    "countries.Saudi Arabia": "Saudi Arabia",
-    "countries.Israel": "Israel",
-    "countries.Turkey": "Turkey",
-    "countries.Poland": "Poland",
-    "countries.Czech Republic": "Czech Republic",
-    "countries.Greece": "Greece",
-    "countries.Romania": "Romania",
-    "countries.Hungary": "Hungary",
-    "countries.Philippines": "Philippines",
-    "countries.Malaysia": "Malaysia",
-    "countries.Thailand": "Thailand",
-    "countries.Indonesia": "Indonesia",
-    "countries.Vietnam": "Vietnam",
-    "countries.Ecuador": "Ecuador",
-    "countries.Venezuela": "Venezuela",
-    "countries.Costa Rica": "Costa Rica",
-    "countries.Panama": "Panama",
-    "countries.Puerto Rico": "Puerto Rico",
-    "countries.Dominican Republic": "Dominican Republic",
-    "countries.Guatemala": "Guatemala",
-    "countries.Honduras": "Honduras",
-    "countries.El Salvador": "El Salvador",
-    "countries.Nicaragua": "Nicaragua",
-    "countries.Bolivia": "Bolivia",
-    "countries.Paraguay": "Paraguay",
-    "countries.Uruguay": "Uruguay",
-    "countries.Cuba": "Cuba",
   },
   es: {
-    "app.name": "flowlift",
+    "app.name": "FlowLift",
     "app.tagline": "Reservas inteligentes para negocios de servicios",
-
+    
     "nav.dashboard": "Resumen",
     "nav.services": "Servicios",
     "nav.bookings": "Reservas",
     "nav.availability": "Disponibilidad",
     "nav.settings": "Negocio",
     "nav.team": "Equipo",
-    "nav.about": "Acerca de",
-    "nav.products": "Productos",
     "nav.logout": "Cerrar sesión",
-
+    
     "sidebar.menu": "Menú",
     "sidebar.quickActions": "Acciones Rápidas",
-
+    
     "landing.hero.title": "Reservas Inteligentes para",
     "landing.hero.titleHighlight": "Negocios de Servicios",
     "landing.hero.subtitle": "Deja de hacer malabares con llamadas y mensajes. Permite que tus clientes reserven citas en línea mientras te enfocas en lo que mejor haces.",
@@ -920,27 +777,15 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.hero.rotating.equipmentHire": "alquiler de equipos",
     "landing.hero.rotating.venueHire": "alquiler de espacios",
     "landing.signIn": "Empieza gratis",
-    "landing.logIn": "Iniciar sesión",
     "landing.startFree": "Comienza gratis",
     "landing.signInWithGoogle": "Iniciar sesión con Google",
     "common.back": "Atrás",
-
+    
     "signin.title": "Iniciar Sesión",
     "signin.subtitle": "Elige cómo quieres iniciar sesión en tu cuenta",
     "signin.google": "Continuar con Google",
     "signin.microsoft": "Continuar con Outlook",
-    "signin.rightPlace.title": "Estás en el lugar correcto",
-    "signin.rightPlace.subtitle": "flowlift simplifica las reservas para ti y tus clientes. Agendas claras. Menos mensajes. Más control.",
-    "signin.hello.title": "¡Hola!",
-    "signin.hello.subtitle": "Regístrate para empezar a recibir reservas y gestionar tu agenda con confianza.",
-    "signin.signUpGoogle": "Registrarse con Google",
-    "signin.signUpMicrosoft": "Registrarse con Microsoft",
-    "signin.termsAgreement": "Al continuar, aceptas nuestros Términos de Servicio y nuestra Política de Privacidad.",
-    "signin.alreadyHaveAccount": "¿Ya tienes una cuenta?",
-    "signin.dontHaveAccount": "¿No tienes una cuenta?",
-    "signin.signUp": "Regístrate",
-    "signin.logIn": "Iniciar sesión",
-
+    
     "landing.features.title": "Todo lo que Necesitas para Gestionar Reservas",
     "landing.features.subtitle": "Herramientas simples y poderosas diseñadas para pequeños negocios de servicios",
     "landing.features.easyScheduling": "Programación Fácil",
@@ -951,49 +796,20 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.features.customerManagementDesc": "Rastrea reservas, detalles de clientes y notas en un solo lugar",
     "landing.features.simpleAnalytics": "Analíticas Simples",
     "landing.features.simpleAnalyticsDesc": "Ve tus próximas reservas y rastrea el crecimiento de tu negocio",
-
+    
     "landing.benefits.title": "Creado para Profesionales de Servicios",
     "landing.benefits.subtitle": "Ya seas barbero, estilista, masajista o negocio de renta",
-    "landing.explore.title": "Explora lo que es posible",
     "landing.benefits.noDoubleBookings": "Sin reservas dobles",
     "landing.benefits.mobileFriendly": "Página de reservas optimizada para móvil",
     "landing.benefits.instantConfirmations": "Confirmaciones instantáneas",
     "landing.benefits.multipleServices": "Gestiona múltiples servicios",
     "landing.benefits.customProfile": "Perfil de negocio personalizado",
     "landing.benefits.multiTenant": "Listo para múltiples negocios",
-
+    
     "landing.cta.title": "¿Listo para Optimizar tus Reservas?",
     "landing.cta.subtitle": "Únete a negocios que ahorran horas cada semana con programación automatizada",
     "landing.cta.button": "Comenzar Gratis Hoy",
-
-    "about.title": "Acerca de flowlift",
-    "about.subtitle": "Nuestra misión es hacer que las reservas sean simples para negocios de servicios en todas partes.",
-    "about.mission.title": "Nuestra Misión",
-    "about.mission.description": "flowlift fue creado para ayudar a los negocios de servicios a optimizar su proceso de reservas. Creemos que gestionar citas debe ser simple, eficiente y accesible para todos, desde profesionales independientes hasta equipos en crecimiento.",
-    "about.story.title": "Nuestra Historia",
-    "about.story.description": "Fundado por emprendedores que experimentaron los desafíos de gestionar reservas de primera mano, flowlift combina características poderosas con una interfaz intuitiva. Estamos comprometidos a proporcionar herramientas que ayuden a los negocios a enfocarse en lo que mejor hacen: servir a sus clientes.",
-
-    "products.title": "Elige tu plan",
-    "products.subtitle": "Comienza gratis y actualiza a medida que creces. Todos los planes incluyen funciones básicas de reserva.",
-
-    "tier.starter.price": "Gratis",
-    "tier.pro.price": "$19",
-    "tier.teams.price": "$49",
-    "tier.perMonth": "mes",
-    "tier.popular": "Más Popular",
-    "tier.starter.feature1": "Reservas ilimitadas",
-    "tier.starter.feature2": "Página de reservas personalizada",
-    "tier.starter.feature3": "Notificaciones por correo",
-    "tier.starter.feature4": "Analíticas básicas",
-    "tier.pro.feature1": "Todo en Starter",
-    "tier.pro.feature2": "Sin marca flowlift",
-    "tier.pro.feature3": "Analíticas avanzadas",
-    "tier.pro.feature4": "Soporte prioritario",
-    "tier.teams.feature1": "Todo en Pro+",
-    "tier.teams.feature2": "Gestión de equipo",
-    "tier.teams.feature3": "Programación de equipo",
-    "tier.teams.feature4": "Analíticas de equipo",
-
+    
     "booking.selectService": "Selecciona un Servicio",
     "booking.noServices": "No hay servicios disponibles en este momento.",
     "booking.select": "Seleccionar",
@@ -1036,7 +852,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "booking.googleCalendar": "Google Calendar",
     "booking.outlookCalendar": "Outlook",
     "booking.appleCalendar": "Apple Calendar",
-
+    
     "categories.hair_salon": "Salón de Belleza",
     "categories.barber_shop": "Barbería",
     "categories.nail_salon": "Salón de Uñas (Manicura y Pedicura)",
@@ -1130,16 +946,11 @@ export const translations: Record<Language, Record<string, string>> = {
     "settings.descriptionPlaceholder": "Cuéntale a los clientes sobre tu negocio...",
     "settings.location": "Ubicación",
     "settings.address": "Dirección",
-    "settings.addressPlaceholder": "Calle Principal 123",
     "settings.city": "Ciudad",
-    "settings.cityPlaceholder": "Ciudad de México",
     "settings.country": "País",
-    "settings.countryPlaceholder": "México",
     "settings.contact": "Contacto",
     "settings.phone": "Teléfono",
-    "settings.phonePlaceholder": "+52 55 1234 5678",
     "settings.email": "Correo Electrónico",
-    "settings.emailPlaceholder": "contacto@tunegocio.com",
     "settings.socialMedia": "Redes Sociales",
     "settings.socialMediaDescription": "Agrega tus nombres de usuario de redes sociales para mostrar en tu página de reservas",
     "settings.addPlatform": "Agregar Plataforma",
@@ -1150,13 +961,9 @@ export const translations: Record<Language, Record<string, string>> = {
     "settings.save": "Actualizar",
     "settings.create": "Crear Negocio",
     "settings.saving": "Guardando...",
-    "settings.saved": "Configuración guardada exitosamente",
-    "settings.saveError": "Error al guardar la configuración",
     "settings.changeLogo": "Cambiar Logo",
     "settings.uploading": "Subiendo...",
     "settings.urlCopied": "¡URL de reservas copiada!",
-    "social.username": "usuario",
-    "social.channel": "canal",
     "settings.profileSaved": "Perfil de negocio guardado",
     "settings.logoUpdated": "Logo actualizado exitosamente",
     "settings.language": "Idioma",
@@ -1191,7 +998,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "settings.showTermsInEmailDesc": "Incluir términos y condiciones en el correo de confirmación de reserva",
     "booking.termsAndConditions": "Términos y Condiciones",
     "booking.agreeToTerms": "He leído y acepto los términos y condiciones",
-
+    
     "settings.qrCode": "Código QR",
     "settings.qrCodeDescription": "Genera un código QR que enlaza a tu página de reservas",
     "settings.qrCodePreview": "Vista Previa del Código QR",
@@ -1199,7 +1006,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "settings.downloadJpg": "Descargar JPG",
     "settings.qrCodeDownloaded": "¡Código QR descargado!",
     "settings.noBusinessYet": "Crea tu perfil de negocio primero para generar un código QR",
-
+    
     "services.title": "Servicios",
     "services.subtitle": "Administra los servicios que ofreces a los clientes",
     "services.addService": "Agregar Servicio",
@@ -1207,15 +1014,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.noServices": "Sin servicios aún",
     "services.noServicesDesc": "Agrega tu primer servicio para comenzar a aceptar reservas",
     "services.name": "Nombre del Servicio",
-    "services.namePlaceholder": "ej., Corte de cabello, Masaje",
     "services.description": "Descripción",
-    "services.descriptionPlaceholder": "Describe tu servicio...",
     "services.duration": "Duración (minutos)",
     "services.price": "Precio",
     "services.tags": "Etiquetas",
     "services.tagsPlaceholder": "Agregar etiquetas (separadas por coma)",
     "services.active": "Activo",
-    "services.activeDesc": "Mostrar este servicio en tu página de reservas",
     "services.requiresConfirmation": "Requiere Confirmación",
     "services.requiresConfirmationDesc": "Las reservas requieren tu aprobación antes de ser confirmadas",
     "services.confirmation": "Confirmación",
@@ -1235,7 +1039,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "services.serviceImage": "Imagen del Servicio",
     "services.addImageDesc": "Agregar una imagen para mostrar con este servicio",
     "services.changeImageDesc": "Cambiar la imagen mostrada con este servicio",
-
+    
     "bookings.title": "Reservas",
     "bookings.subtitle": "Ve y gestiona las citas de tus clientes",
     "bookings.noBookings": "Sin reservas aún",
@@ -1287,15 +1091,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "bookings.createBooking": "Crear Reserva",
     "bookings.bookingCreated": "Reserva creada exitosamente",
     "bookings.bookingCreateFailed": "Error al crear reserva",
-    "bookings.updated": "Reserva actualizada exitosamente",
-    "bookings.updateError": "Error al actualizar reserva",
-    "bookings.noBookingsFilter": "No hay reservas que coincidan con tu filtro",
-    "bookings.noBookingsEmpty": "No se encontraron reservas",
-    "bookings.sharePage": "Comparte tu página de reservas para comenzar a recibir citas",
-    "bookings.filterByStatus": "Filtrar por estado",
-    "bookings.devLogin": "Inicio de sesión Dev (Bypass)",
-    "bookings.status": "Estado",
-
+    
     "confirmModification.title": "Confirmar Cambio de Cita",
     "confirmModification.subtitle": "Por favor revisa los cambios propuestos a tu cita",
     "confirmModification.currentTime": "Hora Actual",
@@ -1408,10 +1204,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "team.photoError": "Error al actualizar foto",
     "team.settingsUpdated": "Configuración actualizada exitosamente",
     "team.settingsError": "Error al actualizar configuración",
-
+    
     "common.sending": "Enviando...",
     "common.fillAllFields": "Por favor completa todos los campos requeridos",
-
+    
     "availability.title": "Disponibilidad",
     "availability.subtitle": "Configura tus horarios de trabajo y gestiona franjas horarias",
     "availability.workingHours": "Horarios de Trabajo",
@@ -1423,13 +1219,6 @@ export const translations: Record<Language, Record<string, string>> = {
     "availability.maxPerSlot": "Máximo de Reservas por Franja",
     "availability.save": "Guardar Disponibilidad",
     "availability.saved": "Disponibilidad guardada exitosamente",
-    "availability.updated": "Disponibilidad actualizada",
-    "availability.availabilityError": "Error al actualizar la disponibilidad",
-    "availability.blockedTimeAdded": "Tiempo bloqueado agregado",
-    "availability.addBlockedError": "Error al agregar tiempo bloqueado",
-    "availability.blockedTimeRemoved": "Tiempo bloqueado eliminado",
-    "availability.removeBlockedError": "Error al eliminar tiempo bloqueado",
-    "availability.reasonPlaceholder": "ej., Vacaciones, Feriado, Personal",
     "availability.to": "a",
     "availability.slotLabel": "Duración:",
     "availability.startDate": "Fecha de Inicio",
@@ -1440,7 +1229,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "availability.setupFirst": "Por favor, configura tu perfil de negocio primero.",
     "availability.multiDayPro": "Bloqueo de múltiples días disponible con Pro+",
     "common.noBookingsOnDate": "No hay reservas en esta fecha",
-
+    
     "dashboard.title": "Resumen",
     "dashboard.welcome": "Bienvenido de nuevo",
     "dashboard.todayBookings": "Reservas de Hoy",
@@ -1475,10 +1264,10 @@ export const translations: Record<Language, Record<string, string>> = {
     "dashboard.analytics": "Análisis de Negocio",
     "dashboard.analyticsLocked": "Desbloquear Análisis de Negocio",
     "dashboard.analyticsLockedDesc": "Actualiza a Pro+ para acceder a gráficos detallados, tendencias e información sobre el rendimiento de tu negocio.",
-    "dashboard.welcomeNewBusiness": "Bienvenido a flowlift",
+    "dashboard.welcomeNewBusiness": "Bienvenido a FlowLift",
     "dashboard.setupNewBusiness": "Configura tu perfil de negocio para comenzar a aceptar reservas en línea.",
     "dashboard.setupButton": "Configurar Negocio",
-
+    
     "myBookings.title": "Mis Reservas",
     "myBookings.subtitle": "Ve y gestiona tus citas",
     "myBookings.enterEmail": "Ingresa tu correo para ver reservas",
@@ -1487,7 +1276,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "myBookings.linkSent": "Revisa tu correo para el enlace de acceso",
     "myBookings.noBookings": "No se encontraron reservas",
     "myBookings.noBookingsDesc": "Reserva una cita con un negocio para verla aquí",
-
+    
     "days.sunday": "Domingo",
     "days.monday": "Lunes",
     "days.tuesday": "Martes",
@@ -1495,7 +1284,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "days.thursday": "Jueves",
     "days.friday": "Viernes",
     "days.saturday": "Sábado",
-
+    
     "categories.barber": "Barbería",
     "categories.hairdresser": "Salón de Belleza",
     "categories.beauty_salon": "Salón de Belleza",
@@ -1504,7 +1293,7 @@ export const translations: Record<Language, Record<string, string>> = {
     "categories.inflatable_rentals": "Renta de Inflables",
     "categories.party_services": "Servicios para Fiestas",
     "categories.fitness": "Fitness y Entrenamiento",
-
+    
     "common.loading": "Cargando...",
     "common.error": "Ocurrió un error",
     "common.save": "Guardar",
@@ -1533,13 +1322,13 @@ export const translations: Record<Language, Record<string, string>> = {
     "common.noBlockedTimeScheduled": "Sin tiempo bloqueado programado",
     "common.addTimeOffDescription": "Agrega tiempo libre para vacaciones, días festivos o descansos",
     "common.commaSeparated": "separadas por coma",
-
+    
     "booking.selectDateTime": "Fecha y Hora",
-
+    
     "settings.yourBusiness": "Tu Negocio",
     "settings.businessNamePlaceholder": "Nombre de tu Negocio",
     "settings.setupFirst": "Por favor, configura tu perfil de negocio primero.",
-
+    
     "email.bookingConfirmed": "Reserva Confirmada",
     "email.appointmentScheduled": "Tu cita ha sido programada",
     "email.date": "Fecha",
@@ -1549,12 +1338,12 @@ export const translations: Record<Language, Record<string, string>> = {
     "email.minutes": "minutos",
     "email.businessDetails": "Detalles del Negocio",
     "email.needChanges": "¿Necesitas hacer cambios? Contacta a {businessName} directamente.",
-    "email.poweredBy": "Desarrollado por flowlift",
-
+    "email.poweredBy": "Desarrollado por FlowLift",
+    
     "auth.signedIn": "Iniciaste sesión",
     "auth.viewManageBookings": "Ahora puedes ver y gestionar tus reservas.",
     "auth.errorVerifyToken": "Error al verificar el token",
-
+    
     "myBookings.viewTitle": "Ver Tus Reservas",
     "myBookings.enterEmailDesc": "Ingresa tu correo para acceder a tu historial de reservas",
     "myBookings.checkEmail": "Revisa tu correo",
@@ -1579,72 +1368,72 @@ export const translations: Record<Language, Record<string, string>> = {
     "myBookings.pastCancelled": "Pasadas y Canceladas",
     "myBookings.noBookingsYet": "Sin reservas aún",
     "myBookings.noBookingsEmailDesc": "No has hecho ninguna reserva con esta dirección de correo.",
-
+    
     "tier.starter": "Básico",
     "tier.pro": "Pro+",
     "tier.teams": "Equipos",
     "tier.availableInPro": "Disponible en Pro+",
     "tier.availableInTeams": "Disponible en Equipos",
     "tier.currentPlan": "Plan Actual",
-
+    
     "upgrade.notNow": "Ahora no",
     "upgrade.upgradeTo": "Mejorar a",
     "upgrade.unlockFeature": "Desbloquear esta función",
-
+    
     "upgrade.multipleServices.title": "Agregar Servicios Ilimitados",
     "upgrade.multipleServices.benefit1": "Ofrece tantos servicios como necesites",
     "upgrade.multipleServices.benefit2": "Agrega fotos a tus servicios",
     "upgrade.multipleServices.benefit3": "Personaliza reglas de reserva por servicio",
     "upgrade.multipleServices.benefit4": "Destaca con una página de reservas profesional",
-
+    
     "upgrade.servicePhotos.title": "Agrega Fotos a tus Servicios",
     "upgrade.servicePhotos.benefit1": "Muestra tu trabajo con imágenes profesionales",
     "upgrade.servicePhotos.benefit2": "Ayuda a los clientes a elegir el servicio correcto",
     "upgrade.servicePhotos.benefit3": "Genera confianza con ejemplos visuales",
     "upgrade.servicePhotos.benefit4": "Haz que tu página de reservas destaque",
-
+    
     "upgrade.qrCode.title": "Obtén tu Código QR",
     "upgrade.qrCode.benefit1": "Comparte tu página de reservas al instante",
     "upgrade.qrCode.benefit2": "Imprímelo para tu escaparate o tarjetas",
     "upgrade.qrCode.benefit3": "Fácil escaneo para los clientes",
     "upgrade.qrCode.benefit4": "Material de marketing profesional",
-
+    
     "upgrade.branding.title": "Personaliza tu Marca",
     "upgrade.branding.benefit1": "Sube el logo de tu negocio",
     "upgrade.branding.benefit2": "Agrega una imagen de portada a tu página",
     "upgrade.branding.benefit3": "Ajusta los colores a tu marca",
     "upgrade.branding.benefit4": "Crea una impresión profesional",
-
+    
     "upgrade.multiDayBlocking.title": "Bloquear Múltiples Días",
     "upgrade.multiDayBlocking.benefit1": "Bloquea períodos de vacaciones fácilmente",
     "upgrade.multiDayBlocking.benefit2": "Configura tiempo libre extendido con una acción",
     "upgrade.multiDayBlocking.benefit3": "Mejor planificación de días festivos",
     "upgrade.multiDayBlocking.benefit4": "Gestión de disponibilidad simplificada",
-
+    
     "upgrade.team.title": "Gestiona tu Equipo",
     "upgrade.team.benefit1": "Agrega miembros del equipo ilimitados",
     "upgrade.team.benefit2": "Asigna servicios a personal específico",
     "upgrade.team.benefit3": "Horarios individuales por miembro del equipo",
     "upgrade.team.benefit4": "Ve la carga de trabajo del equipo de un vistazo",
-
+    
     "upgrade.teamLoad.title": "Vista de Carga del Equipo",
     "upgrade.teamLoad.benefit1": "Ve todas las reservas del equipo de un vistazo",
     "upgrade.teamLoad.benefit2": "Balancea la carga de trabajo entre el personal",
     "upgrade.teamLoad.benefit3": "Identifica períodos ocupados y libres",
     "upgrade.teamLoad.benefit4": "Toma decisiones de programación más inteligentes",
-
+    
     "upgrade.analytics.title": "Desbloquear Análisis de Negocio",
     "upgrade.analytics.benefit1": "Rastrea reservas completadas a lo largo del tiempo",
     "upgrade.analytics.benefit2": "Ve qué servicios son más populares",
     "upgrade.analytics.benefit3": "Visualiza tasas de ocupación diarias",
     "upgrade.analytics.benefit4": "Toma decisiones de negocio basadas en datos",
-
+    
     "services.starterLimit": "El plan Básico permite 1 servicio",
     "services.upgradeForMore": "Mejora a Pro+ para servicios ilimitados",
-
+    
     "dashboard.advancedMetrics": "Analíticas Avanzadas",
     "dashboard.advancedMetricsDesc": "Estadísticas detalladas disponibles en Pro+",
-
+    
     "onboarding.stepOf": "Paso {current} de {total}",
     "onboarding.step0.title": "Configuremos tu perfil de negocio",
     "onboarding.step0.subtitle": "Esto solo tomará 2-3 minutos. Te ayudaremos a crear una página de reservas profesional para tus clientes.",
@@ -1692,77 +1481,6 @@ export const translations: Record<Language, Record<string, string>> = {
     "onboarding.required": "Este campo es requerido",
     "onboarding.invalidEmail": "Por favor ingresa un correo electrónico válido",
     "onboarding.completeProfileFirst": "Completa tu perfil de negocio para activar reservas.",
-    "onboarding.setupBusiness": "Configurar Negocio",
-    "onboarding.logoutMessage": "Has cerrado sesión. Iniciando sesión de nuevo...",
-    "onboarding.sidePanel.step0.title": "Estás casi listo para recibir reservas",
-    "onboarding.sidePanel.step0.subtitle": "Selecciona tu idioma preferido para que tu panel y las notificaciones a los clientes se sientan naturales y profesionales.\nEsto solo toma un momento y nos ayuda a adaptar flowlift a tu forma de trabajar.",
-    "onboarding.sidePanel.step1.title": "Permite que los clientes reconozcan tu negocio",
-    "onboarding.sidePanel.step1.subtitle": "El nombre y la categoría de tu negocio ayudan a los clientes a entender rápidamente quién eres y qué ofreces.\nEsta información aparece en tu página de reservas y hace que tu negocio sea más fácil de encontrar y confiar.",
-    "onboarding.sidePanel.step2.title": "Ayuda a los clientes a entender lo que haces",
-    "onboarding.sidePanel.step2.subtitle": "Una descripción corta ayuda a los clientes a ver rápidamente cómo tu negocio puede ayudarlos.\nMantenlo simple: solo explica lo que ofreces y lo que te hace diferente. Siempre puedes actualizar esto más tarde a medida que tu negocio evolucione.",
-    "onboarding.sidePanel.step3.title": "Haz que sea fácil para los clientes contactarte",
-    "onboarding.sidePanel.step3.subtitle": "Tus datos de ubicación y contacto ayudan a los clientes a saber dónde te encuentras y cómo ponerse en contacto.\nEsta información aparece en tu página de reservas y genera confianza antes de que reserven.",
-    "onboarding.sidePanel.title": "Comienza a buscar casas o a publicar anuncios ahora.",
-    "onboarding.sidePanel.subtitle": "Intefaces diseñadas para todas las edades y los públicos objetivo; extremadamente simples y funcionan con integraciones de redes sociales.",
-    "countries.United States": "Estados Unidos",
-    "countries.Canada": "Canadá",
-    "countries.Mexico": "México",
-    "countries.United Kingdom": "Reino Unido",
-    "countries.Spain": "España",
-    "countries.Argentina": "Argentina",
-    "countries.Colombia": "Colombia",
-    "countries.Peru": "Perú",
-    "countries.Chile": "Chile",
-    "countries.Australia": "Australia",
-    "countries.Germany": "Alemania",
-    "countries.France": "Francia",
-    "countries.Italy": "Italia",
-    "countries.Brazil": "Brasil",
-    "countries.Portugal": "Portugal",
-    "countries.Netherlands": "Países Bajos",
-    "countries.Belgium": "Bélgica",
-    "countries.Switzerland": "Suiza",
-    "countries.Austria": "Austria",
-    "countries.Sweden": "Suecia",
-    "countries.Norway": "Noruega",
-    "countries.Denmark": "Dinamarca",
-    "countries.Finland": "Finlandia",
-    "countries.Ireland": "Irlanda",
-    "countries.New Zealand": "Nueva Zelanda",
-    "countries.Japan": "Japón",
-    "countries.South Korea": "Corea del Sur",
-    "countries.Singapore": "Singapur",
-    "countries.Hong Kong": "Hong Kong",
-    "countries.India": "India",
-    "countries.South Africa": "Sudáfrica",
-    "countries.United Arab Emirates": "Emiratos Árabes Unidos",
-    "countries.Saudi Arabia": "Arabia Saudita",
-    "countries.Israel": "Israel",
-    "countries.Turkey": "Turquía",
-    "countries.Poland": "Polonia",
-    "countries.Czech Republic": "República Checa",
-    "countries.Greece": "Grecia",
-    "countries.Romania": "Rumania",
-    "countries.Hungary": "Hungría",
-    "countries.Philippines": "Filipinas",
-    "countries.Malaysia": "Malasia",
-    "countries.Thailand": "Tailandia",
-    "countries.Indonesia": "Indonesia",
-    "countries.Vietnam": "Vietnam",
-    "countries.Ecuador": "Ecuador",
-    "countries.Venezuela": "Venezuela",
-    "countries.Costa Rica": "Costa Rica",
-    "countries.Panama": "Panamá",
-    "countries.Puerto Rico": "Puerto Rico",
-    "countries.Dominican Republic": "República Dominicana",
-    "countries.Guatemala": "Guatemala",
-    "countries.Honduras": "Honduras",
-    "countries.El Salvador": "El Salvador",
-    "countries.Nicaragua": "Nicaragua",
-    "countries.Bolivia": "Bolivia",
-    "countries.Paraguay": "Paraguay",
-    "countries.Uruguay": "Uruguay",
-    "countries.Cuba": "Cuba",
   },
 };
 
@@ -1813,13 +1531,13 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const t = (key: string, params?: Record<string, string | number>): string => {
     let text = translations[language][key] || translations.en[key] || key;
-
+    
     if (params) {
       Object.entries(params).forEach(([paramKey, value]) => {
         text = text.replace(`{${paramKey}}`, String(value));
       });
     }
-
+    
     return text;
   };
 
@@ -1858,20 +1576,22 @@ export function LanguageSwitcher({ minimal = false }: { minimal?: boolean }) {
     <div className="flex gap-1 p-1 bg-muted rounded-md">
       <button
         onClick={() => setLanguage("en")}
-        className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${language === "en"
-          ? "bg-background text-foreground shadow-sm"
-          : "text-muted-foreground hover:text-foreground"
-          }`}
+        className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
+          language === "en"
+            ? "bg-background text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
         data-testid="button-language-en"
       >
         English
       </button>
       <button
         onClick={() => setLanguage("es")}
-        className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${language === "es"
-          ? "bg-background text-foreground shadow-sm"
-          : "text-muted-foreground hover:text-foreground"
-          }`}
+        className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${
+          language === "es"
+            ? "bg-background text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
         data-testid="button-language-es"
       >
         Español

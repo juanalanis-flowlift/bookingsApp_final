@@ -198,10 +198,10 @@ export default function Services() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/api/services"] });
-      toast({
-        title: variables.isActive
-          ? t("services.serviceVisible")
-          : t("services.serviceHidden")
+      toast({ 
+        title: variables.isActive 
+          ? t("services.serviceVisible") 
+          : t("services.serviceHidden") 
       });
     },
     onError: (error) => {
@@ -337,8 +337,8 @@ export default function Services() {
         </div>
         {/* Starter tier limit: 1 service */}
         {isStarter && services && services.length >= 1 ? (
-          <Button
-            className="gap-2"
+          <Button 
+            className="gap-2" 
             onClick={() => setShowServicesUpgradeModal(true)}
             data-testid="button-upgrade-services"
           >
@@ -360,25 +360,64 @@ export default function Services() {
                 {t("services.addService")}
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingService ? t("services.editService") : t("services.addService")}
-                </DialogTitle>
-              </DialogHeader>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pr-2">
+          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {editingService ? t("services.editService") : t("services.addService")}
+              </DialogTitle>
+            </DialogHeader>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pr-2">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("services.name")} *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Haircut, Massage"
+                          {...field}
+                          data-testid="input-service-name"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("services.description")}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe your service..."
+                          className="resize-none"
+                          {...field}
+                          data-testid="input-service-description"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name="name"
+                    name="duration"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("services.name")} *</FormLabel>
+                        <FormLabel>{t("services.duration")} *</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder={t("services.namePlaceholder")}
+                            type="number"
+                            min="5"
                             {...field}
-                            data-testid="input-service-name"
+                            data-testid="input-service-duration"
                           />
                         </FormControl>
                         <FormMessage />
@@ -388,196 +427,157 @@ export default function Services() {
 
                   <FormField
                     control={form.control}
-                    name="description"
+                    name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("services.description")}</FormLabel>
+                        <FormLabel>{t("services.price")} ($) *</FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder={t("services.descriptionPlaceholder")}
-                            className="resize-none"
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
                             {...field}
-                            data-testid="input-service-description"
+                            data-testid="input-service-price"
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+                </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="duration"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t("services.duration")} *</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min="5"
-                              {...field}
-                              data-testid="input-service-duration"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
+                <FormField
+                  control={form.control}
+                  name="isActive"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                      <div>
+                        <FormLabel className="text-base">{t("services.active")}</FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                          Show this service on your booking page
+                        </p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          data-testid="switch-service-active"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="requiresConfirmation"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center justify-between rounded-lg border p-3">
+                      <div>
+                        <FormLabel className="text-base">{t("services.requiresConfirmation")}</FormLabel>
+                        <p className="text-sm text-muted-foreground">
+                          {t("services.requiresConfirmationDesc")}
+                        </p>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          data-testid="switch-service-requires-confirmation"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Service Image - Only shown when editing */}
+                {editingService && (
+                  <div className="space-y-2">
+                    <FormLabel className="flex items-center gap-2">
+                      {t("services.serviceImage")}
+                      {!canAccessServiceImages && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          Pro+
+                        </Badge>
                       )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="price"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{t("services.price")} ($) *</FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              {...field}
-                              data-testid="input-service-price"
+                    </FormLabel>
+                    <div className="rounded-lg border p-3">
+                      <div className="flex items-center gap-4">
+                        <div className="w-20 h-20 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                          {editingService.imageUrl ? (
+                            <img
+                              src={editingService.imageUrl}
+                              alt={editingService.name}
+                              className="w-full h-full object-cover"
                             />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="isActive"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
-                        <div>
-                          <FormLabel className="text-base">{t("services.active")}</FormLabel>
-                          <p className="text-sm text-muted-foreground">
-                            {t("services.activeDesc")}
-                          </p>
+                          ) : (
+                            <ImagePlus className="h-8 w-8 text-muted-foreground" />
+                          )}
                         </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            data-testid="switch-service-active"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="requiresConfirmation"
-                    render={({ field }) => (
-                      <FormItem className="flex items-center justify-between rounded-lg border p-3">
-                        <div>
-                          <FormLabel className="text-base">{t("services.requiresConfirmation")}</FormLabel>
-                          <p className="text-sm text-muted-foreground">
-                            {t("services.requiresConfirmationDesc")}
+                        <div className="flex-1">
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {canAccessServiceImages 
+                              ? (editingService.imageUrl ? t("services.changeImageDesc") : t("services.addImageDesc"))
+                              : t("tier.availableInPro")
+                            }
                           </p>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            data-testid="switch-service-requires-confirmation"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-
-                  {/* Service Image - Only shown when editing */}
-                  {editingService && (
-                    <div className="space-y-2">
-                      <FormLabel className="flex items-center gap-2">
-                        {t("services.serviceImage")}
-                        {!canAccessServiceImages && (
-                          <Badge variant="secondary" className="text-xs">
-                            <Sparkles className="h-3 w-3 mr-1" />
-                            Pro+
-                          </Badge>
-                        )}
-                      </FormLabel>
-                      <div className="rounded-lg border p-3">
-                        <div className="flex items-center gap-4">
-                          <div className="w-20 h-20 rounded-md bg-muted flex items-center justify-center overflow-hidden shrink-0">
-                            {editingService.imageUrl ? (
-                              <img
-                                src={editingService.imageUrl}
-                                alt={editingService.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <ImagePlus className="h-8 w-8 text-muted-foreground" />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm text-muted-foreground mb-2">
-                              {canAccessServiceImages
-                                ? (editingService.imageUrl ? t("services.changeImageDesc") : t("services.addImageDesc"))
-                                : t("tier.availableInPro")
-                              }
-                            </p>
-                            {canAccessServiceImages ? (
-                              <ObjectUploader
-                                maxNumberOfFiles={1}
-                                maxFileSize={5 * 1024 * 1024}
-                                allowedFileTypes={["image/*"]}
-                                onGetUploadParameters={handleGetUploadParameters}
-                                onComplete={handleImageUploadComplete(editingService.id)}
-                                buttonVariant="outline"
-                                buttonSize="sm"
-                              >
-                                <ImagePlus className="h-4 w-4 mr-2" />
-                                {editingService.imageUrl ? t("services.changeImage") : t("services.addImage")}
-                              </ObjectUploader>
-                            ) : (
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowImagesUpgradeModal(true)}
-                                data-testid="button-upgrade-images"
-                              >
-                                <ImagePlus className="h-4 w-4 mr-2" />
-                                {t("upgrade.unlockFeature")}
-                              </Button>
-                            )}
-                          </div>
+                          {canAccessServiceImages ? (
+                            <ObjectUploader
+                              maxNumberOfFiles={1}
+                              maxFileSize={5 * 1024 * 1024}
+                              allowedFileTypes={["image/*"]}
+                              onGetUploadParameters={handleGetUploadParameters}
+                              onComplete={handleImageUploadComplete(editingService.id)}
+                              buttonVariant="outline"
+                              buttonSize="sm"
+                            >
+                              <ImagePlus className="h-4 w-4 mr-2" />
+                              {editingService.imageUrl ? t("services.changeImage") : t("services.addImage")}
+                            </ObjectUploader>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowImagesUpgradeModal(true)}
+                              data-testid="button-upgrade-images"
+                            >
+                              <ImagePlus className="h-4 w-4 mr-2" />
+                              {t("upgrade.unlockFeature")}
+                            </Button>
+                          )}
                         </div>
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  <DialogFooter>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleDialogClose}
-                      data-testid="button-cancel"
-                    >
-                      {t("common.cancel")}
-                    </Button>
-                    <Button
-                      type="submit"
-                      disabled={createMutation.isPending || updateMutation.isPending}
-                      data-testid="button-save-service"
-                    >
-                      {createMutation.isPending || updateMutation.isPending
-                        ? t("settings.saving")
-                        : editingService
-                          ? t("common.edit")
-                          : t("services.save")}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleDialogClose}
+                    data-testid="button-cancel"
+                  >
+                    {t("common.cancel")}
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={createMutation.isPending || updateMutation.isPending}
+                    data-testid="button-save-service"
+                  >
+                    {createMutation.isPending || updateMutation.isPending
+                      ? t("settings.saving")
+                      : editingService
+                      ? t("common.edit")
+                      : t("services.save")}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
         )}
       </div>
 
@@ -612,9 +612,9 @@ export default function Services() {
                   <Button
                     variant="secondary"
                     size="icon"
-                    onClick={() => toggleVisibilityMutation.mutate({
-                      id: service.id,
-                      isActive: !service.isActive
+                    onClick={() => toggleVisibilityMutation.mutate({ 
+                      id: service.id, 
+                      isActive: !service.isActive 
                     })}
                     disabled={toggleVisibilityMutation.isPending}
                     data-testid={`button-toggle-visibility-${service.id}`}

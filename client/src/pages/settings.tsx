@@ -89,32 +89,17 @@ type SocialPlatform = {
 };
 
 const socialPlatforms: SocialPlatform[] = [
-  { key: "socialFacebook", name: "Facebook", icon: SiFacebook, placeholder: "social.username" },
-  { key: "socialInstagram", name: "Instagram", icon: SiInstagram, placeholder: "social.username" },
-  { key: "socialTwitter", name: "X (Twitter)", icon: SiX, placeholder: "social.username" },
-  { key: "socialLinkedin", name: "LinkedIn", icon: SiLinkedin, placeholder: "social.username" },
-  { key: "socialYoutube", name: "YouTube", icon: SiYoutube, placeholder: "social.channel" },
-  { key: "socialTiktok", name: "TikTok", icon: SiTiktok, placeholder: "social.username" },
-  { key: "socialPinterest", name: "Pinterest", icon: SiPinterest, placeholder: "social.username" },
-  { key: "socialSnapchat", name: "Snapchat", icon: SiSnapchat, placeholder: "social.username" },
+  { key: "socialFacebook", name: "Facebook", icon: SiFacebook, placeholder: "username" },
+  { key: "socialInstagram", name: "Instagram", icon: SiInstagram, placeholder: "username" },
+  { key: "socialTwitter", name: "X (Twitter)", icon: SiX, placeholder: "username" },
+  { key: "socialLinkedin", name: "LinkedIn", icon: SiLinkedin, placeholder: "username" },
+  { key: "socialYoutube", name: "YouTube", icon: SiYoutube, placeholder: "channel" },
+  { key: "socialTiktok", name: "TikTok", icon: SiTiktok, placeholder: "username" },
+  { key: "socialPinterest", name: "Pinterest", icon: SiPinterest, placeholder: "username" },
+  { key: "socialSnapchat", name: "Snapchat", icon: SiSnapchat, placeholder: "username" },
   { key: "socialWhatsapp", name: "WhatsApp", icon: SiWhatsapp, placeholder: "+1234567890" },
-  { key: "socialThreads", name: "Threads", icon: SiThreads, placeholder: "social.username" },
+  { key: "socialThreads", name: "Threads", icon: SiThreads, placeholder: "username" },
 ];
-
-const countries = [
-  "United States", "Canada", "Mexico", "United Kingdom", "Spain",
-  "Argentina", "Colombia", "Peru", "Chile", "Australia",
-  "Germany", "France", "Italy", "Brazil", "Portugal",
-  "Netherlands", "Belgium", "Switzerland", "Austria", "Sweden",
-  "Norway", "Denmark", "Finland", "Ireland", "New Zealand",
-  "Japan", "South Korea", "Singapore", "Hong Kong", "India",
-  "South Africa", "United Arab Emirates", "Saudi Arabia", "Israel", "Turkey",
-  "Poland", "Czech Republic", "Greece", "Romania", "Hungary",
-  "Philippines", "Malaysia", "Thailand", "Indonesia", "Vietnam",
-  "Ecuador", "Venezuela", "Costa Rica", "Panama", "Puerto Rico",
-  "Dominican Republic", "Guatemala", "Honduras", "El Salvador", "Nicaragua",
-  "Bolivia", "Paraguay", "Uruguay", "Cuba"
-].sort();
 
 export default function Settings() {
   const { toast } = useToast();
@@ -209,7 +194,7 @@ export default function Settings() {
         showTermsInEmail: business.showTermsInEmail || false,
         showTeamPicturesInBooking: business.showTeamPicturesInBooking || false,
       });
-
+      
       const activePlatforms = socialPlatforms
         .filter(p => business[p.key as keyof Business])
         .map(p => p.key);
@@ -325,10 +310,10 @@ export default function Settings() {
 
   const downloadQrCode = (format: "png" | "jpg") => {
     if (!qrCodeDataUrl || !business?.slug) return;
-
+    
     const link = document.createElement("a");
     link.download = `${business.slug}-qr-code.${format}`;
-
+    
     if (format === "jpg") {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
@@ -392,7 +377,7 @@ export default function Settings() {
               </p>
               <LanguageSwitcher />
             </div>
-
+            
             {/* Theme Toggle */}
             <div className="border-t pt-6">
               <label className="text-sm font-medium mb-2 block">{t("settings.theme")}</label>
@@ -456,12 +441,12 @@ export default function Settings() {
                     <div className="flex items-center gap-4">
                       <div className="relative">
                         <Avatar className="h-16 w-16">
-                          <AvatarImage
-                            src={business?.logoUrl?.startsWith('/objects/')
-                              ? business.logoUrl
+                          <AvatarImage 
+                            src={business?.logoUrl?.startsWith('/objects/') 
+                              ? business.logoUrl 
                               : business?.logoUrl || undefined
-                            }
-                            className="object-cover"
+                            } 
+                            className="object-cover" 
                           />
                           <AvatarFallback className="text-xl">
                             {business?.name?.charAt(0) || user?.firstName?.charAt(0) || "B"}
@@ -608,7 +593,7 @@ export default function Settings() {
                             <FormControl>
                               <Input
                                 {...field}
-                                placeholder={t("settings.addressPlaceholder")}
+                                placeholder="123 Main Street"
                                 data-testid="input-address"
                               />
                             </FormControl>
@@ -625,7 +610,7 @@ export default function Settings() {
                             <FormControl>
                               <Input
                                 {...field}
-                                placeholder={t("settings.cityPlaceholder")}
+                                placeholder="New York"
                                 data-testid="input-city"
                               />
                             </FormControl>
@@ -639,23 +624,13 @@ export default function Settings() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>{t("settings.country")}</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger data-testid="select-country">
-                                  <SelectValue placeholder={t("settings.countryPlaceholder")} />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {countries.map((country) => (
-                                  <SelectItem key={country} value={country}>
-                                    {t(`countries.${country}`)}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder="United States"
+                                data-testid="input-country"
+                              />
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -680,7 +655,7 @@ export default function Settings() {
                               <Input
                                 {...field}
                                 type="tel"
-                                placeholder={t("settings.phonePlaceholder")}
+                                placeholder="+1 (555) 123-4567"
                                 data-testid="input-phone"
                               />
                             </FormControl>
@@ -698,7 +673,7 @@ export default function Settings() {
                               <Input
                                 {...field}
                                 type="email"
-                                placeholder={t("settings.emailPlaceholder")}
+                                placeholder="contact@business.com"
                                 data-testid="input-email"
                               />
                             </FormControl>
@@ -756,7 +731,7 @@ export default function Settings() {
                         </PopoverContent>
                       </Popover>
                     </div>
-
+                    
                     {selectedPlatforms.length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground border rounded-lg border-dashed">
                         <Share2 className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -797,7 +772,7 @@ export default function Settings() {
                                       <Input
                                         {...field}
                                         value={String(field.value || "")}
-                                        placeholder={platform.placeholder.startsWith("social.") ? t(platform.placeholder) : platform.placeholder}
+                                        placeholder={platform.placeholder}
                                         data-testid={`input-${platform.key}`}
                                       />
                                     </FormControl>
@@ -948,7 +923,7 @@ export default function Settings() {
                     <div className="text-center py-8 border rounded-lg border-dashed">
                       <QrCode className="h-12 w-12 mx-auto mb-3 opacity-50" />
                       <p className="text-sm text-muted-foreground mb-4">{t("tier.availableInPro")}</p>
-                      <Button
+                      <Button 
                         type="button"
                         variant="outline"
                         onClick={() => setShowQrUpgradeModal(true)}
@@ -1083,7 +1058,7 @@ export default function Settings() {
                       </FormItem>
                     )}
                   />
-
+                  
                   <div className="grid gap-4">
                     <FormField
                       control={form.control}
@@ -1106,7 +1081,7 @@ export default function Settings() {
                         </FormItem>
                       )}
                     />
-
+                    
                     <FormField
                       control={form.control}
                       name="showTermsInEmail"
@@ -1159,7 +1134,7 @@ export default function Settings() {
           t("upgrade.branding.benefit4"),
         ]}
       />
-
+      
       <UpgradeModal
         open={showQrUpgradeModal}
         onOpenChange={setShowQrUpgradeModal}

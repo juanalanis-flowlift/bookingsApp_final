@@ -41,12 +41,11 @@ import step2Image from "@assets/flowlift_onboarding_step2_1768793034458.png";
 import step3Image from "@assets/flowlift_onboarding_step3_1768793034457.png";
 import step4Image from "@assets/flowlift_onboarding_step4_1768793034457.png";
 import flowliftLogo from "@assets/flowlift_logo_full_small_white_1769033094305.png";
-import flowliftLogoNew from "@assets/flowlift_logo_new.png";
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
 
 const countries = [
-  "United States", "Canada", "Mexico", "United Kingdom", "Spain",
+  "United States", "Canada", "Mexico", "United Kingdom", "Spain", 
   "Argentina", "Colombia", "Peru", "Chile", "Australia",
   "Germany", "France", "Italy", "Brazil", "Portugal",
   "Netherlands", "Belgium", "Switzerland", "Austria", "Sweden",
@@ -70,7 +69,7 @@ const step2Schema = z.object({
 });
 
 const step3Schema = z.object({
-  address: z.string().nullable().optional(),
+  address: z.string().optional(),
   city: z.string().min(1, "City is required"),
   country: z.string().min(1, "Country is required"),
   phone: z.string().min(1, "Phone is required"),
@@ -143,8 +142,7 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [loadedBusinessId, setLoadedBusinessId] = useState<string | null>(null);
-
+  
   const [formData, setFormData] = useState<OnboardingData>({
     name: "",
     category: "",
@@ -170,10 +168,9 @@ export default function Onboarding() {
     }
   }, [isAuthenticated, authLoading, navigate]);
 
-  // Sync form data and reset forms once when business is loaded
   useEffect(() => {
-    if (business && business.id !== loadedBusinessId) {
-      const initialData: OnboardingData = {
+    if (business) {
+      setFormData({
         name: business.name || "",
         category: business.category || "",
         description: business.description || "",
@@ -182,36 +179,17 @@ export default function Onboarding() {
         country: business.country || "",
         phone: business.phone || "",
         email: business.email || "",
-        preferredLanguage: (business.preferredLanguage as "en" | "es") || (language as "en" | "es"),
+        preferredLanguage: (business.preferredLanguage as "en" | "es") || language,
         theme: "light",
         logoUrl: business.logoUrl || null,
-      };
-
-      setFormData(initialData);
+      });
       setCurrentStep(business.onboardingStep || 0);
-
-      // Reset individual forms
-      step1Form.reset({ name: initialData.name, category: initialData.category });
-      step2Form.reset({ description: initialData.description });
-      step3Form.reset({
-        address: initialData.address,
-        city: initialData.city,
-        country: initialData.country,
-        phone: initialData.phone,
-        email: initialData.email,
-      });
-      step4Form.reset({
-        preferredLanguage: initialData.preferredLanguage,
-        theme: "light",
-      });
-
-      setLoadedBusinessId(business.id);
-
+      
       if (business.onboardingComplete) {
-        navigate("/services");
+        navigate("/dashboard");
       }
     }
-  }, [business, navigate, loadedBusinessId, language]);
+  }, [business, language, navigate]);
 
   useEffect(() => {
     const browserLang = navigator.language.startsWith("es") ? "es" : "en";
@@ -286,7 +264,28 @@ export default function Onboarding() {
     },
   });
 
-
+  // Track the business ID to only reset forms when loading initial business data
+  const [loadedBusinessId, setLoadedBusinessId] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Only reset forms when business data is first loaded (different business ID)
+    if (business && business.id !== loadedBusinessId) {
+      step1Form.reset({ name: business.name || "", category: business.category || "" });
+      step2Form.reset({ description: business.description || "" });
+      step3Form.reset({
+        address: business.address || "",
+        city: business.city || "",
+        country: business.country || "",
+        phone: business.phone || "",
+        email: business.email || "",
+      });
+      step4Form.reset({ 
+        preferredLanguage: (business.preferredLanguage as "en" | "es") || language, 
+        theme: "light" 
+      });
+      setLoadedBusinessId(business.id);
+    }
+  }, [business?.id]);
 
   const getCategoryLabel = (cat: string): string => {
     return t(`categories.${cat}`);
@@ -389,25 +388,29 @@ export default function Onboarding() {
       if (!valid) return;
       const values = step3Form.getValues();
       setFormData(prev => ({ ...prev, ...values }));
-
-      const languageVal = step4Form.getValues("preferredLanguage");
-
-      // Use updateBusinessMutation directly with a dedicated onSuccess for this final step
-      updateBusinessMutation.mutate({
+      await updateBusinessMutation.mutateAsync({
         address: values.address || "",
         city: values.city,
         country: values.country,
         phone: values.phone,
         email: values.email,
-        preferredLanguage: languageVal,
-        onboardingStep: 3, // Keep it at 3 (the final step)
+        onboardingStep: 4,
+      });
+      setCurrentStep(4);
+      return;
+    }
+
+    if (currentStep === 4) {
+      const values = step4Form.getValues();
+      setFormData(prev => ({ ...prev, ...values }));
+      setLanguage(values.preferredLanguage);
+      await updateBusinessMutation.mutateAsync({
+        preferredLanguage: values.preferredLanguage,
+        onboardingStep: 5,
         onboardingComplete: true,
         subscriptionTier: "teams",
-      }, {
-        onSuccess: () => {
-          navigate("/services");
-        }
       });
+      navigate("/services");
       return;
     }
   };
@@ -434,68 +437,31 @@ export default function Onboarding() {
     switch (currentStep) {
       case 0:
         return (
-          <div key="step-0" className="space-y-4 text-center md:text-left">
-            <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">
+          <div key="step-0" className="space-y-6 text-center md:text-left">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
               {t("onboarding.step0.title")}
             </h1>
             <p className="text-muted-foreground">
               {t("onboarding.step0.subtitle")}
             </p>
-
-            <Form {...step4Form}>
-              <form className="space-y-4 pt-2">
-                <FormField
-                  control={step4Form.control}
-                  name="preferredLanguage"
-                  render={({ field }) => (
-                    <FormItem className="text-left">
-                      <FormLabel>{t("onboarding.step4.language")}</FormLabel>
-                      <FormDescription>{t("onboarding.step4.languageDesc")}</FormDescription>
-                      <Select
-                        onValueChange={(val) => {
-                          field.onChange(val);
-                          setLanguage(val as "en" | "es");
-                        }}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger data-testid="select-language">
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="en">English</SelectItem>
-                          <SelectItem value="es">Español</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="space-y-4 pt-2">
-                  <Button
-                    size="lg"
-                    type="button"
-                    className="w-full md:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
-                    onClick={handleNext}
-                    disabled={isSaving}
-                    data-testid="button-start-setup"
-                  >
-                    {isSaving ? t("onboarding.saving") : t("onboarding.step0.cta")}
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
-              </form>
-            </Form>
+            <Button
+              size="lg"
+              className="w-full md:w-auto bg-primary hover:bg-primary/90 text-primary-foreground"
+              onClick={handleNext}
+              disabled={isSaving}
+              data-testid="button-start-setup"
+            >
+              {isSaving ? t("onboarding.saving") : t("onboarding.step0.cta")}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
         );
 
       case 1:
         return (
-          <div key="step-1" className="space-y-4">
+          <div key="step-1" className="space-y-6">
             <div className="text-center md:text-left">
-              <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                 {t("onboarding.step1.title")}
               </h1>
               <p className="text-muted-foreground mt-2">
@@ -553,7 +519,35 @@ export default function Onboarding() {
                   )}
                 />
 
-
+                <div className="space-y-2">
+                  <Label>{t("onboarding.step1.logo")}</Label>
+                  <p className="text-sm text-muted-foreground">{t("onboarding.step1.logoDesc")}</p>
+                  <div className="flex items-center gap-4">
+                    <Avatar className="w-16 h-16">
+                      {formData.logoUrl ? (
+                        <AvatarImage src={formData.logoUrl} alt="Logo" />
+                      ) : (
+                        <AvatarFallback>
+                          <Building2 className="w-8 h-8 text-muted-foreground" />
+                        </AvatarFallback>
+                      )}
+                    </Avatar>
+                    <ObjectUploader
+                      maxNumberOfFiles={1}
+                      maxFileSize={5 * 1024 * 1024}
+                      allowedFileTypes={["image/*"]}
+                      onGetUploadParameters={handleGetUploadParameters}
+                      onComplete={handleLogoUploadComplete}
+                      buttonVariant="outline"
+                      buttonSize="sm"
+                    >
+                      <div className="flex items-center gap-2" data-testid="button-upload-logo">
+                        <Camera className="h-4 w-4" />
+                        <span>{isUploading ? "..." : formData.logoUrl ? t("onboarding.step1.changeLogo") : t("onboarding.step1.uploadLogo")}</span>
+                      </div>
+                    </ObjectUploader>
+                  </div>
+                </div>
               </form>
             </Form>
           </div>
@@ -561,9 +555,9 @@ export default function Onboarding() {
 
       case 2:
         return (
-          <div key="step-2" className="space-y-4">
+          <div key="step-2" className="space-y-6">
             <div className="text-center md:text-left">
-              <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                 {t("onboarding.step2.title")}
               </h1>
               <p className="text-muted-foreground mt-2">
@@ -603,9 +597,9 @@ export default function Onboarding() {
 
       case 3:
         return (
-          <div key="step-3" className="space-y-3">
+          <div key="step-3" className="space-y-6">
             <div className="text-center md:text-left">
-              <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                 {t("onboarding.step3.title")}
               </h1>
               <p className="text-muted-foreground mt-2">
@@ -614,13 +608,13 @@ export default function Onboarding() {
             </div>
 
             <Form {...step3Form}>
-              <form className="space-y-2" autoComplete="off">
+              <form className="space-y-4" autoComplete="off">
                 <FormField
                   control={step3Form.control}
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("onboarding.step3.address")} ({t("common.optional")})</FormLabel>
+                      <FormLabel>{t("onboarding.step3.address")}</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
@@ -674,7 +668,7 @@ export default function Onboarding() {
                           <SelectContent>
                             {countries.map((country) => (
                               <SelectItem key={country} value={country}>
-                                {t(`countries.${country}`)}
+                                {country}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -730,7 +724,95 @@ export default function Onboarding() {
           </div>
         );
 
+      case 4:
+        return (
+          <div key="step-4" className="space-y-6">
+            <div className="text-center md:text-left">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                {t("onboarding.step4.title")}
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                {t("onboarding.step4.subtitle")}
+              </p>
+            </div>
 
+            <Form {...step4Form}>
+              <form className="space-y-6">
+                <FormField
+                  control={step4Form.control}
+                  name="preferredLanguage"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("onboarding.step4.language")}</FormLabel>
+                      <FormDescription>{t("onboarding.step4.languageDesc")}</FormDescription>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger data-testid="select-language">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="en">English</SelectItem>
+                          <SelectItem value="es">Español</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={step4Form.control}
+                  name="theme"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("onboarding.step4.appearance")}</FormLabel>
+                      <FormDescription>{t("onboarding.step4.appearanceDesc")}</FormDescription>
+                      <div className="flex gap-3">
+                        <Button
+                          type="button"
+                          variant={field.value === "light" ? "default" : "outline"}
+                          className="flex-1"
+                          onClick={() => field.onChange("light")}
+                          data-testid="button-theme-light"
+                        >
+                          <Sun className="mr-2 h-4 w-4" />
+                          {t("onboarding.step4.light")}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={field.value === "dark" ? "default" : "outline"}
+                          className="flex-1"
+                          onClick={() => field.onChange("dark")}
+                          data-testid="button-theme-dark"
+                        >
+                          <Moon className="mr-2 h-4 w-4" />
+                          {t("onboarding.step4.dark")}
+                        </Button>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+
+            <div className="bg-primary/10 rounded-lg p-6 text-center">
+              <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check className="h-8 w-8 text-primary-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                {t("onboarding.complete.title")}
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                {t("onboarding.complete.subtitle")}
+              </p>
+            </div>
+          </div>
+        );
 
       default:
         return null;
@@ -739,85 +821,69 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
-      <div className="w-full max-w-[85%] lg:max-w-5xl h-[500px] lg:h-[600px] bg-background rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-        {/* Left column - Green Panel */}
-        <div className="w-full md:w-[45%] bg-primary p-8 md:p-12 text-primary-foreground flex flex-col justify-between relative overflow-hidden">
-          {/* Decorative shapes */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
-
-          {/* Logo */}
-          {/* Logo Removed */}
-
-          {/* Main Text */}
-          <div className="relative z-10 my-8">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold leading-tight mb-6">
-              {currentStep === 0 ? t("onboarding.sidePanel.step0.title") :
-                currentStep === 1 ? t("onboarding.sidePanel.step1.title") :
-                  currentStep === 2 ? t("onboarding.sidePanel.step2.title") :
-                    currentStep === 3 ? t("onboarding.sidePanel.step3.title") :
-                      t("onboarding.sidePanel.title")}
-            </h1>
-            <p className="text-primary-foreground/80 text-lg leading-relaxed max-w-md whitespace-pre-line">
-              {currentStep === 0 ? t("onboarding.sidePanel.step0.subtitle") :
-                currentStep === 1 ? t("onboarding.sidePanel.step1.subtitle") :
-                  currentStep === 2 ? t("onboarding.sidePanel.step2.subtitle") :
-                    currentStep === 3 ? t("onboarding.sidePanel.step3.subtitle") :
-                      t("onboarding.sidePanel.subtitle")}
-            </p>
+      {/* Main card container - max 80% width on desktop */}
+      <div className="w-full max-w-[80%] md:max-w-4xl lg:max-w-5xl bg-background rounded-xl shadow-lg overflow-hidden">
+        <div className="flex flex-col md:flex-row min-h-[500px] md:min-h-[600px]">
+          {/* Left column - Logo, progress indicator, and illustration */}
+          <div className="w-full md:w-1/2 bg-muted/20 flex flex-col relative">
+            {/* Header with logo and progress */}
+            <div className="flex items-center justify-between p-4 md:p-6">
+              <img src={flowliftLogo} alt="Flowlift" className="h-8 w-auto" />
+              {currentStep > 0 && <ProgressIndicator currentStep={currentStep} totalSteps={TOTAL_STEPS} />}
+            </div>
+            
+            {/* Illustration */}
+            <div className="flex-1 flex items-center justify-center p-6 md:p-8">
+              <div className="max-w-xs md:max-w-sm">
+                <img
+                  src={stepImages[currentStep]}
+                  alt={`Step ${currentStep} illustration`}
+                  className="w-full h-auto max-h-48 md:max-h-72 object-contain"
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Progress Dots */}
-          <div className="flex gap-2 relative z-10">
-            {[0, 1, 2, 3].map((step) => (
-              <div
-                key={step}
-                className={`h-1.5 rounded-full transition-all duration-300 ${currentStep === step ? "w-8 bg-white" : "w-2 bg-white/40"
-                  }`}
-              />
-            ))}
-          </div>
-        </div>
+          {/* Vertical divider - green line */}
+          <div className="hidden md:block w-1 bg-primary/80" />
 
-        <div className="w-full md:w-[55%] bg-background p-6 md:p-10 flex flex-col relative overflow-hidden">
-          {/* Logo - Fixed to top right of the section */}
-          <div className="absolute top-6 md:top-8 right-6 md:right-10 z-10">
-            <img src={flowliftLogoNew} alt="flowlift" className="h-7 w-auto" />
-          </div>
+          {/* Right column - Form content */}
+          <div className="w-full md:w-1/2 flex flex-col p-6 md:p-8">
+            {/* Mobile header */}
+            <div className="flex items-center justify-between mb-4 md:hidden">
+              <img src={flowliftLogo} alt="Flowlift" className="h-7 w-auto" />
+              {currentStep > 0 && <ProgressIndicator currentStep={currentStep} totalSteps={TOTAL_STEPS} />}
+            </div>
 
-          {/* Step content container - Fixed Header Position (shifted up 20px) */}
-          <div className="max-w-md mx-auto w-full pt-7 md:pt-11 lg:pt-15">
-            {renderStepContent()}
-          </div>
+            {/* Form content area */}
+            <div className="flex-1 flex flex-col justify-center">
+              {renderStepContent()}
+            </div>
 
-          {/* Navigation buttons - Fixed to bottom */}
-          {currentStep !== 0 && (
-            <div className="absolute bottom-6 md:bottom-10 left-6 md:left-10 right-6 md:right-10 flex justify-center">
-              <div className="max-w-md w-full flex gap-4">
-                {currentStep > 0 && (
-                  <Button
-                    variant="outline"
-                    onClick={handleBack}
-                    disabled={isSaving}
-                    className="flex-1 h-12 rounded-xl text-lg font-medium"
-                    data-testid="button-back"
-                  >
-                    {t("onboarding.back")}
-                  </Button>
-                )}
-
+            {/* Navigation buttons */}
+            {currentStep > 0 && (
+              <div className="flex items-center justify-between pt-6 mt-4">
+                <Button
+                  variant="ghost"
+                  onClick={handleBack}
+                  disabled={isSaving}
+                  data-testid="button-back"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  {t("onboarding.back")}
+                </Button>
                 <Button
                   onClick={handleNext}
                   disabled={isSaving}
-                  size="lg"
-                  className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold h-12 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8"
                   data-testid="button-continue"
                 >
-                  {isSaving ? t("onboarding.saving") : currentStep === 3 ? t("onboarding.complete.cta") : t("onboarding.continue")}
+                  {isSaving ? t("onboarding.saving") : currentStep === 4 ? t("onboarding.complete.cta") : t("onboarding.continue")}
+                  {currentStep < 4 && <ArrowRight className="ml-2 h-4 w-4" />}
                 </Button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

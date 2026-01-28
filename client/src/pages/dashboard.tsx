@@ -38,15 +38,15 @@ export default function Dashboard() {
   const { isStarter, canAccessFeature } = useTier();
   const [showAnalyticsUpgradeModal, setShowAnalyticsUpgradeModal] = useState(false);
   const [, navigate] = useLocation();
-
+  
   // Analytics charts require Pro+ tier
   const canAccessAnalytics = canAccessFeature("pro");
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       toast({
-        title: t("common.unauthorized"),
-        description: t("onboarding.logoutMessage"),
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
         variant: "destructive",
       });
       setTimeout(() => {
@@ -370,7 +370,7 @@ export default function Dashboard() {
     const startDate = new Date(blockedTime.startDateTime);
     const endDate = new Date(blockedTime.endDateTime);
     const isSameDate = isSameDay(startDate, endDate);
-
+    
     return (
       <div
         className="flex items-start justify-between gap-3 py-2 border-b last:border-b-0"
@@ -389,7 +389,7 @@ export default function Dashboard() {
         </div>
         <div className="flex flex-col items-end gap-1 flex-shrink-0 min-w-[70px]">
           <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {isSameDate
+            {isSameDate 
               ? format(startDate, "MMM d")
               : `${format(startDate, "MMM d")} - ${format(endDate, "MMM d")}`
             }
@@ -636,187 +636,187 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent>
               <div className="h-48" data-testid="chart-completed-bookings">
-                {lineChartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={lineChartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
-                      <XAxis
-                        dataKey="date"
-                        tick={{ fontSize: 11 }}
-                        axisLine={{ stroke: "hsl(var(--border))" }}
-                        tickLine={{ stroke: "hsl(var(--border))" }}
-                      />
-                      <YAxis
-                        allowDecimals={false}
-                        tick={{ fontSize: 11 }}
-                        axisLine={{ stroke: "hsl(var(--border))" }}
-                        tickLine={{ stroke: "hsl(var(--border))" }}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px",
-                          fontSize: "12px",
-                        }}
-                        formatter={(value: number) => [value, t("dashboard.completed")]}
-                        labelFormatter={(label) => `${t("dashboard.date")}: ${label}`}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="completed"
-                        stroke="hsl(139, 55%, 46%)"
-                        strokeWidth={2}
-                        dot={{ fill: "hsl(139, 55%, 46%)", strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, fill: "hsl(139, 55%, 46%)" }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-full flex items-center justify-center">
-                    <p className="text-sm text-muted-foreground">{t("dashboard.noDataAvailable")}</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              {lineChartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={lineChartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 11 }}
+                      axisLine={{ stroke: "hsl(var(--border))" }}
+                      tickLine={{ stroke: "hsl(var(--border))" }}
+                    />
+                    <YAxis 
+                      allowDecimals={false}
+                      tick={{ fontSize: 11 }}
+                      axisLine={{ stroke: "hsl(var(--border))" }}
+                      tickLine={{ stroke: "hsl(var(--border))" }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                      }}
+                      formatter={(value: number) => [value, t("dashboard.completed")]}
+                      labelFormatter={(label) => `${t("dashboard.date")}: ${label}`}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="completed" 
+                      stroke="hsl(139, 55%, 46%)" 
+                      strokeWidth={2}
+                      dot={{ fill: "hsl(139, 55%, 46%)", strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: "hsl(139, 55%, 46%)" }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">{t("dashboard.noDataAvailable")}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Booked Services Pie Chart - aligned with Today card */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {t("dashboard.bookedServicesLastWeek")}
-              </CardTitle>
-              <UITooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-xs">{t("dashboard.infoBookedServices")}</p>
-                </TooltipContent>
-              </UITooltip>
-            </CardHeader>
-            <CardContent>
-              <div className="h-48" data-testid="chart-booked-services">
-                {pieChartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                      <Pie
-                        data={pieChartData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={40}
-                        outerRadius={65}
-                        paddingAngle={2}
-                        dataKey="value"
-                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                        labelLine={false}
-                      >
-                        {pieChartData.map((_, index) => (
-                          <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px",
-                          fontSize: "12px",
-                        }}
-                        formatter={(value: number, name: string) => [value, name]}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-full flex items-center justify-center">
-                    <p className="text-sm text-muted-foreground">{t("dashboard.noDataAvailable")}</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Booked Services Pie Chart - aligned with Today card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.bookedServicesLastWeek")}
+            </CardTitle>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-xs">{t("dashboard.infoBookedServices")}</p>
+              </TooltipContent>
+            </UITooltip>
+          </CardHeader>
+          <CardContent>
+            <div className="h-48" data-testid="chart-booked-services">
+              {pieChartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                    <Pie
+                      data={pieChartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={40}
+                      outerRadius={65}
+                      paddingAngle={2}
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                      labelLine={false}
+                    >
+                      {pieChartData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                      }}
+                      formatter={(value: number, name: string) => [value, name]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">{t("dashboard.noDataAvailable")}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
-          {/* Daily Occupation Rate Chart - aligned with Next 7 Days card */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {t("dashboard.dailyOccupationRate")}
-              </CardTitle>
-              <UITooltip>
-                <TooltipTrigger asChild>
-                  <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-xs">{t("dashboard.infoOccupationRate")}</p>
-                </TooltipContent>
-              </UITooltip>
-            </CardHeader>
-            <CardContent>
-              <div className="h-48" data-testid="chart-daily-occupation">
-                {chartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
-                      <XAxis
-                        dataKey="date"
-                        tick={{ fontSize: 11 }}
-                        axisLine={{ stroke: "hsl(var(--border))" }}
-                        tickLine={{ stroke: "hsl(var(--border))" }}
-                      />
-                      <YAxis
-                        domain={[0, maxHours]}
-                        tick={{ fontSize: 11 }}
-                        axisLine={{ stroke: "hsl(var(--border))" }}
-                        tickLine={{ stroke: "hsl(var(--border))" }}
-                        label={{
-                          value: t("dashboard.hours"),
-                          angle: -90,
-                          position: "insideLeft",
-                          style: { fontSize: 11, fill: "hsl(var(--muted-foreground))" }
-                        }}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "8px",
-                          fontSize: "12px",
-                        }}
-                        formatter={(value: number, name: string) => [
-                          `${value}h`,
-                          name === "bookedHours" ? t("dashboard.booked") : t("dashboard.available")
-                        ]}
-                        labelFormatter={(label) => `${t("dashboard.date")}: ${label}`}
-                      />
-                      <Legend
-                        formatter={(value) =>
-                          value === "bookedHours" ? t("dashboard.booked") : t("dashboard.available")
-                        }
-                        wrapperStyle={{ fontSize: "11px" }}
-                      />
-                      <Bar
-                        dataKey="bookedHours"
-                        stackId="a"
-                        fill="#33B658"
-                        name="bookedHours"
-                        radius={[0, 0, 0, 0]}
-                      />
-                      <Bar
-                        dataKey="availableHours"
-                        stackId="a"
-                        fill="#D26969"
-                        name="availableHours"
-                        radius={[4, 4, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-full flex items-center justify-center">
-                    <p className="text-sm text-muted-foreground">{t("dashboard.noDataAvailable")}</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Daily Occupation Rate Chart - aligned with Next 7 Days card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.dailyOccupationRate")}
+            </CardTitle>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground/50 hover:text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="max-w-xs text-xs">{t("dashboard.infoOccupationRate")}</p>
+              </TooltipContent>
+            </UITooltip>
+          </CardHeader>
+          <CardContent>
+            <div className="h-48" data-testid="chart-daily-occupation">
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 10 }}>
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 11 }}
+                      axisLine={{ stroke: "hsl(var(--border))" }}
+                      tickLine={{ stroke: "hsl(var(--border))" }}
+                    />
+                    <YAxis 
+                      domain={[0, maxHours]}
+                      tick={{ fontSize: 11 }}
+                      axisLine={{ stroke: "hsl(var(--border))" }}
+                      tickLine={{ stroke: "hsl(var(--border))" }}
+                      label={{ 
+                        value: t("dashboard.hours"), 
+                        angle: -90, 
+                        position: "insideLeft",
+                        style: { fontSize: 11, fill: "hsl(var(--muted-foreground))" }
+                      }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                      }}
+                      formatter={(value: number, name: string) => [
+                        `${value}h`,
+                        name === "bookedHours" ? t("dashboard.booked") : t("dashboard.available")
+                      ]}
+                      labelFormatter={(label) => `${t("dashboard.date")}: ${label}`}
+                    />
+                    <Legend 
+                      formatter={(value) => 
+                        value === "bookedHours" ? t("dashboard.booked") : t("dashboard.available")
+                      }
+                      wrapperStyle={{ fontSize: "11px" }}
+                    />
+                    <Bar 
+                      dataKey="bookedHours" 
+                      stackId="a" 
+                      fill="#33B658" 
+                      name="bookedHours"
+                      radius={[0, 0, 0, 0]}
+                    />
+                    <Bar 
+                      dataKey="availableHours" 
+                      stackId="a" 
+                      fill="#D26969" 
+                      name="availableHours"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">{t("dashboard.noDataAvailable")}</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
       ) : (
         /* Locked Analytics Card for Starter tier */
         <Card className="relative overflow-hidden">
@@ -837,7 +837,7 @@ export default function Dashboard() {
               <div className="h-48 bg-muted rounded-lg" />
               <div className="h-48 bg-muted rounded-lg" />
             </div>
-
+            
             {/* Upgrade overlay */}
             <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
               <div className="text-center space-y-3">
@@ -848,7 +848,7 @@ export default function Dashboard() {
                 <p className="text-sm text-muted-foreground max-w-md">
                   {t("dashboard.analyticsLockedDesc")}
                 </p>
-                <Button
+                <Button 
                   onClick={() => setShowAnalyticsUpgradeModal(true)}
                   className="gap-2"
                   data-testid="button-upgrade-analytics"

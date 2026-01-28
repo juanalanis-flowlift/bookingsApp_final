@@ -13,7 +13,6 @@ import { I18nProvider } from "@/lib/i18n";
 
 import Landing from "@/pages/landing";
 import SignIn from "@/pages/signin";
-import SignUp from "@/pages/signup";
 import Dashboard from "@/pages/dashboard";
 import Services from "@/pages/services";
 import Bookings from "@/pages/bookings";
@@ -26,8 +25,6 @@ import CustomerCancel from "@/pages/customer-cancel";
 import CustomerModify from "@/pages/customer-modify";
 import Team from "@/pages/team";
 import Onboarding from "@/pages/onboarding";
-import About from "@/pages/about";
-import Products from "@/pages/products";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -63,29 +60,24 @@ function Router() {
     <Switch>
       {/* Public booking page - always accessible */}
       <Route path="/book/:slug" component={BookingPage} />
-
+      
       {/* Customer bookings page - always accessible */}
       <Route path="/my-bookings" component={MyBookings} />
-
+      
       {/* Confirm modification page - always accessible */}
       <Route path="/confirm-modification" component={ConfirmModification} />
-
+      
       {/* Customer cancel page - always accessible */}
       <Route path="/customer-cancel" component={CustomerCancel} />
-
+      
       {/* Customer modify page - always accessible */}
       <Route path="/customer-modify" component={CustomerModify} />
-
-      {/* Sign-in and Sign-up pages - always accessible */}
+      
+      {/* Sign-in page - always accessible */}
       <Route path="/signin" component={SignIn} />
-      <Route path="/signup" component={SignUp} />
-
+      
       {/* Onboarding page - for authenticated users setting up their business */}
       <Route path="/onboarding" component={Onboarding} />
-
-      {/* About and Products pages - always accessible */}
-      <Route path="/about" component={About} />
-      <Route path="/products" component={Products} />
 
       {/* Landing page for non-authenticated users */}
       {isLoading || !isAuthenticated ? (

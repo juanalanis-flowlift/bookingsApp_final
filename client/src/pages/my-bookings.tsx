@@ -66,7 +66,7 @@ function formatTime(time: string): string {
 
 function getStatusBadge(status: string, bookingDate: string, t: (key: string) => string) {
   const isInPast = isPast(parseISO(bookingDate));
-
+  
   if (status === "cancelled") {
     return <Badge variant="destructive" data-testid="badge-status-cancelled">{t("common.cancelled")}</Badge>;
   }
@@ -83,7 +83,7 @@ export default function MyBookings() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { t, language } = useI18n();
-
+  
   const getLocale = () => language === "es" ? es : enUS;
   const [email, setEmail] = useState("");
   const [sessionToken, setSessionToken] = useState<string | null>(() => {
@@ -95,7 +95,7 @@ export default function MyBookings() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
-
+    
     if (token) {
       verifyToken(token);
       window.history.replaceState({}, "", "/my-bookings");
@@ -250,7 +250,7 @@ export default function MyBookings() {
   const upcomingBookings = bookings?.filter(
     (b) => !isPast(parseISO(b.bookingDate)) && b.status !== "cancelled"
   ) || [];
-
+  
   const pastBookings = bookings?.filter(
     (b) => isPast(parseISO(b.bookingDate)) || b.status === "cancelled"
   ) || [];
@@ -260,7 +260,7 @@ export default function MyBookings() {
       <div className="min-h-screen bg-background">
         <header className="border-b">
           <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-            <h1 className="font-semibold">flowlift</h1>
+            <h1 className="font-semibold">FlowLift</h1>
           </div>
         </header>
 
@@ -333,7 +333,7 @@ export default function MyBookings() {
       <div className="min-h-screen bg-background">
         <header className="border-b">
           <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-            <h1 className="font-semibold">flowlift</h1>
+            <h1 className="font-semibold">FlowLift</h1>
           </div>
         </header>
         <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -351,7 +351,7 @@ export default function MyBookings() {
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container mx-auto px-4 h-14 flex items-center justify-between gap-4">
-          <h1 className="font-semibold">flowlift</h1>
+          <h1 className="font-semibold">FlowLift</h1>
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground hidden sm:inline">
               {session?.customer?.email}
@@ -457,7 +457,7 @@ export default function MyBookings() {
                             <AlertDialogHeader>
                               <AlertDialogTitle>{t("myBookings.cancelBooking")}</AlertDialogTitle>
                               <AlertDialogDescription>
-                                {t("myBookings.cancelBookingConfirm", {
+                                {t("myBookings.cancelBookingConfirm", { 
                                   serviceName: booking.service?.name || "Service",
                                   date: format(parseISO(booking.bookingDate), "MMMM d, yyyy", { locale: getLocale() })
                                 })}

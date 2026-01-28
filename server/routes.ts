@@ -45,7 +45,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
   app.post("/api/business", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-
+      
       // Check if user already has a business
       const existing = await storage.getBusinessByOwnerId(userId);
       if (existing) {
@@ -78,7 +78,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -103,7 +103,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -123,7 +123,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -140,7 +140,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -171,7 +171,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -193,7 +193,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -219,7 +219,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
 
     const userId = req.user?.claims?.sub;
     const business = await storage.getBusinessByOwnerId(userId);
-
+    
     if (!business) {
       return res.status(404).json({ error: "Business not found" });
     }
@@ -254,7 +254,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -272,13 +272,13 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
 
       const teamMembersList = await storage.getTeamMembersByBusinessId(business.id);
-
+      
       // Return team members with their availability
       const membersWithAvailability = await Promise.all(
         teamMembersList.map(async (member) => {
@@ -289,7 +289,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
           };
         })
       );
-
+      
       res.json(membersWithAvailability);
     } catch (error) {
       console.error("Error fetching team members with availability:", error);
@@ -301,7 +301,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -321,7 +321,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -342,7 +342,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -364,7 +364,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -387,7 +387,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -429,7 +429,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -451,7 +451,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -462,18 +462,18 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       }
 
       const { serviceIds } = req.body;
-
+      
       // Validate serviceIds is an array of strings
       if (!Array.isArray(serviceIds)) {
         return res.status(400).json({ message: "serviceIds must be an array" });
       }
-
+      
       // Filter to only valid service IDs that belong to this business
       const businessServices = await storage.getServicesByBusinessId(business.id);
-      const validServiceIds = serviceIds.filter((id: string) =>
+      const validServiceIds = serviceIds.filter((id: string) => 
         typeof id === 'string' && businessServices.some(s => s.id === id)
       );
-
+      
       await storage.setTeamMemberServices(req.params.id, validServiceIds);
       res.json({ success: true });
     } catch (error) {
@@ -487,7 +487,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -509,7 +509,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -520,7 +520,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       }
 
       const { dayOfWeek, startTime, endTime, isAvailable } = req.body;
-
+      
       // Validate required fields
       if (typeof dayOfWeek !== 'number' || dayOfWeek < 0 || dayOfWeek > 6) {
         return res.status(400).json({ message: "dayOfWeek must be a number between 0 and 6" });
@@ -553,7 +553,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -570,7 +570,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -593,7 +593,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -610,7 +610,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -632,7 +632,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -648,13 +648,13 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
   // ============================================
   // Booking Routes (Protected)
   // ============================================
-
+  
   // Create a booking manually (business owner)
   app.post("/api/bookings", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -670,7 +670,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       if (!timeRegex.test(startTime)) {
         return res.status(400).json({ message: "startTime must be in HH:MM format" });
       }
-
+      
       // Validate time values are within valid ranges
       const [startHour, startMin] = startTime.split(":").map(Number);
       if (startHour < 0 || startHour > 23 || startMin < 0 || startMin > 59) {
@@ -738,7 +738,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       });
 
       if (hasConflict) {
-        return res.status(400).json({
+        return res.status(400).json({ 
           message: "Time slot not available",
           error: "slot_conflict",
           details: "This time slot has already been booked. Please select a different time."
@@ -763,7 +763,11 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       // Send confirmation email to customer
       const baseUrl = `${req.protocol}://${req.get("host")}`;
       sendBookingEmails({
-        booking,
+        booking: {
+          ...booking,
+          date: bookingDate,
+          notes: req.body.customerNotes || null,
+        },
         service,
         business,
         language: req.body.preferredLanguage === "es" ? "es" : "en",
@@ -783,7 +787,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -800,7 +804,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -811,14 +815,18 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
       }
 
       const updated = await storage.updateBooking(req.params.id, req.body);
-
+      
       // Send confirmation email when booking is confirmed (for services requiring confirmation)
       if (req.body.status === "confirmed" && booking.status === "pending") {
         const service = await storage.getServiceById(booking.serviceId);
-        if (service && service.requiresConfirmation && updated) {
+        if (service && service.requiresConfirmation) {
           const baseUrl = `${req.protocol}://${req.get("host")}`;
           sendBookingEmails({
-            booking: updated,
+            booking: {
+              ...updated,
+              date: booking.bookingDate,
+              notes: booking.customerNotes || null,
+            },
             service,
             business,
             language: "en", // Default to English for business-confirmed bookings
@@ -828,7 +836,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
           });
         }
       }
-
+      
       res.json(updated);
     } catch (error) {
       console.error("Error updating booking:", error);
@@ -841,7 +849,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
     try {
       const userId = req.user.claims.sub;
       const business = await storage.getBusinessByOwnerId(userId);
-
+      
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
@@ -905,12 +913,12 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
   // ============================================
   // Public Routes (for customer booking page)
   // ============================================
-
+  
   // ICS Calendar Download for Apple Calendar (secured via customer action token)
   app.get("/api/calendar/ics/:bookingId", async (req, res) => {
     try {
       const { token } = req.query;
-
+      
       // Require a customer action token for security
       // Use uniform 404 response for all failures to prevent information disclosure
       if (!token || typeof token !== "string") {
@@ -930,7 +938,7 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
 
       const service = await storage.getServiceById(booking.serviceId);
       const business = await storage.getBusinessById(booking.businessId);
-
+      
       if (!service || !business) {
         return res.status(404).json({ message: "Service or business not found" });
       }
@@ -941,12 +949,12 @@ export async function registerRoutes(server: Server, app: Express): Promise<void
 
       const startDateTime = new Date(bookingDate);
       startDateTime.setHours(startHour, startMin, 0, 0);
-
+      
       const endDateTime = new Date(bookingDate);
       endDateTime.setHours(endHour, endMin, 0, 0);
 
       const formatICS = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-
+      
       // Escape special characters for ICS format
       const escapeICS = (text: string) => text.replace(/[,;\\]/g, "\\$&").replace(/\n/g, "\\n");
 
@@ -971,7 +979,7 @@ END:VCALENDAR`;
       res.status(500).json({ message: "Failed to generate calendar file" });
     }
   });
-
+  
   app.get("/api/public/business/:slug", async (req, res) => {
     try {
       const business = await storage.getBusinessBySlug(req.params.slug);
@@ -1021,13 +1029,13 @@ END:VCALENDAR`;
     try {
       const serviceId = req.params.serviceId;
       const service = await storage.getServiceById(serviceId);
-
+      
       if (!service) {
         return res.status(404).json({ message: "Service not found" });
       }
 
       const teamMembersList = await storage.getTeamMembersByServiceId(serviceId);
-
+      
       // Return team members with their availability
       const membersWithAvailability = await Promise.all(
         teamMembersList.map(async (member) => {
@@ -1038,7 +1046,7 @@ END:VCALENDAR`;
           };
         })
       );
-
+      
       res.json(membersWithAvailability);
     } catch (error) {
       console.error("Error fetching team members for service:", error);
@@ -1143,7 +1151,11 @@ END:VCALENDAR`;
         // Send confirmation email with new booking details
         const baseUrl = `${req.protocol}://${req.get("host")}`;
         sendBookingEmails({
-          booking: updated,
+          booking: {
+            ...updated,
+            date: updated.bookingDate,
+            notes: updated.customerNotes || null,
+          },
           service,
           business,
           language: "en",
@@ -1383,7 +1395,7 @@ END:VCALENDAR`;
       });
 
       if (hasConflict) {
-        return res.status(400).json({
+        return res.status(400).json({ 
           message: "Time slot not available",
           error: "slot_conflict",
           details: "This time slot has already been booked. Please select a different time."
@@ -1392,7 +1404,7 @@ END:VCALENDAR`;
 
       // Set booking status based on whether service requires confirmation
       const bookingStatus = service.requiresConfirmation ? "pending" : "confirmed";
-
+      
       const booking = await storage.createBooking({
         businessId: business.id,
         serviceId: req.body.serviceId,
@@ -1412,7 +1424,11 @@ END:VCALENDAR`;
       if (!service.requiresConfirmation) {
         const baseUrl = `${req.protocol}://${req.get("host")}`;
         sendBookingEmails({
-          booking,
+          booking: {
+            ...booking,
+            date: bookingDate,
+            notes: req.body.customerNotes || null,
+          },
           service,
           business,
           language: req.body.preferredLanguage === "es" ? "es" : "en",
@@ -1433,7 +1449,7 @@ END:VCALENDAR`;
   // ============================================
   // Object Storage Routes
   // ============================================
-
+  
   // Serve public objects
   app.get("/public-objects/:filePath(*)", async (req, res) => {
     const filePath = req.params.filePath;
@@ -1455,34 +1471,34 @@ END:VCALENDAR`;
     const objectStorageService = new ObjectStorageService();
     try {
       const objectFile = await objectStorageService.getObjectEntityFile(req.path);
-
+      
       // Check if object has public visibility
       const canAccessPublic = await objectStorageService.canAccessObjectEntity({
         objectFile,
         userId: undefined,
         requestedPermission: ObjectPermission.READ,
       });
-
+      
       if (canAccessPublic) {
         return objectStorageService.downloadObject(objectFile, res);
       }
-
+      
       // If not public, require auth
       if (!req.isAuthenticated || !req.isAuthenticated()) {
         return res.sendStatus(401);
       }
-
+      
       const userId = req.user?.claims?.sub;
       const canAccess = await objectStorageService.canAccessObjectEntity({
         objectFile,
         userId: userId,
         requestedPermission: ObjectPermission.READ,
       });
-
+      
       if (!canAccess) {
         return res.sendStatus(401);
       }
-
+      
       objectStorageService.downloadObject(objectFile, res);
     } catch (error) {
       console.error("Error checking object access:", error);
@@ -1513,7 +1529,7 @@ END:VCALENDAR`;
 
     const userId = req.user?.claims?.sub;
     const business = await storage.getBusinessByOwnerId(userId);
-
+    
     if (!business) {
       return res.status(404).json({ error: "Business not found" });
     }
@@ -1546,18 +1562,18 @@ END:VCALENDAR`;
   // ============================================
   // Customer Authentication Routes (Magic Link)
   // ============================================
-
+  
   // Request magic link to view bookings
   app.post("/api/customer/request-access", async (req, res) => {
     try {
       const { email } = req.body;
-
+      
       if (!email || typeof email !== "string") {
         return res.status(400).json({ message: "Email is required" });
       }
 
       const normalizedEmail = email.toLowerCase().trim();
-
+      
       // Check if customer exists, create if not
       let customer = await storage.getCustomerByEmail(normalizedEmail);
       if (!customer) {
@@ -1634,7 +1650,7 @@ END:VCALENDAR`;
         expiresAt: sessionExpiresAt,
       });
 
-      res.json({
+      res.json({ 
         customer,
         sessionToken,
         expiresAt: sessionExpiresAt,
@@ -1714,7 +1730,7 @@ END:VCALENDAR`;
     try {
       const authResult = await validateCustomerToken(req.headers.authorization);
       if ("error" in authResult) {
-        return res.status(authResult.status || 401).json({ message: authResult.error });
+        return res.status(authResult.status).json({ message: authResult.error });
       }
 
       const { customer } = authResult;
@@ -1759,7 +1775,7 @@ END:VCALENDAR`;
     try {
       const authResult = await validateCustomerToken(req.headers.authorization);
       if ("error" in authResult) {
-        return res.status(authResult.status || 401).json({ message: authResult.error });
+        return res.status(authResult.status).json({ message: authResult.error });
       }
 
       const { customer } = authResult;
@@ -1789,7 +1805,7 @@ END:VCALENDAR`;
 
       // Update booking status
       const updated = await storage.updateBooking(req.params.id, { status: "cancelled" });
-
+      
       console.log(`Booking ${req.params.id} cancelled by customer ${customer.email}`);
       res.json(updated);
     } catch (error) {

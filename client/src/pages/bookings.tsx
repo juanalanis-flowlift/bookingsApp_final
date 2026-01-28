@@ -73,7 +73,7 @@ export default function Bookings() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { t, language } = useI18n();
   const { isTeams } = useTier();
-
+  
   const getLocale = () => language === "es" ? es : enUS;
   const [view, setView] = useState<"list" | "calendar" | "teamLoad">("list");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
@@ -81,7 +81,7 @@ export default function Bookings() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [calendarDate, setCalendarDate] = useState<Date>(new Date());
   const [weekStartDate, setWeekStartDate] = useState<Date>(startOfWeek(new Date(), { weekStartsOn: 1 }));
-
+  
   // Modify booking state
   const [modifyDialogOpen, setModifyDialogOpen] = useState(false);
   const [bookingToModify, setBookingToModify] = useState<Booking | null>(null);
@@ -104,8 +104,8 @@ export default function Bookings() {
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       toast({
-        title: t("common.unauthorized"),
-        description: t("onboarding.logoutMessage"),
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
         variant: "destructive",
       });
       setTimeout(() => {
@@ -151,7 +151,7 @@ export default function Bookings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       setSelectedBooking(null);
-      toast({ title: t("bookings.updated") });
+      toast({ title: "Booking updated successfully" });
     },
     onError: (error) => {
       if (isUnauthorizedError(error as Error)) {
@@ -165,7 +165,7 @@ export default function Bookings() {
         }, 500);
         return;
       }
-      toast({ title: t("bookings.updateError"), variant: "destructive" });
+      toast({ title: "Failed to update booking", variant: "destructive" });
     },
   });
 
@@ -272,7 +272,7 @@ export default function Bookings() {
   const calculateEndTime = (startTime: string, serviceId: string) => {
     const service = services?.find(s => s.id === serviceId);
     if (!service || !startTime) return "";
-
+    
     const [hours, minutes] = startTime.split(":").map(Number);
     const startMinutes = hours * 60 + minutes;
     const endMinutes = startMinutes + service.duration;
@@ -301,10 +301,10 @@ export default function Bookings() {
       toast({ title: t("common.fillAllFields"), variant: "destructive" });
       return;
     }
-
+    
     // End time is auto-calculated or manually entered
     const endTime = newBookingEndTime || calculateEndTime(newBookingStartTime, newBookingServiceId);
-
+    
     createBookingMutation.mutate({
       serviceId: newBookingServiceId,
       bookingDate: newBookingDate,
@@ -338,7 +338,7 @@ export default function Bookings() {
 
   // Get bookings for a specific team member on a specific date
   const getTeamMemberBookingsForDate = (teamMemberId: string, date: Date) => {
-    return bookings?.filter((booking) =>
+    return bookings?.filter((booking) => 
       booking.teamMemberId === teamMemberId &&
       isSameDay(new Date(booking.bookingDate), date) &&
       booking.status !== "cancelled"
@@ -347,7 +347,7 @@ export default function Bookings() {
 
   // Get all bookings for a date (for team members without specific assignment)
   const getBookingsForDateWithoutTeamMember = (date: Date) => {
-    return bookings?.filter((booking) =>
+    return bookings?.filter((booking) => 
       !booking.teamMemberId &&
       isSameDay(new Date(booking.bookingDate), date) &&
       booking.status !== "cancelled"
@@ -530,8 +530,8 @@ export default function Bookings() {
               <SelectItem value="cancelled">{t("bookings.cancelled")}</SelectItem>
             </SelectContent>
           </Select>
-          <Button
-            onClick={handleOpenAddBookingDialog}
+          <Button 
+            onClick={handleOpenAddBookingDialog} 
             className="gap-2"
             data-testid="button-add-booking"
           >
@@ -656,11 +656,11 @@ export default function Bookings() {
             <Card>
               <CardContent className="py-12 text-center">
                 <CalendarIcon className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                <h3 className="text-lg font-semibold mb-2">{t("bookings.noBookingsEmpty")}</h3>
+                <h3 className="text-lg font-semibold mb-2">No bookings found</h3>
                 <p className="text-muted-foreground">
                   {statusFilter !== "all"
-                    ? t("bookings.noBookingsFilter")
-                    : t("bookings.sharePage")}
+                    ? "No bookings match your filter"
+                    : "Share your booking page to start receiving appointments"}
                 </p>
               </CardContent>
             </Card>
@@ -834,8 +834,9 @@ export default function Bookings() {
                             return (
                               <div
                                 key={dayIndex}
-                                className={`min-h-[100px] border rounded-lg p-1 ${memberAvail ? "bg-background" : "bg-muted/50"
-                                  }`}
+                                className={`min-h-[100px] border rounded-lg p-1 ${
+                                  memberAvail ? "bg-background" : "bg-muted/50"
+                                }`}
                               >
                                 {memberAvail && (
                                   <div className="text-[10px] text-muted-foreground mb-1 text-center">

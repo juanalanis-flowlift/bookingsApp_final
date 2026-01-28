@@ -93,8 +93,8 @@ export default function Team() {
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       toast({
-        title: t("common.unauthorized"),
-        description: t("onboarding.logoutMessage"),
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
         variant: "destructive",
       });
       setTimeout(() => {
@@ -135,12 +135,12 @@ export default function Team() {
                 <span className="text-sm">{t("upgrade.team.benefit4")}</span>
               </li>
             </ul>
-            <Button
-              className="w-full"
+            <Button 
+              className="w-full" 
               onClick={() => setShowUpgradeModal(true)}
               data-testid="button-upgrade-teams"
             >
-              {t("upgrade.upgradeTo")} {t("settings.tier.teams")}
+              {t("upgrade.upgradeTo")} Teams
             </Button>
           </CardContent>
         </Card>
@@ -378,14 +378,14 @@ export default function Team() {
 
       const availResponse = await fetch(`/api/team/${member.id}/availability`, { credentials: "include" });
       const availData: TeamMemberAvailability[] = await availResponse.json();
-
+      
       const defaultAvail = daysOfWeek.map(day => ({
         dayOfWeek: day.value,
         isAvailable: false,
         startTime: "09:00",
         endTime: "17:00",
       }));
-
+      
       availData.forEach(a => {
         const idx = defaultAvail.findIndex(d => d.dayOfWeek === a.dayOfWeek);
         if (idx >= 0) {
@@ -397,7 +397,7 @@ export default function Team() {
           };
         }
       });
-
+      
       setMemberAvailability(defaultAvail);
     } catch (error) {
       console.error("Error loading member details:", error);
@@ -416,7 +416,7 @@ export default function Team() {
 
   const updateDayAvailability = (dayOfWeek: number, field: keyof DayAvailability, value: any) => {
     setMemberAvailability(prev => {
-      const updated = prev.map(a =>
+      const updated = prev.map(a => 
         a.dayOfWeek === dayOfWeek ? { ...a, [field]: value } : a
       );
       return updated;
@@ -492,8 +492,8 @@ export default function Team() {
             </Card>
           ) : (
             teamMembers?.map((member) => (
-              <Card
-                key={member.id}
+              <Card 
+                key={member.id} 
                 className={`cursor-pointer transition-colors hover-elevate ${selectedMember?.id === member.id ? "ring-2 ring-primary" : ""}`}
                 onClick={() => selectMember(member)}
                 data-testid={`card-team-member-${member.id}`}
@@ -617,8 +617,8 @@ export default function Team() {
                     ) : (
                       <div className="space-y-3">
                         {services?.map((service) => (
-                          <div
-                            key={service.id}
+                          <div 
+                            key={service.id} 
                             className="flex items-center gap-3 p-3 border rounded-md"
                           >
                             <Checkbox
@@ -644,8 +644,8 @@ export default function Team() {
                     </p>
                     <div className="space-y-3">
                       {memberAvailability.map((day) => (
-                        <div
-                          key={day.dayOfWeek}
+                        <div 
+                          key={day.dayOfWeek} 
                           className="flex items-center gap-4 p-3 border rounded-md flex-wrap"
                         >
                           <div className="w-24 flex-shrink-0">
@@ -679,8 +679,8 @@ export default function Team() {
                                 className="w-28"
                                 data-testid={`input-end-${day.dayOfWeek}`}
                               />
-                              <Button
-                                size="sm"
+                              <Button 
+                                size="sm" 
                                 onClick={() => saveDayAvailability(day.dayOfWeek)}
                                 data-testid={`button-save-day-${day.dayOfWeek}`}
                               >
@@ -797,13 +797,13 @@ export default function Team() {
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                   {t("common.cancel")}
                 </Button>
-                <Button
-                  type="submit"
+                <Button 
+                  type="submit" 
                   disabled={createMutation.isPending || updateMutation.isPending}
                   data-testid="button-save-member"
                 >
-                  {createMutation.isPending || updateMutation.isPending
-                    ? t("common.saving")
+                  {createMutation.isPending || updateMutation.isPending 
+                    ? t("common.saving") 
                     : t("common.save")}
                 </Button>
               </DialogFooter>
