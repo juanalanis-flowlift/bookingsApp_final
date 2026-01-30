@@ -86,7 +86,15 @@ export default function SignUp() {
                         {/* Footer / Terms */}
                         <div className="text-center space-y-6 w-full">
                             <p className="text-xs text-gray-400 font-sans leading-relaxed max-w-[320px] mx-auto opacity-80">
-                                {t("signin.termsAgreement")}
+                                {t("signin.termsAgreement.part1")}
+                                <Link href="/terms-and-conditions" className="text-gray-600 hover:text-primary underline underline-offset-2 transition-colors">
+                                    {t("nav.termsConditions")}
+                                </Link>
+                                {t("signin.termsAgreement.part2")}
+                                <Link href="/privacy-policy" className="text-gray-600 hover:text-primary underline underline-offset-2 transition-colors">
+                                    {t("nav.privacyPolicy")}
+                                </Link>
+                                .
                             </p>
 
                             <div className="relative">

@@ -21,10 +21,10 @@ export default function SignIn() {
 
           <div className="relative z-10">
             <h1 className="text-3xl md:text-4xl font-serif font-bold leading-[1.1] mb-6">
-              {t("signin.rightPlace.title")}
+              {t("signin.left.title")}
             </h1>
             <p className="text-lg md:text-xl text-white/90 font-sans leading-relaxed">
-              {t("signin.rightPlace.subtitle")}
+              {t("signin.left.subtitle")}
             </p>
           </div>
 
@@ -82,7 +82,15 @@ export default function SignIn() {
             {/* Footer / Terms */}
             <div className="mt-12 text-center space-y-4">
               <p className="text-xs text-gray-400 font-sans leading-relaxed max-w-[280px]">
-                {t("signin.termsAgreement")}
+                {t("signin.termsAgreement.part1")}
+                <Link href="/terms-and-conditions" className="text-gray-600 hover:text-primary underline underline-offset-2 transition-colors">
+                  {t("nav.termsConditions")}
+                </Link>
+                {t("signin.termsAgreement.part2")}
+                <Link href="/privacy-policy" className="text-gray-600 hover:text-primary underline underline-offset-2 transition-colors">
+                  {t("nav.privacyPolicy")}
+                </Link>
+                .
               </p>
 
               <div className="pt-4 border-t border-gray-100 w-full">

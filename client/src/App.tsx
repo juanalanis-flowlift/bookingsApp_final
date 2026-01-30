@@ -28,6 +28,8 @@ import Team from "@/pages/team";
 import Onboarding from "@/pages/onboarding";
 import About from "@/pages/about";
 import Products from "@/pages/products";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsAndConditions from "@/pages/TermsAndConditions";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
@@ -86,6 +88,8 @@ function Router() {
       {/* About and Products pages - always accessible */}
       <Route path="/about" component={About} />
       <Route path="/products" component={Products} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/terms-and-conditions" component={TermsAndConditions} />
 
       {/* Landing page for non-authenticated users */}
       {isLoading || !isAuthenticated ? (

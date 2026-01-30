@@ -1,4 +1,11 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
+import { Globe, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export type Language = "en" | "es";
 
@@ -27,7 +34,11 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.settings": "Business",
     "nav.team": "Team",
     "nav.about": "About",
+    "nav.aboutUs": "About us",
+    "nav.company": "Company",
     "nav.products": "Products",
+    "nav.privacyPolicy": "Privacy Policy",
+    "nav.termsConditions": "Terms & Conditions",
     "nav.logout": "Logout",
 
     "sidebar.menu": "Menu",
@@ -51,17 +62,20 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.signInWithGoogle": "Sign in with Google",
     "common.back": "Back",
 
-    "signin.title": "Sign In",
-    "signin.subtitle": "Choose how you want to sign in to your account",
+    "signin.title": "Welcome back",
+    "signin.subtitle": "Sign in to manage your bookings and availability.",
     "signin.google": "Continue with Google",
     "signin.microsoft": "Continue with Outlook",
+    "signin.left.title": "Good to see you again",
+    "signin.left.subtitle": "Your bookings, availability, and customer details are ready when you are. Stay organized. Stay in control.",
     "signin.rightPlace.title": "You're in the right place",
     "signin.rightPlace.subtitle": "flowlift simplifies bookings for you and your customers. Clear schedules. Fewer messages. More control.",
     "signin.hello.title": "Hello!",
     "signin.hello.subtitle": "Sign up to start taking bookings and manage your schedule with confidence.",
     "signin.signUpGoogle": "Sign up with Google",
     "signin.signUpMicrosoft": "Sign up with Microsoft",
-    "signin.termsAgreement": "By continuing, you agree to our Terms of Service and our Privacy Policy.",
+    "signin.termsAgreement.part1": "By continuing, you agree to our ",
+    "signin.termsAgreement.part2": " and our ",
     "signin.alreadyHaveAccount": "Already have an account?",
     "signin.dontHaveAccount": "Don't have an account?",
     "signin.signUp": "Sign up",
@@ -901,7 +915,11 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.settings": "Negocio",
     "nav.team": "Equipo",
     "nav.about": "Acerca de",
+    "nav.aboutUs": "Sobre nosotros",
+    "nav.company": "Empresa",
     "nav.products": "Productos",
+    "nav.privacyPolicy": "Política de Privacidad",
+    "nav.termsConditions": "Términos y Condiciones",
     "nav.logout": "Cerrar sesión",
 
     "sidebar.menu": "Menú",
@@ -925,17 +943,20 @@ export const translations: Record<Language, Record<string, string>> = {
     "landing.signInWithGoogle": "Iniciar sesión con Google",
     "common.back": "Atrás",
 
-    "signin.title": "Iniciar Sesión",
-    "signin.subtitle": "Elige cómo quieres iniciar sesión en tu cuenta",
+    "signin.title": "Bienvenido de nuevo",
+    "signin.subtitle": "Inicia sesión para gestionar tus reservas y disponibilidad.",
     "signin.google": "Continuar con Google",
     "signin.microsoft": "Continuar con Outlook",
+    "signin.left.title": "Qué gusto verte de nuevo",
+    "signin.left.subtitle": "Tus reservas, disponibilidad y detalles de clientes están listos cuando tú lo estés. Mantente organizado. Mantén el control.",
     "signin.rightPlace.title": "Estás en el lugar correcto",
     "signin.rightPlace.subtitle": "flowlift simplifica las reservas para ti y tus clientes. Agendas claras. Menos mensajes. Más control.",
     "signin.hello.title": "¡Hola!",
     "signin.hello.subtitle": "Regístrate para empezar a recibir reservas y gestionar tu agenda con confianza.",
     "signin.signUpGoogle": "Registrarse con Google",
     "signin.signUpMicrosoft": "Registrarse con Microsoft",
-    "signin.termsAgreement": "Al continuar, aceptas nuestros Términos de Servicio y nuestra Política de Privacidad.",
+    "signin.termsAgreement.part1": "Al continuar, aceptas nuestros ",
+    "signin.termsAgreement.part2": " y nuestra ",
     "signin.alreadyHaveAccount": "¿Ya tienes una cuenta?",
     "signin.dontHaveAccount": "¿No tienes una cuenta?",
     "signin.signUp": "Regístrate",
@@ -1838,19 +1859,43 @@ export function useI18n() {
   return context;
 }
 
-export function LanguageSwitcher({ minimal = false }: { minimal?: boolean }) {
+export function LanguageSwitcher({ minimal = false, dark = false }: { minimal?: boolean, dark?: boolean }) {
   const { language, setLanguage } = useI18n();
 
   if (minimal) {
     return (
-      <button
-        onClick={() => setLanguage(language === "en" ? "es" : "en")}
-        className="px-2 py-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-        data-testid="button-language-switch"
-        aria-label={language === "en" ? "Switch to Spanish" : "Switch to English"}
-      >
-        {language === "en" ? "ES" : "EN"}
-      </button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className={`h-10 px-3 rounded-full text-sm font-bold transition-all flex items-center gap-2 border border-transparent outline-none focus:ring-0 ${dark
+              ? "text-gray-400 hover:bg-white/10 hover:text-white"
+              : "text-gray-600 hover:bg-gray-100 hover:text-black"
+              }`}
+            data-testid="button-language-switch"
+            aria-label={language === "en" ? "Change language" : "Cambiar idioma"}
+          >
+            <Globe className="h-4 w-4" />
+            <span>{language === "en" ? "EN" : "ES"}</span>
+            <ChevronDown className="h-3 w-3 opacity-50" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-40 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border-gray-100 p-1 bg-white">
+          <DropdownMenuItem
+            onClick={() => setLanguage("en")}
+            className={`cursor-pointer rounded-xl font-medium px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${language === "en" ? "bg-gray-100/50 text-black" : "text-gray-600"}`}
+          >
+            <span>English</span>
+            <span className="text-[10px] font-bold opacity-40">EN</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => setLanguage("es")}
+            className={`cursor-pointer rounded-xl font-medium px-4 py-2 hover:bg-gray-50 flex items-center justify-between ${language === "es" ? "bg-gray-100/50 text-black" : "text-gray-600"}`}
+          >
+            <span>Español</span>
+            <span className="text-[10px] font-bold opacity-40">ES</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 

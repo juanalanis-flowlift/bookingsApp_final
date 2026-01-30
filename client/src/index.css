@@ -43,9 +43,9 @@
   --chart-3: 43 93% 56%;
   --chart-4: 22 80% 65%;
   --chart-5: 340 79% 51%;
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: Georgia, Constantia, "Lucida Bright", serif;
-  --font-mono: Menlo, Monaco, Consolas, "Courier New", monospace;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Outfit", Georgia, serif;
+  --font-mono: "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
   --radius: .5rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(201 33% 91% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(201 33% 91% / 0.00);

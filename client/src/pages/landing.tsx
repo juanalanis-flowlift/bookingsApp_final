@@ -5,6 +5,8 @@ import { useI18n, LanguageSwitcher } from "@/lib/i18n";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { MasonryGrid } from "@/components/MasonryGrid";
 import { PinCard } from "@/components/PinCard";
+import { Link } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
 
 import flowlift_logo_Btext_noBG from "@assets/flowlift_logo_Btext_noBG.png";
 
@@ -125,6 +127,7 @@ export default function Landing() {
   const { t } = useI18n();
   const [visibleItems, setVisibleItems] = useState(12);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isCompanyOpen, setIsCompanyOpen] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -283,20 +286,53 @@ export default function Landing() {
                 className="h-8 md:h-10 object-contain"
               />
             </a>
-            <nav className="hidden md:flex items-center gap-8 font-sans">
-              <a href="/about" className="text-base font-bold hover:underline">{t("nav.about")}</a>
-              <a href="/products" className="text-base font-bold hover:underline">{t("nav.products")}</a>
+            <nav className="hidden md:flex items-center gap-4 font-sans tracking-tight">
+              <div
+                className="relative"
+                onMouseEnter={() => setIsCompanyOpen(true)}
+                onMouseLeave={() => setIsCompanyOpen(false)}
+              >
+                <button className="px-4 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors flex items-center gap-1 group">
+                  {t("nav.company")}
+                  <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isCompanyOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                <AnimatePresence>
+                  {isCompanyOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute top-full left-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-[60]"
+                    >
+                      <Link href="/about" className="block px-4 py-2.5 rounded-xl hover:bg-gray-50 font-medium text-gray-600 hover:text-black transition-colors">
+                        {t("nav.aboutUs")}
+                      </Link>
+                      <Link href="/terms-and-conditions" className="block px-4 py-2.5 rounded-xl hover:bg-gray-50 font-medium text-gray-600 hover:text-black transition-colors">
+                        {t("nav.termsConditions")}
+                      </Link>
+                      <Link href="/privacy-policy" className="block px-4 py-2.5 rounded-xl hover:bg-gray-50 font-medium text-gray-600 hover:text-black transition-colors">
+                        {t("nav.privacyPolicy")}
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              <a href="/products" className="px-4 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors">{t("nav.products")}</a>
             </nav>
           </div>
 
           <div className="flex items-center gap-3">
+            <a href="/signin">
+              <Button variant="ghost" className="rounded-full px-6 font-semibold tracking-tight hover:bg-gray-100 transition-colors">
+                {t("landing.logIn")}
+              </Button>
+            </a>
+            <a href="/signup">
+              <Button className="rounded-full px-6 font-semibold tracking-tight">{t("landing.startFree")}</Button>
+            </a>
             <LanguageSwitcher minimal />
-            <a href="/signin">
-              <Button variant="ghost" className="font-bold">{t("landing.logIn")}</Button>
-            </a>
-            <a href="/signin">
-              <Button className="rounded-full px-6 font-bold">{t("landing.startFree")}</Button>
-            </a>
           </div>
         </div>
       </header>
@@ -304,7 +340,7 @@ export default function Landing() {
       {/* Hero Section - Masonry word carousel */}
       <section className="pt-24 pb-32">
         <div className="container mx-auto px-4 text-center mb-24 h-[280px] flex flex-col justify-center">
-          <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tight mb-8">
+          <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-[-0.04em] mb-8 leading-[1.1]">
             {t("landing.hero.fixedText")}<br />
             <span className={`transition-colors duration-500 ${currentCategory.color}`}>
               {currentCategory.phrase}
@@ -363,13 +399,13 @@ export default function Landing() {
             </div>
           </div>
           <div className="flex-1 text-center md:text-left space-y-8">
-            <h2 className="text-5xl md:text-7xl font-serif font-bold text-[#C32F00] leading-tight">
+            <h2 className="text-5xl md:text-7xl font-serif font-bold text-[#C32F00] leading-[1.05] tracking-[-0.03em]">
               {t("landing.features.title")}
             </h2>
-            <p className="text-2xl md:text-3xl text-[#C32F00] opacity-80 max-w-lg">
+            <p className="text-2xl md:text-3xl text-[#C32F00] font-medium tracking-tight opacity-80 max-w-lg">
               {t("landing.features.subtitle")}
             </p>
-            <a href="/signin" className="block pt-8">
+            <a href="/signup" className="block pt-8">
               <Button size="lg" className="rounded-full px-12 h-14 text-lg bg-[#C32F00] hover:bg-[#C32F00]/90 text-white font-bold">
                 {t("landing.startFree")}
               </Button>
@@ -382,13 +418,13 @@ export default function Landing() {
       <section className="py-32 bg-[#DAFFF6]">
         <div className="container mx-auto px-4 flex flex-col md:flex-row items-center gap-20">
           <div className="flex-1 space-y-8 text-center md:text-left text-[#006B6C]">
-            <h2 className="text-5xl md:text-7xl font-serif font-bold leading-tight">
+            <h2 className="text-5xl md:text-7xl font-serif font-bold leading-[1.05] tracking-[-0.03em]">
               {t("landing.features.availabilityControl")}
             </h2>
-            <p className="text-2xl md:text-3xl opacity-80 max-w-lg">
+            <p className="text-2xl md:text-3xl font-medium tracking-tight opacity-80 max-w-lg">
               {t("landing.features.availabilityControlDesc")}
             </p>
-            <a href="/signin" className="block pt-8">
+            <a href="/signup" className="block pt-8">
               <Button size="lg" className="rounded-full px-12 h-14 text-lg bg-[#006B6C] hover:bg-[#006B6C]/90 text-white font-bold">
                 {t("landing.startFree")}
               </Button>
@@ -410,10 +446,10 @@ export default function Landing() {
             <img src={classImg4} className="rounded-[60px] shadow-2xl w-full max-w-[500px] mx-auto aspect-square object-cover border-[12px] border-white" alt="" />
           </div>
           <div className="flex-1 text-center md:text-left space-y-8 text-[#C31952]">
-            <h2 className="text-5xl md:text-7xl font-serif font-bold leading-tight">
+            <h2 className="text-5xl md:text-7xl font-serif font-bold leading-[1.05] tracking-[-0.03em]">
               {t("landing.features.customerManagement")}
             </h2>
-            <p className="text-2xl md:text-3xl opacity-80 max-w-lg">
+            <p className="text-2xl md:text-3xl font-medium tracking-tight opacity-80 max-w-lg">
               {t("landing.features.customerManagementDesc")}
             </p>
             <a href="/signup" className="block pt-8">
@@ -511,12 +547,18 @@ export default function Landing() {
               <a href="/signin" className="text-xl font-bold hover:text-primary transition-colors">{t("landing.logIn")}</a>
             </nav>
             <div className="flex items-center gap-6">
-              <LanguageSwitcher minimal />
+              <LanguageSwitcher minimal dark />
             </div>
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center opacity-40 text-sm gap-4">
-            <p>&copy; 2026 flowlift. All rights reserved.</p>
-            <p>{t("app.tagline")}</p>
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+              <p>&copy; 2026 flowlift. All rights reserved.</p>
+              <nav className="flex gap-6">
+                <Link href="/privacy-policy" className="hover:text-white hover:opacity-100 transition-all underline-offset-4 hover:underline">{t("nav.privacyPolicy")}</Link>
+                <Link href="/terms-and-conditions" className="hover:text-white hover:opacity-100 transition-all underline-offset-4 hover:underline">{t("nav.termsConditions")}</Link>
+              </nav>
+            </div>
+            <p className="font-medium tracking-tight bg-white/5 px-3 py-1 rounded-full">{t("app.tagline")}</p>
           </div>
         </div>
       </footer>
